@@ -50,6 +50,7 @@ describe('/api/admin/entourage', () => {
     const response = await PUT(request, { params: { id: '2' } });
     expect(response.status).toBe(200);
     expect(updateMock).toHaveBeenCalledOnce();
+    expect(eqMock).toHaveBeenCalledWith('id', '2');
   });
 
   it('DELETE removes a member by id', async () => {
@@ -57,5 +58,6 @@ describe('/api/admin/entourage', () => {
     const response = await DELETE(request, { params: { id: '2' } });
     expect(response.status).toBe(200);
     expect(deleteMock).toHaveBeenCalledOnce();
+    expect(deleteEqMock).toHaveBeenCalledWith('id', '2');
   });
 });
