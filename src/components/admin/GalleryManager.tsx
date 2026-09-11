@@ -7,8 +7,10 @@ import { ImageUploader } from './ImageUploader';
 export function GalleryManager({ initial }: { initial: GalleryImage[] }) {
   const [images, setImages] = useState(initial);
   const [caption, setCaption] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   async function handleUploaded(url: string) {
+    setError(null);
     const response = await fetch('/api/admin/gallery', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -18,18 +20,24 @@ export function GalleryManager({ initial }: { initial: GalleryImage[] }) {
       const created = await response.json();
       setImages([...images, created]);
       setCaption('');
+    } else {
+      setError('Something went wrong. Please try again.');
     }
   }
 
   async function removeImage(id: string) {
+    setError(null);
     const response = await fetch(`/api/admin/gallery/${id}`, { method: 'DELETE' });
     if (response.ok) {
       setImages(images.filter((image) => image.id !== id));
+    } else {
+      setError('Something went wrong. Please try again.');
     }
   }
 
   return (
     <div className="flex w-full max-w-3xl flex-col gap-6 p-4 sm:p-6">
+      {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {images.map((image) => (
           <div key={image.id} className="relative">

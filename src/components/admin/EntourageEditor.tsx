@@ -9,9 +9,11 @@ const SIDES: NonNullable<EntourageSide>[] = ['bride', 'groom'];
 export function EntourageEditor({ initial }: { initial: EntourageMember[] }) {
   const [members, setMembers] = useState(initial);
   const [draft, setDraft] = useState({ category: 'parents' as EntourageCategory, role_label: '', name: '', side: null as EntourageSide, sort_order: initial.length });
+  const [error, setError] = useState<string | null>(null);
 
   async function addMember(event: React.FormEvent) {
     event.preventDefault();
+    setError(null);
     const response = await fetch('/api/admin/entourage', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -21,18 +23,24 @@ export function EntourageEditor({ initial }: { initial: EntourageMember[] }) {
       const created = await response.json();
       setMembers([...members, created]);
       setDraft({ category: 'parents', role_label: '', name: '', side: null, sort_order: members.length + 1 });
+    } else {
+      setError('Something went wrong. Please try again.');
     }
   }
 
   async function removeMember(id: string) {
+    setError(null);
     const response = await fetch(`/api/admin/entourage/${id}`, { method: 'DELETE' });
     if (response.ok) {
       setMembers(members.filter((m) => m.id !== id));
+    } else {
+      setError('Something went wrong. Please try again.');
     }
   }
 
   return (
     <div className="flex w-full max-w-3xl flex-col gap-6 p-4 sm:p-6">
+      {error && <p className="text-sm text-red-600">{error}</p>}
       <ul className="flex flex-col gap-2">
         {members.map((member) => (
           <li key={member.id} className="flex flex-col justify-between gap-2 rounded-md border border-black/10 p-3 sm:flex-row sm:items-center">
