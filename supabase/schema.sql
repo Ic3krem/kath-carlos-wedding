@@ -48,3 +48,9 @@ create table if not exists rsvps (
   message text,
   created_at timestamptz not null default now()
 );
+
+alter table settings enable row level security;
+alter table our_story enable row level security;
+alter table entourage_members enable row level security;
+alter table gallery_images enable row level security;
+alter table rsvps enable row level security;
