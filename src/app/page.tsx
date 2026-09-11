@@ -21,7 +21,16 @@ export default async function HomePage() {
     supabase.from('gallery_images').select('*').order('sort_order'),
   ]);
 
-  const resolvedSettings = settings as Settings;
+  const resolvedSettings = settings as Settings | null;
+  const resolvedStory = story as OurStoryData | null;
+
+  if (!resolvedSettings || !resolvedStory) {
+    return (
+      <main className="flex min-h-screen items-center justify-center p-8 text-center">
+        <p className="text-black/60">This site is still being set up. Please check back soon.</p>
+      </main>
+    );
+  }
 
   return (
     <div data-theme={resolvedSettings.theme}>
@@ -29,7 +38,7 @@ export default async function HomePage() {
         <main className="flex w-full flex-col items-center">
           <Hero settings={resolvedSettings} />
           <Countdown weddingDate={resolvedSettings.wedding_date} />
-          <OurStory story={story as OurStoryData} />
+          <OurStory story={resolvedStory} />
           <Gallery images={(gallery as GalleryImage[]) ?? []} />
           <Entourage members={(entourage as EntourageMember[]) ?? []} />
           <MapEmbed address={resolvedSettings.maps_address} embedUrl={resolvedSettings.maps_embed_url} />
