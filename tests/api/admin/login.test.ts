@@ -36,4 +36,17 @@ describe('POST /api/admin/login', () => {
     expect(response.status).toBe(200);
     expect(response.cookies.get('admin_session')).toBeDefined();
   });
+
+  it('returns a generic 500 instead of throwing when ADMIN_PASSWORD_HASH is unset', async () => {
+    delete process.env.ADMIN_PASSWORD_HASH;
+    const request = new NextRequest('http://localhost/api/admin/login', {
+      method: 'POST',
+      body: JSON.stringify({ password: 'correct-horse' }),
+    });
+    const response = await login(request);
+    expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.error).not.toMatch(/Missing ADMIN_PASSWORD_HASH/);
+    expect(body).toEqual({ error: 'Login is not available right now' });
+  });
 });

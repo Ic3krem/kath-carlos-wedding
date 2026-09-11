@@ -10,7 +10,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Password is required' }, { status: 400 });
   }
 
-  const valid = await verifyAdminPassword(password);
+  let valid: boolean;
+  try {
+    valid = await verifyAdminPassword(password);
+  } catch {
+    return NextResponse.json({ error: 'Login is not available right now' }, { status: 500 });
+  }
   if (!valid) {
     return NextResponse.json({ error: 'Incorrect password' }, { status: 401 });
   }
