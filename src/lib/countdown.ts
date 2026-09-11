@@ -10,7 +10,19 @@ export interface CountdownParts {
 
 function addMonths(date: Date, months: number): Date {
   const result = new Date(date.getTime());
+  const originalDay = result.getUTCDate();
+
+  // Move to day 1 first so setUTCMonth cannot roll over into a later month
+  // when the target month is shorter than the current day-of-month.
+  result.setUTCDate(1);
   result.setUTCMonth(result.getUTCMonth() + months);
+
+  const daysInTargetMonth = new Date(
+    Date.UTC(result.getUTCFullYear(), result.getUTCMonth() + 1, 0),
+  ).getUTCDate();
+
+  result.setUTCDate(Math.min(originalDay, daysInTargetMonth));
+
   return result;
 }
 
@@ -19,12 +31,15 @@ export function getCountdownParts(target: Date, now: Date = new Date()): Countdo
     return { months: 0, weeks: 0, days: 0, hours: 0, minutes: 0, seconds: 0, isPast: true };
   }
 
+  // Always compute the candidate month boundary from the original `now`
+  // (not from a previously-clamped cursor) so clamping a short month (e.g.
+  // Jan 31 -> Feb 28) doesn't permanently lose the original day-of-month
+  // and cause drift in subsequent months.
   let months = 0;
-  let cursor = new Date(now.getTime());
-  while (addMonths(cursor, 1).getTime() <= target.getTime()) {
-    cursor = addMonths(cursor, 1);
+  while (addMonths(now, months + 1).getTime() <= target.getTime()) {
     months += 1;
   }
+  const cursor = addMonths(now, months);
 
   let remainingSeconds = Math.floor((target.getTime() - cursor.getTime()) / 1000);
 

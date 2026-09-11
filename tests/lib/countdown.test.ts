@@ -29,4 +29,11 @@ describe('getCountdownParts', () => {
     const result = getCountdownParts(target, now);
     expect(result).toEqual({ months: 1, weeks: 2, days: 1, hours: 0, minutes: 0, seconds: 0, isPast: false });
   });
+
+  it('clamps month-end overflow instead of rolling into the next month', () => {
+    const now = new Date('2026-01-31T00:00:00Z');
+    const target = new Date('2026-03-31T00:00:00Z');
+    const result = getCountdownParts(target, now);
+    expect(result).toEqual({ months: 2, weeks: 0, days: 0, hours: 0, minutes: 0, seconds: 0, isPast: false });
+  });
 });
