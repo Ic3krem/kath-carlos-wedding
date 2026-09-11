@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #2f4f3a;
+  --color-secondary: #f5f1e6;
+  --color-accent: #c9a24b;
+}
+
+html, body {
+  @apply bg-white text-black;
+}
