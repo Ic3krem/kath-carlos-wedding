@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { Settings } from '@/lib/types';
 import { THEMES } from '@/lib/theme';
+import { toLocalDatetimeInputValue } from '@/lib/date-utils';
 import { ImageUploader } from './ImageUploader';
 
 export function SettingsForm({ initial }: { initial: Settings }) {
@@ -35,7 +36,7 @@ export function SettingsForm({ initial }: { initial: Settings }) {
         <input
           type="datetime-local"
           className="rounded-md border border-black/20 px-3 py-2"
-          value={form.wedding_date.slice(0, 16)}
+          value={toLocalDatetimeInputValue(form.wedding_date)}
           onChange={(e) => setForm({ ...form, wedding_date: new Date(e.target.value).toISOString() })}
         />
       </div>
