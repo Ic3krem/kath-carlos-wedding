@@ -21,11 +21,11 @@ export function Entourage({ members }: { members: EntourageMember[] }) {
 
   return (
     <section className="flex w-full flex-col items-center gap-10 px-4 py-16 sm:px-8 lg:px-16">
-      <h2 className="font-serif text-5xl sm:text-6xl lg:text-7xl">Entourage</h2>
+      <h2 className="font-serif text-5xl text-primary sm:text-6xl lg:text-7xl">Entourage</h2>
       <div className="grid w-full max-w-5xl grid-cols-1 gap-10 sm:grid-cols-3">
         {(Object.keys(CATEGORY_LABELS) as EntourageCategory[]).map((category) => (
           <div key={category} className="flex flex-col items-center gap-3 text-center">
-            <h3 className="text-xl font-semibold">{CATEGORY_LABELS[category]}</h3>
+            <h3 className="text-xl font-semibold text-accent">{CATEGORY_LABELS[category]}</h3>
             <ul className="flex flex-col gap-1 text-black/70">
               {grouped[category].map((member) => (
                 <li key={member.id}>
