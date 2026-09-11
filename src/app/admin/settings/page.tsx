@@ -7,9 +7,18 @@ export const dynamic = 'force-dynamic';
 export default async function AdminSettingsPage() {
   const supabase = getSupabaseServerClient();
   const { data } = await supabase.from('settings').select('*').eq('id', 1).single<Settings>();
+
+  if (!data) {
+    return (
+      <main className="flex justify-center p-8 text-center">
+        <p className="text-black/60">Settings row not found — check your database setup.</p>
+      </main>
+    );
+  }
+
   return (
     <main className="flex justify-center">
-      <SettingsForm initial={data as Settings} />
+      <SettingsForm initial={data} />
     </main>
   );
 }
