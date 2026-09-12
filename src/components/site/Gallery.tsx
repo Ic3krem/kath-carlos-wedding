@@ -14,11 +14,27 @@ function seeded(id: string, salt: number) {
   return (hash % 1000) / 1000; // 0..1
 }
 
-function scatterStyle(image: GalleryImage): React.CSSProperties {
-  const x = Math.round((seeded(image.id, 7) - 0.5) * 90);
-  const y = Math.round((seeded(image.id, 13) - 0.5) * 60);
-  const rot = Math.round((seeded(image.id, 29) - 0.5) * 40);
-  return { transform: `translate(${x}px, ${y}px) rotateZ(${rot}deg)` };
+const GRID_GAP = '1.5rem';
+
+/**
+ * Before the settle, every card is pulled back to the middle of the grid so
+ * they sit in one rotated pile, then each animates out to its own slot.
+ * Offsets are expressed against the card's own size, so they hold at any width.
+ */
+function pileStyle(image: GalleryImage, index: number, columns: number, total: number): React.CSSProperties {
+  const rows = Math.ceil(total / columns);
+  const col = index % columns;
+  const row = Math.floor(index / columns);
+  const dx = (columns - 1) / 2 - col;
+  const dy = (rows - 1) / 2 - row;
+  const rot = Math.round((seeded(image.id, 29) - 0.5) * 36);
+  const jitterX = Math.round((seeded(image.id, 7) - 0.5) * 28);
+  const jitterY = Math.round((seeded(image.id, 13) - 0.5) * 22);
+
+  return {
+    transform: `translate(calc(${dx} * (100% + ${GRID_GAP}) + ${jitterX}px), calc(${dy} * (100% + ${GRID_GAP}) + ${jitterY}px)) rotateZ(${rot}deg)`,
+    zIndex: Math.round(seeded(image.id, 53) * 10),
+  };
 }
 
 function Postcard({
@@ -73,6 +89,7 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
 
   const preview = useMemo(() => images.slice(0, previewCount), [images, previewCount]);
   const hasMore = images.length > previewCount;
+  const columns = previewCount === PREVIEW_MOBILE ? 2 : 3;
 
   const close = useCallback(() => setLightboxIndex(null), []);
   const step = useCallback(
@@ -108,15 +125,16 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
     <section id="gallery" className="flex w-full flex-col items-center gap-8 px-4 py-10 sm:px-8 sm:py-12 lg:px-16">
       <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">View more of us</h2>
 
-      <div
-        ref={gridRef}
-        className="grid w-full max-w-4xl grid-cols-2 gap-6 sm:gap-8 md:grid-cols-3"
-      >
-        {preview.map((image) => (
+      <div ref={gridRef} className="grid w-full max-w-4xl grid-cols-2 md:grid-cols-3" style={{ gap: GRID_GAP }}>
+        {preview.map((image, index) => (
           <Postcard
             key={image.id}
             image={image}
-            style={organized ? { transform: 'none' } : scatterStyle(image)}
+            style={
+              organized
+                ? { transform: 'none', transitionDelay: `${index * 70}ms` }
+                : pileStyle(image, index, columns, preview.length)
+            }
             onClick={() => setLightboxIndex(images.indexOf(image))}
           />
         ))}
