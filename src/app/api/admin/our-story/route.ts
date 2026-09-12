@@ -20,8 +20,10 @@ export async function PUT(request: NextRequest) {
     .from('our_story')
     .update({
       image_url: body.image_url,
+      image_url_2: body.image_url_2 ?? null,
       title: body.title,
       excerpt: body.excerpt,
+      excerpt_2: body.excerpt_2 ?? '',
       full_story: body.full_story,
       button_label: body.button_label,
     })

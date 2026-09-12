@@ -12,18 +12,23 @@ import { Theme } from '@/components/site/Theme';
 import { GiftGuide } from '@/components/site/GiftGuide';
 import { Rsvp } from '@/components/site/Rsvp';
 import { Footer } from '@/components/site/Footer';
+import { getContacts, getGiftContent, getThemeContent } from '@/lib/content';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   const supabase = getSupabaseServerClient();
 
-  const [{ data: settings }, { data: story }, { data: entourage }, { data: gallery }] = await Promise.all([
-    supabase.from('settings').select('*').eq('id', 1).single<Settings>(),
-    supabase.from('our_story').select('*').eq('id', 1).single<OurStoryData>(),
-    supabase.from('entourage_members').select('*').order('sort_order'),
-    supabase.from('gallery_images').select('*').order('sort_order'),
-  ]);
+  const [{ data: settings }, { data: story }, { data: entourage }, { data: gallery }, theme, gifts, contacts] =
+    await Promise.all([
+      supabase.from('settings').select('*').eq('id', 1).single<Settings>(),
+      supabase.from('our_story').select('*').eq('id', 1).single<OurStoryData>(),
+      supabase.from('entourage_members').select('*').order('sort_order'),
+      supabase.from('gallery_images').select('*').order('sort_order'),
+      getThemeContent(),
+      getGiftContent(),
+      getContacts(),
+    ]);
 
   const resolvedSettings = settings as Settings | null;
   const resolvedStory = story as OurStoryData | null;
@@ -45,11 +50,11 @@ export default async function HomePage() {
           <OurStory story={resolvedStory} />
           <Gallery images={(gallery as GalleryImage[]) ?? []} />
           <Entourage members={(entourage as EntourageMember[]) ?? []} />
-          <Theme />
+          <Theme details={theme.details} colors={theme.colors} />
           <MapEmbed address={resolvedSettings.maps_address} embedUrl={resolvedSettings.maps_embed_url} />
-          <GiftGuide />
+          <GiftGuide intro={gifts.intro} options={gifts.options} />
           <Rsvp weddingDate={resolvedSettings.wedding_date} />
-          <Footer settings={resolvedSettings} />
+          <Footer settings={resolvedSettings} contacts={contacts} />
         </main>
         <RsvpModal />
       </RsvpModalProvider>

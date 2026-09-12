@@ -11,8 +11,10 @@ export interface Settings {
 export interface OurStory {
   id: number;
   image_url: string | null;
+  image_url_2: string | null;
   title: string;
   excerpt: string;
+  excerpt_2: string;
   full_story: string;
   button_label: string;
 }
@@ -29,10 +31,51 @@ export interface EntourageMember {
   sort_order: number;
 }
 
+export type GalleryShape = 'square' | 'tall' | 'wide' | null;
+
 export interface GalleryImage {
   id: string;
   image_url: string;
   caption: string | null;
+  sort_order: number;
+  shape?: GalleryShape;
+}
+
+export interface ThemeDetails {
+  id: number;
+  headline: string;
+  note: string;
+  ladies_detail: string;
+  gentlemen_detail: string;
+}
+
+export interface ThemeColor {
+  id: string;
+  name: string;
+  hex: string;
+  sort_order: number;
+}
+
+export interface GiftGuideIntro {
+  id: number;
+  intro: string;
+}
+
+export interface GiftOption {
+  id: string;
+  title: string;
+  detail: string;
+  /** newline-separated */
+  lines: string;
+  sort_order: number;
+}
+
+export interface Contact {
+  id: string;
+  role: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
   sort_order: number;
 }
 

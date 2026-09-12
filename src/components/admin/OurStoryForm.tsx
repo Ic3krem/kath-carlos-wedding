@@ -21,15 +21,33 @@ export function OurStoryForm({ initial }: { initial: OurStory }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex w-full max-w-2xl flex-col gap-6 p-4 sm:p-6">
-      <ImageUploader label="Story image" value={form.image_url} onUploaded={(url) => setForm({ ...form, image_url: url })} />
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium">Title</label>
         <input className="rounded-md border border-black/20 px-3 py-2" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
       </div>
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">Excerpt (shown on the page)</label>
-        <textarea className="min-h-24 rounded-md border border-black/20 px-3 py-2" value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} />
-      </div>
+
+      <fieldset className="flex flex-col gap-4 rounded-md border border-black/10 p-4">
+        <legend className="px-1 text-sm font-semibold">First block (image left, text right)</legend>
+        <ImageUploader label="Image 1" value={form.image_url} onUploaded={(url) => setForm({ ...form, image_url: url })} />
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Paragraph 1</label>
+          <textarea className="min-h-24 rounded-md border border-black/20 px-3 py-2" value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} />
+        </div>
+      </fieldset>
+
+      <fieldset className="flex flex-col gap-4 rounded-md border border-black/10 p-4">
+        <legend className="px-1 text-sm font-semibold">Second block (text left, image right — image hidden on mobile)</legend>
+        <ImageUploader label="Image 2" value={form.image_url_2} onUploaded={(url) => setForm({ ...form, image_url_2: url })} />
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Paragraph 2</label>
+          <textarea
+            className="min-h-24 rounded-md border border-black/20 px-3 py-2"
+            value={form.excerpt_2 ?? ''}
+            onChange={(e) => setForm({ ...form, excerpt_2: e.target.value })}
+          />
+          <p className="text-xs text-black/50">Leave empty to show only the first block.</p>
+        </div>
+      </fieldset>
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium">Full story (shown in the modal)</label>
         <textarea className="min-h-48 rounded-md border border-black/20 px-3 py-2" value={form.full_story} onChange={(e) => setForm({ ...form, full_story: e.target.value })} />
