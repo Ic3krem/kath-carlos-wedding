@@ -15,7 +15,7 @@ export function Countdown({ weddingDate }: { weddingDate: string }) {
   }, [weddingDate]);
 
   return (
-    <section className="flex w-full flex-col items-center gap-5 bg-primary py-10 text-white">
+    <section className="flex w-full flex-col items-center gap-5 bg-black py-10 text-white">
       <h2 className="text-2xl font-semibold tracking-wide sm:text-3xl">
         {parts.isPast ? 'WE ARE MARRIED!' : 'LIVE COUNTDOWN'}
       </h2>
@@ -23,7 +23,7 @@ export function Countdown({ weddingDate }: { weddingDate: string }) {
         <div className="grid w-full max-w-4xl grid-cols-3 gap-4 px-4 text-center sm:grid-cols-6">
           {UNITS.map((unit) => (
             <div key={unit} className="flex flex-col items-center">
-              <span className="text-3xl font-semibold text-accent sm:text-4xl lg:text-5xl">
+              <span className="text-3xl font-semibold text-white sm:text-4xl lg:text-5xl">
                 {String(parts[unit]).padStart(2, '0')}
               </span>
               <span className="text-xs capitalize text-white/70 sm:text-sm">{unit}</span>

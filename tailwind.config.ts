@@ -9,6 +9,9 @@ const config: Config = {
         secondary: 'var(--color-secondary)',
         accent: 'var(--color-accent)',
       },
+      fontFamily: {
+        script: ['var(--font-script)', 'cursive'],
+      },
     },
   },
   plugins: [],

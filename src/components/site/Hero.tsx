@@ -9,11 +9,11 @@ export function Hero({ settings }: { settings: Settings }) {
     >
       <div className="absolute inset-0 bg-black/30" />
       <div className="relative flex flex-col items-center gap-6">
-        <h1 className="font-serif text-5xl text-white drop-shadow-lg sm:text-7xl lg:text-8xl">
+        <h1 className="font-script text-5xl text-white drop-shadow-lg sm:text-7xl lg:text-8xl">
           {settings.couple_names}
         </h1>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <a href="#our-story" className="rounded-lg bg-primary px-6 py-3 font-semibold text-white">
+          <a href="#our-story" className="rounded-lg bg-white px-6 py-3 font-semibold text-black">
             Get Started
           </a>
           <RsvpTrigger />

@@ -1,7 +1,14 @@
 import type { Metadata } from 'next';
+import { Marck_Script } from 'next/font/google';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type { Settings } from '@/lib/types';
 import './globals.css';
+
+const marckScript = Marck_Script({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-script',
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   let coupleNames = 'Our Wedding';
@@ -24,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={marckScript.variable}>
       <body>{children}</body>
     </html>
   );
