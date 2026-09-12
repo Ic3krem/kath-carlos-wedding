@@ -9,7 +9,7 @@ export function GiftGuide({ intro, options }: GiftGuideProps) {
   if (options.length === 0 && !intro) return null;
 
   return (
-    <section id="gift-guide" className="flex w-full flex-col items-center gap-10 px-4 py-16 sm:px-8 lg:px-16">
+    <section id="gift-guide" className="flex w-full flex-col items-center gap-10 px-4 py-10 sm:px-8 sm:py-12 lg:px-16">
       <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">Gift Guide</h2>
       {intro && <p className="max-w-2xl text-center text-black/55">{intro}</p>}
 

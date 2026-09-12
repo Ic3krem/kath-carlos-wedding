@@ -27,7 +27,7 @@ export function Countdown({ weddingDate }: { weddingDate: string }) {
       className="flex w-full flex-col items-center justify-center gap-4 overflow-hidden bg-black sm:gap-5"
       style={{ fontFamily: poppins.style.fontFamily }}
     >
-      <div className="flex w-full items-center justify-center px-4 pt-8 sm:pt-9">
+      <div className="flex w-full items-center justify-center px-4 pt-16 sm:pt-20 lg:pt-24">
         <h2 className="text-center text-xl font-semibold uppercase text-white sm:text-2xl md:text-3xl lg:text-[40px]">
           {parts.isPast ? 'WE ARE MARRIED!' : 'LIVE COUNTDOWN'}
         </h2>

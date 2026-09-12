@@ -57,7 +57,7 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
   const active = lightboxIndex === null ? null : images[lightboxIndex];
 
   return (
-    <section id="gallery" className="flex w-full flex-col items-center gap-8 px-4 py-16 sm:px-8 lg:px-16">
+    <section id="gallery" className="flex w-full flex-col items-center gap-8 px-4 py-10 sm:px-8 sm:py-12 lg:px-16">
       <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">View more of us</h2>
 
       <div className="grid w-full max-w-5xl auto-rows-[110px] grid-flow-dense grid-cols-2 gap-2 sm:auto-rows-[140px] sm:grid-cols-3 sm:gap-3 lg:auto-rows-[160px] lg:grid-cols-4">

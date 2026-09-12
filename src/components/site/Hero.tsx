@@ -22,7 +22,7 @@ function FrameLayer({ name, className }: { name: string; className?: string }) {
 export function Hero({ settings }: { settings: Settings }) {
   return (
     <div className="w-full overflow-hidden bg-black">
-      <div className="relative h-[568px] w-full overflow-hidden md:h-[661px] lg:h-[790px]">
+      <div className="relative h-[470px] w-full overflow-hidden md:h-[560px] lg:h-[680px]">
         {/* Layer frame — every design layer lives in this one container */}
         <div className="absolute inset-0">
           {settings.hero_image_url && (

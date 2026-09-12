@@ -21,7 +21,7 @@ export function OurStory({ story }: { story: OurStoryData }) {
   const secondText = story.excerpt_2?.trim() ? story.excerpt_2 : null;
 
   return (
-    <section id="our-story" className="flex w-full flex-col items-center gap-10 px-4 py-16 sm:px-8 lg:gap-16 lg:px-16">
+    <section id="our-story" className="flex w-full flex-col items-center gap-10 px-4 py-10 sm:px-8 sm:py-12 lg:gap-16 lg:px-16">
       <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">Our Story</h2>
 
       <div className="flex w-full max-w-5xl flex-col gap-10 lg:gap-16">
