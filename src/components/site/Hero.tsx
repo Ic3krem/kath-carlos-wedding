@@ -47,6 +47,14 @@ export function Hero({ settings }: { settings: Settings }) {
 
           {/* Layer 0 — couple frame, in front of the title */}
           <FrameLayer name="couple" />
+
+          {/* Transition — dissolves the foot of the hero into the black countdown */}
+          <div
+            className="absolute bottom-0 left-0 h-32 w-full sm:h-40 lg:h-48"
+            style={{
+              background: 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.55) 57%, #000000 100%)',
+            }}
+          />
         </div>
 
         <div
@@ -63,14 +71,6 @@ export function Hero({ settings }: { settings: Settings }) {
         </div>
       </div>
 
-      {/* Transition band between the hero frame and the countdown */}
-      <div
-        className="h-24 w-full sm:h-28 lg:h-32"
-        style={{
-          background:
-            'linear-gradient(180deg, #D9D9D9 0%, rgba(158.64, 158.64, 158.64, 0.17) 57%, rgba(115, 115, 115, 0) 100%)',
-        }}
-      />
     </div>
   );
 }
