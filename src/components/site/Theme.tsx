@@ -12,7 +12,7 @@ export function Theme({ details, colors }: ThemeProps) {
   ].filter((guest) => guest.detail);
 
   return (
-    <section id="theme" className="flex w-full flex-col items-center gap-10 px-4 py-10 sm:px-8 sm:py-12 lg:px-16">
+    <section id="theme" className="flex w-full flex-col items-center gap-6 px-4 py-5 sm:px-8 sm:py-7 lg:px-16">
       <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">Theme</h2>
 
       <div className="flex w-full max-w-3xl flex-col items-center gap-3 text-center">
