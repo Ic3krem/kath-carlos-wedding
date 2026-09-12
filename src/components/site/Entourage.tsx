@@ -22,7 +22,7 @@ export function Entourage({ members }: { members: EntourageMember[] }) {
   return (
     <section className="flex w-full flex-col items-center gap-6 px-1.5 py-5 sm:px-3 sm:py-7 lg:px-6">
       <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">Entourage</h2>
-      <div className="grid w-full max-w-5xl grid-cols-1 gap-10 sm:grid-cols-3">
+      <div className="grid w-full max-w-[1550px] grid-cols-1 gap-10 sm:grid-cols-3">
         {(Object.keys(CATEGORY_LABELS) as EntourageCategory[]).map((category) => (
           <div key={category} className="flex flex-col items-center gap-3 text-center">
             <h3 className="text-xl font-semibold text-accent">{CATEGORY_LABELS[category]}</h3>

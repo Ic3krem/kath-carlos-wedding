@@ -125,7 +125,7 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
     <section id="gallery" className="flex w-full flex-col items-center gap-6 px-1.5 py-5 sm:px-3 sm:py-7 lg:px-6">
       <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">View more of us</h2>
 
-      <div ref={gridRef} className="grid w-full max-w-4xl grid-cols-2 md:grid-cols-3" style={{ gap: GRID_GAP }}>
+      <div ref={gridRef} className="grid w-full max-w-[1550px] grid-cols-2 md:grid-cols-3" style={{ gap: GRID_GAP }}>
         {preview.map((image, index) => (
           <Postcard
             key={image.id}

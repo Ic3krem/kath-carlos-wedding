@@ -13,7 +13,7 @@ export function GiftGuide({ intro, options }: GiftGuideProps) {
       <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">Gift Guide</h2>
       {intro && <p className="max-w-2xl text-center text-black/55">{intro}</p>}
 
-      <div className="grid w-full max-w-5xl grid-cols-1 gap-6 sm:grid-cols-3">
+      <div className="grid w-full max-w-[1550px] grid-cols-1 gap-6 sm:grid-cols-3">
         {options.map((option) => (
           <div
             key={option.title}

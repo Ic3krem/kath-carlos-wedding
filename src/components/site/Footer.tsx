@@ -10,7 +10,7 @@ export function Footer({ settings, contacts }: FooterProps) {
 
   return (
     <footer className="w-full bg-black px-1.5 py-12 text-white sm:px-3 lg:px-6">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
+      <div className="mx-auto flex w-full max-w-[1550px] flex-col gap-10">
         <div className="flex flex-col items-center gap-2 text-center">
           <h2 className="font-script text-4xl sm:text-5xl">{settings.couple_names}</h2>
           {settings.maps_address && <p className="max-w-xl text-sm text-white/60">{settings.maps_address}</p>}

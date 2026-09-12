@@ -24,7 +24,7 @@ export function OurStory({ story }: { story: OurStoryData }) {
     <section id="our-story" className="flex w-full flex-col items-center gap-6 px-4 py-5 sm:px-8 sm:py-7 lg:gap-10 lg:px-16">
       <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">Our Story</h2>
 
-      <div className="flex w-full max-w-5xl flex-col gap-10 lg:gap-16">
+      <div className="flex w-full max-w-[1550px] flex-col gap-10 lg:gap-16">
         {/* Row 1 — image left, text right */}
         <div className="flex flex-col items-center gap-6 lg:flex-row lg:gap-14">
           {story.image_url && (
