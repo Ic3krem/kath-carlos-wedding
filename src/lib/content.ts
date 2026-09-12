@@ -1,5 +1,25 @@
+import { cache } from 'react';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
-import type { Contact, GiftOption, ThemeColor, ThemeDetails } from '@/lib/types';
+import type { Contact, GiftOption, Settings, ThemeColor, ThemeDetails } from '@/lib/types';
+
+/**
+ * The settings row is needed by both generateMetadata and the page body. The
+ * Supabase client deliberately runs with cache: 'no-store', so Next's fetch
+ * dedup does not apply — React.cache() dedups it within a single request
+ * instead, turning two round trips into one.
+ */
+export const getSettings = cache(async (): Promise<Settings | null> => {
+  try {
+    const { data, error } = await getSupabaseServerClient()
+      .from('settings')
+      .select('*')
+      .eq('id', 1)
+      .single<Settings>();
+    return error ? null : data;
+  } catch {
+    return null;
+  }
+});
 
 // These sections became database-driven in migration 002. Until that migration
 // is applied the tables don't exist, so every read falls back to the design's

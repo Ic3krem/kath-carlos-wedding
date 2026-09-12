@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GalleryImage } from '@/lib/types';
+import { useFocusTrap } from '@/lib/use-focus-trap';
 
 const PREVIEW_DESKTOP = 6;
 const PREVIEW_MOBILE = 4;
@@ -62,6 +63,12 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
   const [showAll, setShowAll] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const showAllPanelRef = useRef<HTMLDivElement>(null);
+  const lightboxPanelRef = useRef<HTMLDivElement>(null);
+  // Disable the "see more" grid's trap while the lightbox is open on top of it,
+  // so the two don't fight over Tab handling; the lightbox's own trap takes over.
+  useFocusTrap(showAll && lightboxIndex === null, showAllPanelRef);
+  useFocusTrap(lightboxIndex !== null, lightboxPanelRef);
 
   useEffect(() => {
     const apply = () => setPreviewCount(window.innerWidth < MOBILE_MAX_WIDTH ? PREVIEW_MOBILE : PREVIEW_DESKTOP);
@@ -135,7 +142,7 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
                 ? { transform: 'none', transitionDelay: `${index * 70}ms` }
                 : pileStyle(image, index, columns, preview.length)
             }
-            onClick={() => setLightboxIndex(images.indexOf(image))}
+            onClick={() => setLightboxIndex(index)}
           />
         ))}
       </div>
@@ -152,6 +159,8 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
       {/* All photos, framed like the gallery postcards */}
       {showAll && (
         <div
+          ref={showAllPanelRef}
+          tabIndex={-1}
           className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4"
           onClick={() => setShowAll(false)}
           role="dialog"
@@ -164,13 +173,17 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
           >
             <div className="mb-5 flex items-center justify-between">
               <h3 className="font-script text-3xl text-black sm:text-4xl">View more of us</h3>
-              <button onClick={() => setShowAll(false)} className="text-3xl leading-none text-black/50 hover:text-black" aria-label="Close">
+              <button
+                onClick={() => setShowAll(false)}
+                className="flex h-11 w-11 items-center justify-center text-3xl leading-none text-black/50 hover:text-black"
+                aria-label="Close"
+              >
                 &times;
               </button>
             </div>
             <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 sm:gap-6">
-              {images.map((image) => (
-                <Postcard key={image.id} image={image} onClick={() => setLightboxIndex(images.indexOf(image))} />
+              {images.map((image, index) => (
+                <Postcard key={image.id} image={image} onClick={() => setLightboxIndex(index)} />
               ))}
             </div>
           </div>
@@ -179,12 +192,18 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
 
       {active && (
         <div
+          ref={lightboxPanelRef}
+          tabIndex={-1}
           className="fixed inset-0 z-50 flex items-center justify-center overscroll-contain bg-black/90 p-4"
           onClick={close}
           role="dialog"
           aria-modal="true"
         >
-          <button onClick={close} className="absolute right-4 top-4 text-3xl leading-none text-white" aria-label="Close">
+          <button
+            onClick={close}
+            className="absolute right-2 top-2 flex h-11 w-11 items-center justify-center text-3xl leading-none text-white sm:right-4 sm:top-4"
+            aria-label="Close"
+          >
             &times;
           </button>
           <button
@@ -192,7 +211,7 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
               e.stopPropagation();
               step(-1);
             }}
-            className="absolute left-2 text-4xl leading-none text-white/70 hover:text-white sm:left-6"
+            className="absolute left-1 flex h-11 w-11 items-center justify-center text-4xl leading-none text-white/70 hover:text-white sm:left-4"
             aria-label="Previous photo"
           >
             &#8249;
@@ -218,7 +237,7 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
               e.stopPropagation();
               step(1);
             }}
-            className="absolute right-2 text-4xl leading-none text-white/70 hover:text-white sm:right-6"
+            className="absolute right-1 flex h-11 w-11 items-center justify-center text-4xl leading-none text-white/70 hover:text-white sm:right-4"
             aria-label="Next photo"
           >
             &#8250;

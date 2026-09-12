@@ -74,7 +74,7 @@ export function Hero({ settings }: { settings: Settings }) {
         >
           <a
             href="#our-story"
-            className="flex h-[26px] w-[116px] items-center justify-center whitespace-nowrap rounded-[8.78px] bg-white text-[9.4px] font-semibold uppercase text-[#170E01] md:h-[32px] md:w-[143px] md:text-[11.6px] lg:h-[51.87px] lg:w-[237px] lg:text-[19.15px]"
+            className="relative flex h-[26px] w-[116px] items-center justify-center whitespace-nowrap rounded-[8.78px] bg-white text-[9.4px] font-semibold uppercase text-[#170E01] before:absolute before:-inset-y-[9px] before:inset-x-0 before:content-[''] md:h-[32px] md:w-[143px] md:text-[11.6px] md:before:-inset-y-[6px] lg:h-[51.87px] lg:w-[237px] lg:text-[19.15px] lg:before:inset-0"
           >
             Get Started
           </a>

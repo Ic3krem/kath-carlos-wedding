@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRsvpModal } from '@/lib/rsvp-modal-context';
+import { useFocusTrap } from '@/lib/use-focus-trap';
 
 const initialForm = {
   name: '',
@@ -17,6 +18,8 @@ export function RsvpModal() {
   const { open, closeModal } = useRsvpModal();
   const [form, setForm] = useState(initialForm);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const panelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(open, panelRef);
 
   useEffect(() => {
     if (!open) return;
@@ -49,10 +52,18 @@ export function RsvpModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" role="dialog" aria-modal="true">
-      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto overscroll-contain rounded-lg bg-secondary p-6">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto overscroll-contain rounded-lg bg-secondary p-6"
+      >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-primary">RSVP</h2>
-          <button onClick={handleClose} aria-label="Close" className="text-2xl leading-none">
+          <button
+            onClick={handleClose}
+            aria-label="Close"
+            className="flex h-11 w-11 items-center justify-center text-2xl leading-none"
+          >
             &times;
           </button>
         </div>

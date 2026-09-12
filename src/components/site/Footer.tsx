@@ -23,7 +23,7 @@ export function Footer({ settings, contacts }: FooterProps) {
                 key={`${contact.role}-${contact.name}`}
                 className="flex flex-col items-center gap-1 text-center sm:items-start sm:text-left"
               >
-                <span className="text-xs uppercase tracking-wide text-white/50">{contact.role}</span>
+                <span className="text-xs uppercase tracking-wide text-white/60">{contact.role}</span>
                 <span className="font-semibold">{contact.name}</span>
                 {contact.phone && (
                   <a href={`tel:${contact.phone.replace(/\s/g, '')}`} className="text-sm text-white/70 hover:text-white">
@@ -40,7 +40,7 @@ export function Footer({ settings, contacts }: FooterProps) {
           </div>
         )}
 
-        <p className="border-t border-white/10 pt-6 text-center text-xs text-white/40">
+        <p className="border-t border-white/10 pt-6 text-center text-xs text-white/55">
           {settings.couple_names} — {year}
         </p>
       </div>

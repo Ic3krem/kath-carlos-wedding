@@ -43,7 +43,7 @@ export function SettingsForm({ initial }: { initial: Settings }) {
       <ImageUploader
         label="Hero background image"
         value={form.hero_image_url}
-        onUploaded={(url) => setForm({ ...form, hero_image_url: url })}
+        onUploaded={(url) => setForm((curr) => ({ ...curr, hero_image_url: url }))}
       />
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium">Theme</label>

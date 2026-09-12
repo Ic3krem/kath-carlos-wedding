@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { useFocusTrap } from '@/lib/use-focus-trap';
 
 interface StoryModalProps {
   open: boolean;
@@ -10,6 +11,9 @@ interface StoryModalProps {
 }
 
 export function StoryModal({ open, title, fullStory, onClose }: StoryModalProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(open, panelRef);
+
   useEffect(() => {
     if (!open) return;
     function onKey(event: KeyboardEvent) {
@@ -22,10 +26,18 @@ export function StoryModal({ open, title, fullStory, onClose }: StoryModalProps)
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" role="dialog" aria-modal="true">
-      <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto overscroll-contain rounded-lg bg-secondary p-6 sm:p-8">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto overscroll-contain rounded-lg bg-secondary p-6 sm:p-8"
+      >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-serif text-3xl text-primary sm:text-4xl">{title}</h2>
-          <button onClick={onClose} aria-label="Close" className="text-2xl leading-none">
+          <h2 className="font-script text-3xl text-black sm:text-4xl">{title}</h2>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="flex h-11 w-11 items-center justify-center text-2xl leading-none"
+          >
             &times;
           </button>
         </div>

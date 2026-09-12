@@ -1,8 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import type { OurStory as OurStoryData } from '@/lib/types';
-import { StoryModal } from './StoryModal';
+
+// StoryModal is an interaction-only overlay (renders null until "Continue
+// Reading" is clicked); load it lazily so it doesn't ship in the initial bundle.
+const StoryModal = dynamic(() => import('./StoryModal').then((m) => m.StoryModal), { ssr: false });
 
 function StoryImage({ src, alt }: { src: string; alt: string }) {
   return (

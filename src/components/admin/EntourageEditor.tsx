@@ -21,7 +21,7 @@ export function EntourageEditor({ initial }: { initial: EntourageMember[] }) {
     });
     if (response.ok) {
       const created = await response.json();
-      setMembers([...members, created]);
+      setMembers((curr) => [...curr, created]);
       setDraft({ category: 'parents', role_label: '', name: '', side: null, sort_order: members.length + 1 });
     } else {
       setError('Something went wrong. Please try again.');
@@ -32,7 +32,7 @@ export function EntourageEditor({ initial }: { initial: EntourageMember[] }) {
     setError(null);
     const response = await fetch(`/api/admin/entourage/${id}`, { method: 'DELETE' });
     if (response.ok) {
-      setMembers(members.filter((m) => m.id !== id));
+      setMembers((curr) => curr.filter((m) => m.id !== id));
     } else {
       setError('Something went wrong. Please try again.');
     }

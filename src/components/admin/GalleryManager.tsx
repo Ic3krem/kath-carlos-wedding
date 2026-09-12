@@ -18,7 +18,7 @@ export function GalleryManager({ initial }: { initial: GalleryImage[] }) {
     });
     if (response.ok) {
       const created = await response.json();
-      setImages([...images, created]);
+      setImages((curr) => [...curr, created]);
       setCaption('');
     } else {
       setError('Something went wrong. Please try again.');
@@ -29,7 +29,7 @@ export function GalleryManager({ initial }: { initial: GalleryImage[] }) {
     setError(null);
     const response = await fetch(`/api/admin/gallery/${id}`, { method: 'DELETE' });
     if (response.ok) {
-      setImages(images.filter((image) => image.id !== id));
+      setImages((curr) => curr.filter((image) => image.id !== id));
     } else {
       setError('Something went wrong. Please try again.');
     }

@@ -1,7 +1,7 @@
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type { Settings, OurStory as OurStoryData, EntourageMember, GalleryImage } from '@/lib/types';
 import { RsvpModalProvider } from '@/lib/rsvp-modal-context';
-import { RsvpModal } from '@/components/site/RsvpModal';
+import { RsvpModal } from '@/components/site/RsvpModalLazy';
 import { Hero } from '@/components/site/Hero';
 import { Countdown } from '@/components/site/Countdown';
 import { OurStory } from '@/components/site/OurStory';
@@ -12,16 +12,16 @@ import { Theme } from '@/components/site/Theme';
 import { GiftGuide } from '@/components/site/GiftGuide';
 import { Rsvp } from '@/components/site/Rsvp';
 import { Footer } from '@/components/site/Footer';
-import { getContacts, getGiftContent, getThemeContent } from '@/lib/content';
+import { getContacts, getGiftContent, getSettings, getThemeContent } from '@/lib/content';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   const supabase = getSupabaseServerClient();
 
-  const [{ data: settings }, { data: story }, { data: entourage }, { data: gallery }, theme, gifts, contacts] =
+  const [settings, { data: story }, { data: entourage }, { data: gallery }, theme, gifts, contacts] =
     await Promise.all([
-      supabase.from('settings').select('*').eq('id', 1).single<Settings>(),
+      getSettings(),
       supabase.from('our_story').select('*').eq('id', 1).single<OurStoryData>(),
       supabase.from('entourage_members').select('*').order('sort_order'),
       supabase.from('gallery_images').select('*').order('sort_order'),
@@ -30,7 +30,7 @@ export default async function HomePage() {
       getContacts(),
     ]);
 
-  const resolvedSettings = settings as Settings | null;
+  const resolvedSettings = settings;
   const resolvedStory = story as OurStoryData | null;
 
   if (!resolvedSettings || !resolvedStory) {

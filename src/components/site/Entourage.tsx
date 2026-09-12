@@ -29,7 +29,7 @@ export function Entourage({ members }: { members: EntourageMember[] }) {
             <ul className="flex flex-col gap-1 text-black/70">
               {grouped[category].map((member) => (
                 <li key={member.id}>
-                  <span className="block text-sm text-black/50">{member.role_label}</span>
+                  <span className="block text-sm text-black/60">{member.role_label}</span>
                   {member.name}
                 </li>
               ))}

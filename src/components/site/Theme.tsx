@@ -39,7 +39,7 @@ export function Theme({ details, colors }: ThemeProps) {
               style={{ backgroundColor: colour.hex }}
             />
             <span className="text-xs font-medium text-black/70">{colour.name}</span>
-            <span className="text-[10px] uppercase text-black/35">{colour.hex}</span>
+            <span className="text-[10px] uppercase text-black/60">{colour.hex}</span>
           </div>
         ))}
       </div>

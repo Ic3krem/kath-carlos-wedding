@@ -31,8 +31,13 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid var(--color-accent);
+  /* Double ring so a focus indicator is always visible regardless of
+     background: a white inner ring reads against the black hero/countdown/
+     footer bands, and a black outer ring reads against the cream content
+     sections. At least one ring clears 3:1 in every section of the page. */
+  outline: 2px solid #fff;
   outline-offset: 2px;
+  box-shadow: 0 0 0 6px #000;
   border-radius: 2px;
 }
 
