@@ -22,7 +22,9 @@ function FrameLayer({ name, className }: { name: string; className?: string }) {
 export function Hero({ settings }: { settings: Settings }) {
   return (
     <div className="w-full overflow-hidden bg-black">
-      <div className="relative h-[470px] w-full overflow-hidden md:h-[560px] lg:h-[680px]">
+      {/* The art is 1280px wide, so on wider monitors object-cover has to scale
+          up and crop vertically. Taller frames at xl/2xl claw that crop back. */}
+      <div className="relative h-[470px] w-full overflow-hidden md:h-[560px] lg:h-[720px] xl:h-[860px] 2xl:h-[1000px]">
         {/* Layer frame — every design layer lives in this one container */}
         <div className="absolute inset-0">
           {settings.hero_image_url && (
