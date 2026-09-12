@@ -9,7 +9,7 @@ export function Rsvp({ weddingDate }: { weddingDate: string }) {
   });
 
   return (
-    <section id="rsvp" className="flex w-full flex-col items-center gap-6 px-4 py-5 sm:px-8 sm:py-7 lg:px-16">
+    <section id="rsvp" className="flex w-full flex-col items-center gap-6 px-1.5 py-5 sm:px-3 sm:py-7 lg:px-6">
       <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">RSVP</h2>
       <p className="max-w-xl text-center text-black/55">
         We would love to celebrate with you on {formatted}. Kindly let us know if you can make it so we can save

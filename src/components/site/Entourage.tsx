@@ -20,7 +20,7 @@ export function Entourage({ members }: { members: EntourageMember[] }) {
   const grouped = groupByCategory(members);
 
   return (
-    <section className="flex w-full flex-col items-center gap-6 px-4 py-5 sm:px-8 sm:py-7 lg:px-16">
+    <section className="flex w-full flex-col items-center gap-6 px-1.5 py-5 sm:px-3 sm:py-7 lg:px-6">
       <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">Entourage</h2>
       <div className="grid w-full max-w-5xl grid-cols-1 gap-10 sm:grid-cols-3">
         {(Object.keys(CATEGORY_LABELS) as EntourageCategory[]).map((category) => (
