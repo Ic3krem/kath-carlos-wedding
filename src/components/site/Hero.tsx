@@ -2,50 +2,52 @@ import type { Settings } from '@/lib/types';
 import { marckScript, poppins } from '@/lib/fonts';
 import { RsvpTrigger } from './RsvpTrigger';
 
-// Design frame: 1404 x 789.75. Hero height is set per breakpoint (measured from
-// the reference screenshots) and the background group derives its width from
-// that height at the frame's natural ratio — so the photo keeps its own scale
-// and crops horizontally instead of being squeezed into the viewport width.
-const FRAME_RATIO = '1404 / 789.75';
+// The design ships every layer at three frame sizes:
+//   mobile 375x568, tablet 800x661, desktop 1280x790
+// Each layer fills the frame, so they all crop identically and stay aligned.
+function FrameLayer({ name, className }: { name: string; className?: string }) {
+  return (
+    <picture>
+      <source media="(min-width: 1024px)" srcSet={`/hero/${name}-desktop.png`} />
+      <source media="(min-width: 768px)" srcSet={`/hero/${name}-tablet.png`} />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`/hero/${name}-mobile.png`}
+        alt=""
+        className={`absolute inset-0 h-full w-full object-cover object-center ${className ?? ''}`}
+      />
+    </picture>
+  );
+}
 
 export function Hero({ settings }: { settings: Settings }) {
   return (
     <div className="w-full overflow-hidden bg-black">
-      <div className="relative h-[548px] w-full overflow-hidden md:h-[625px] lg:h-[790px]">
-        {/* Layers 2 + 3 — grouped background, height-driven, never width-capped */}
+      <div className="relative h-[568px] w-full overflow-hidden md:h-[661px] lg:h-[790px]">
+        {settings.hero_image_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={settings.hero_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        )}
+
+        {/* Layers 2 + 3 — grouped background */}
+        <FrameLayer name="bg2" />
+        <FrameLayer name="bg3" />
+
         <div
-          className="absolute left-1/2 top-0 h-full w-auto min-w-full -translate-x-1/2"
-          style={{ aspectRatio: FRAME_RATIO }}
-        >
-          {settings.hero_image_url && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={settings.hero_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
-          )}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/hero/layer3.png" alt="" className="absolute inset-0 h-full w-full object-cover" />
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(180deg, #D9D9D9 0%, rgba(158.64, 158.64, 158.64, 0.17) 57%, rgba(115, 115, 115, 0) 100%)',
+          }}
+        />
 
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'linear-gradient(180deg, #D9D9D9 0%, rgba(158.64, 158.64, 158.64, 0.17) 57%, rgba(115, 115, 115, 0) 100%)',
-            }}
-          />
+        {/* Layer 0 — couple, in front, same full-frame sizing as layers 2 and 3 */}
+        <FrameLayer name="couple" />
 
-          {/* Layer 0 — couple cutout, in front, tracks the temple with the background */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/hero/couple.png"
-            alt=""
-            className="absolute object-contain"
-            style={{ left: '44.94%', top: '36.1%', width: '10.83%', height: '13.09%' }}
-          />
-        </div>
-
-        {/* Layer 1 — couple names, in front, scaled to the viewport per breakpoint */}
+        {/* Layer 1 — couple names, in front */}
         <div className="absolute left-0 w-full px-3 text-center" style={{ top: '20.39%' }}>
           <h1
-            className="text-[40px] leading-none text-white sm:text-[64px] md:text-[88px] lg:text-[147.73px]"
+            className="text-[40px] leading-none text-white sm:text-[56px] md:text-[88px] lg:text-[147.73px]"
             style={{ fontFamily: marckScript.style.fontFamily, textShadow: '-2px 5px 5px rgba(0, 0, 0, 0.55)' }}
           >
             {settings.couple_names}
