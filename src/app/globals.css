@@ -28,32 +28,8 @@ html, body {
   --color-accent: #c9a24b;
 }
 
-/* Scattered postcard gallery — cards sit at random angles and snap into a
-   tidy grid while the gallery is hovered. */
-.gallery {
-  position: relative;
-  width: 100%;
-  perspective: 1000px;
-}
-
-.gallery__row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-}
-
-.gallery__row + .gallery__row {
-  margin-top: 50px;
-}
-
-.gallery__row__image {
-  text-align: center;
-}
-
-.gallery-display .postcard {
-  transform: none !important;
-}
-
+/* Postcard gallery — cards start scattered and settle into the grid once,
+   when the gallery is scrolled into view. */
 .postcard {
   transform-style: preserve-3d;
   box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048),
@@ -78,7 +54,9 @@ html, body {
   width: 100%;
 }
 
-.postcard__front img {
+/* Scoped to real postcards so the modal and lightbox, which reuse the mat
+   styling as a frame, can size their own images. */
+.postcard .postcard__front img {
   height: 100%;
   width: 100%;
   object-fit: cover;

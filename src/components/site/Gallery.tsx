@@ -1,89 +1,78 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GalleryImage } from '@/lib/types';
 
-const PREVIEW_LIMIT = 12;
-const COLUMNS = 3;
-const WIDTH = 300;
-const HEIGHT = 200;
-const CARD_W = WIDTH + 40;
-const CARD_H = HEIGHT + 60;
-// Below this the scatter transforms overflow the viewport, so cards stay put.
-const SCATTER_MIN_WIDTH = 768;
+const PREVIEW_DESKTOP = 6;
+const PREVIEW_MOBILE = 4;
+const MOBILE_MAX_WIDTH = 768;
 
-interface Offset {
-  row: number;
-  col: number;
-  rot: number;
+/** Deterministic pseudo-random from the image id so server and client agree. */
+function seeded(id: string, salt: number) {
+  let hash = salt;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) % 100000;
+  return (hash % 1000) / 1000; // 0..1
 }
 
-function chunk<T>(items: T[], size: number): T[][] {
-  const out: T[][] = [];
-  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
-  return out;
+function scatterStyle(image: GalleryImage): React.CSSProperties {
+  const x = Math.round((seeded(image.id, 7) - 0.5) * 90);
+  const y = Math.round((seeded(image.id, 13) - 0.5) * 60);
+  const rot = Math.round((seeded(image.id, 29) - 0.5) * 40);
+  return { transform: `translate(${x}px, ${y}px) rotateZ(${rot}deg)` };
 }
 
-const random = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
-
-function buildOffsets(rowsCount: number, rows: unknown[][], containerWidth: number) {
-  const offsets: Record<string, Offset> = {};
-
-  rows.forEach((row, i) =>
-    row.forEach((_, j) => {
-      // Centre of the grid slot, then jitter around it.
-      const rowOffset = rowsCount / 2 - i;
-      let translateY = rowOffset * CARD_H + rowOffset * 50;
-      if (!(rowsCount % 2)) translateY = translateY ? translateY / 2 : -155;
-
-      const colOffset = Math.floor(COLUMNS / 2 - j);
-      let translateX = colOffset * CARD_W + (colOffset * (containerWidth - CARD_W * COLUMNS)) / COLUMNS;
-
-      translateY += random(-CARD_H * 0.5, CARD_H * 0.5);
-      translateX += random(-CARD_W * 0.5, CARD_W * 0.5);
-
-      offsets[`${i},${j}`] = { row: translateY, col: translateX, rot: random(-60, 60) };
-    })
+function Postcard({
+  image,
+  onClick,
+  style,
+}: {
+  image: GalleryImage;
+  onClick: () => void;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <button className="postcard aspect-[3/2] w-full" style={style} onClick={onClick} aria-label={image.caption ?? 'Open photo'}>
+      <div className="postcard__front">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={image.image_url} alt={image.caption ?? ''} />
+      </div>
+    </button>
   );
-
-  return offsets;
 }
 
 export function Gallery({ images }: { images: GalleryImage[] }) {
-  const [expanded, setExpanded] = useState(false);
+  const [previewCount, setPreviewCount] = useState(PREVIEW_DESKTOP);
+  const [organized, setOrganized] = useState(false);
+  const [showAll, setShowAll] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [isHover, setIsHover] = useState(false);
-  const [offsets, setOffsets] = useState<Record<string, Offset> | null>(null);
-  const [canScatter, setCanScatter] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const visible = expanded ? images : images.slice(0, PREVIEW_LIMIT);
-  const hasMore = images.length > PREVIEW_LIMIT;
-  const rows = chunk(visible, COLUMNS);
-
-  // Re-scatter on mount and whenever the cards settle back out of hover.
-  useEffect(() => {
-    const node = containerRef.current;
-    if (!node) return;
-    const width = node.clientWidth;
-    const scatterable = width >= SCATTER_MIN_WIDTH;
-    setCanScatter(scatterable);
-    setOffsets(scatterable ? buildOffsets(rows.length, rows, width) : null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHover, expanded, images.length]);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function onResize() {
-      const node = containerRef.current;
-      if (!node) return;
-      const scatterable = node.clientWidth >= SCATTER_MIN_WIDTH;
-      setCanScatter(scatterable);
-      setOffsets(scatterable ? buildOffsets(rows.length, rows, node.clientWidth) : null);
-    }
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rows.length]);
+    const apply = () => setPreviewCount(window.innerWidth < MOBILE_MAX_WIDTH ? PREVIEW_MOBILE : PREVIEW_DESKTOP);
+    apply();
+    window.addEventListener('resize', apply);
+    return () => window.removeEventListener('resize', apply);
+  }, []);
+
+  // Cards start scattered and settle into the grid once, when scrolled to.
+  useEffect(() => {
+    const node = gridRef.current;
+    if (!node || organized) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setOrganized(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [organized]);
+
+  const preview = useMemo(() => images.slice(0, previewCount), [images, previewCount]);
+  const hasMore = images.length > previewCount;
 
   const close = useCallback(() => setLightboxIndex(null), []);
   const step = useCallback(
@@ -102,64 +91,72 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [lightboxIndex, close, step]);
 
+  useEffect(() => {
+    if (!showAll) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') setShowAll(false);
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showAll]);
+
   if (images.length === 0) return null;
 
   const active = lightboxIndex === null ? null : images[lightboxIndex];
-
-  function cardStyle(rowIndex: number, colIndex: number): React.CSSProperties {
-    const base: React.CSSProperties = { width: CARD_W, height: CARD_H, maxWidth: '100%' };
-    const offset = offsets?.[`${rowIndex},${colIndex}`];
-    if (!canScatter || !offset) return base;
-    return {
-      ...base,
-      transform: `translateX(${offset.col}px) translateY(${offset.row}px) rotateZ(${offset.rot}deg)`,
-    };
-  }
 
   return (
     <section id="gallery" className="flex w-full flex-col items-center gap-8 px-4 py-10 sm:px-8 sm:py-12 lg:px-16">
       <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">View more of us</h2>
 
       <div
-        ref={containerRef}
-        className={`gallery max-w-5xl ${isHover ? 'gallery-display' : ''}`}
-        onMouseEnter={() => setIsHover(true)}
-        onMouseLeave={() => setIsHover(false)}
+        ref={gridRef}
+        className="grid w-full max-w-4xl grid-cols-2 gap-6 sm:gap-8 md:grid-cols-3"
       >
-        <div>
-          {rows.map((row, rowIndex) => (
-            <div className="gallery__row" key={rowIndex}>
-              {row.map((image, colIndex) => (
-                <div
-                  className="gallery__row__image"
-                  style={{ width: `${100 / COLUMNS}%` }}
-                  key={image.id}
-                >
-                  <button
-                    className="postcard"
-                    style={cardStyle(rowIndex, colIndex)}
-                    onClick={() => setLightboxIndex(images.indexOf(image))}
-                    aria-label={image.caption ?? 'Open photo'}
-                  >
-                    <div className="postcard__front">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={image.image_url} alt={image.caption ?? ''} />
-                    </div>
-                  </button>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
+        {preview.map((image) => (
+          <Postcard
+            key={image.id}
+            image={image}
+            style={organized ? { transform: 'none' } : scatterStyle(image)}
+            onClick={() => setLightboxIndex(images.indexOf(image))}
+          />
+        ))}
       </div>
 
       {hasMore && (
         <button
-          onClick={() => setExpanded((v) => !v)}
-          className="rounded-md bg-accent px-6 py-2 text-xs font-semibold uppercase tracking-wide text-white"
+          onClick={() => setShowAll(true)}
+          className="mx-auto rounded-md bg-accent px-8 py-2.5 text-xs font-semibold uppercase tracking-wide text-white"
         >
-          {expanded ? 'Show less' : `View full gallery (${images.length})`}
+          See more
         </button>
+      )}
+
+      {/* All photos, framed like the gallery postcards */}
+      {showAll && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4"
+          onClick={() => setShowAll(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="postcard__front max-h-[85vh] w-full max-w-4xl overflow-y-auto rounded"
+            style={{ padding: '24px' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="font-script text-3xl text-black sm:text-4xl">View more of us</h3>
+              <button onClick={() => setShowAll(false)} className="text-3xl leading-none text-black/50 hover:text-black" aria-label="Close">
+                &times;
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 sm:gap-6">
+              {images.map((image) => (
+                <Postcard key={image.id} image={image} onClick={() => setLightboxIndex(images.indexOf(image))} />
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {active && (
@@ -183,8 +180,10 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
             &#8249;
           </button>
           <figure className="flex max-h-full max-w-4xl flex-col items-center gap-3" onClick={(e) => e.stopPropagation()}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={active.image_url} alt={active.caption ?? ''} className="max-h-[80vh] w-auto rounded-lg object-contain" />
+            <div className="postcard__front rounded" style={{ padding: '16px' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={active.image_url} alt={active.caption ?? ''} className="max-h-[72vh] w-auto object-contain" />
+            </div>
             {active.caption && <figcaption className="text-sm text-white/70">{active.caption}</figcaption>}
             <span className="text-xs text-white/40">
               {(lightboxIndex ?? 0) + 1} / {images.length}
