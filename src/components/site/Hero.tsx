@@ -26,16 +26,6 @@ export function Hero({ settings }: { settings: Settings }) {
       <div className="relative h-[568px] w-full overflow-hidden md:h-[661px] lg:h-[790px]">
         {/* Layer frame — every design layer lives in this one container */}
         <div className="absolute inset-0">
-          {/* Gradient at the bottom of the stack — shows through the transparent
-              sky in the layer art and fades out toward the foot of the frame */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'linear-gradient(180deg, #D9D9D9 0%, rgba(158.64, 158.64, 158.64, 0.17) 57%, rgba(115, 115, 115, 0) 100%)',
-            }}
-          />
-
           {settings.hero_image_url && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={settings.hero_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
@@ -72,6 +62,15 @@ export function Hero({ settings }: { settings: Settings }) {
           <RsvpTrigger className="flex h-[26px] w-[116px] items-center justify-center whitespace-nowrap rounded-[8.78px] bg-white text-[9.4px] font-semibold uppercase text-[#170E01] md:h-[32px] md:w-[143px] md:text-[11.6px] lg:h-[51.87px] lg:w-[237px] lg:text-[19.15px]" />
         </div>
       </div>
+
+      {/* Transition band between the hero frame and the countdown */}
+      <div
+        className="h-24 w-full sm:h-28 lg:h-32"
+        style={{
+          background:
+            'linear-gradient(180deg, #D9D9D9 0%, rgba(158.64, 158.64, 158.64, 0.17) 57%, rgba(115, 115, 115, 0) 100%)',
+        }}
+      />
     </div>
   );
 }
