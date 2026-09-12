@@ -8,6 +8,8 @@ import { OurStory } from '@/components/site/OurStory';
 import { Gallery } from '@/components/site/Gallery';
 import { Entourage } from '@/components/site/Entourage';
 import { MapEmbed } from '@/components/site/MapEmbed';
+import { Theme } from '@/components/site/Theme';
+import { GiftGuide } from '@/components/site/GiftGuide';
 import { Rsvp } from '@/components/site/Rsvp';
 import { Footer } from '@/components/site/Footer';
 
@@ -43,7 +45,9 @@ export default async function HomePage() {
           <OurStory story={resolvedStory} />
           <Gallery images={(gallery as GalleryImage[]) ?? []} />
           <Entourage members={(entourage as EntourageMember[]) ?? []} />
+          <Theme />
           <MapEmbed address={resolvedSettings.maps_address} embedUrl={resolvedSettings.maps_embed_url} />
+          <GiftGuide />
           <Rsvp weddingDate={resolvedSettings.wedding_date} />
           <Footer settings={resolvedSettings} />
         </main>
