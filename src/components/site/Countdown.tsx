@@ -23,87 +23,28 @@ export function Countdown({ weddingDate }: { weddingDate: string }) {
   }, [weddingDate]);
 
   return (
-    <div
-      style={{
-        width: '100%',
-        alignSelf: 'stretch',
-        background: 'black',
-        overflow: 'hidden',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 20,
-        display: 'flex',
-      }}
+    <section
+      className="flex w-full flex-col items-center justify-center gap-4 overflow-hidden bg-black sm:gap-5"
+      style={{ fontFamily: poppins.style.fontFamily }}
     >
-      <div style={{ alignSelf: 'stretch', overflow: 'hidden', justifyContent: 'center', alignItems: 'center', display: 'inline-flex' }}>
-        <div style={{ textAlign: 'center', color: 'white', fontSize: 40, fontFamily: poppins.style.fontFamily, fontWeight: '600', wordWrap: 'break-word' }}>
+      <div className="flex w-full items-center justify-center px-4 pt-8 sm:pt-9">
+        <h2 className="text-center text-xl font-semibold uppercase text-white sm:text-2xl md:text-3xl lg:text-[40px]">
           {parts.isPast ? 'WE ARE MARRIED!' : 'LIVE COUNTDOWN'}
-        </div>
+        </h2>
       </div>
+
       {!parts.isPast && (
-        <div
-          style={{
-            alignSelf: 'stretch',
-            paddingTop: 37,
-            paddingBottom: 115,
-            paddingLeft: 522,
-            paddingRight: 522,
-            overflow: 'hidden',
-            justifyContent: 'center',
-            alignItems: 'center',
-            display: 'inline-flex',
-          }}
-        >
+        <div className="grid w-full max-w-5xl grid-cols-3 justify-items-center gap-x-2 gap-y-4 px-4 pb-16 sm:grid-cols-6 sm:gap-x-4 sm:pb-20 lg:pb-28">
           {UNITS.map(({ key, label }) => (
-            <div
-              key={key}
-              style={{
-                paddingTop: 20,
-                paddingBottom: 20,
-                overflow: 'hidden',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                display: 'inline-flex',
-              }}
-            >
-              <div
-                style={{
-                  width: 147,
-                  height: 55,
-                  textAlign: 'center',
-                  justifyContent: 'flex-end',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  color: 'white',
-                  fontSize: 48,
-                  fontFamily: poppins.style.fontFamily,
-                  fontWeight: '600',
-                  wordWrap: 'break-word',
-                }}
-              >
+            <div key={key} className="flex flex-col items-center justify-center py-2 sm:py-5">
+              <div className="text-center text-3xl font-semibold leading-tight text-white sm:text-4xl md:text-5xl lg:text-[48px]">
                 {String(parts[key]).padStart(2, '0')}
               </div>
-              <div
-                style={{
-                  textAlign: 'center',
-                  justifyContent: 'flex-end',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  color: 'white',
-                  fontSize: 16,
-                  fontFamily: poppins.style.fontFamily,
-                  fontWeight: '600',
-                  wordWrap: 'break-word',
-                }}
-              >
-                {label}
-              </div>
+              <div className="text-center text-xs font-semibold text-white sm:text-sm lg:text-base">{label}</div>
             </div>
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }
