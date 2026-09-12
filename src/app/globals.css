@@ -27,3 +27,60 @@ html, body {
   --color-secondary: #faf6ef;
   --color-accent: #c9a24b;
 }
+
+/* Scattered postcard gallery — cards sit at random angles and snap into a
+   tidy grid while the gallery is hovered. */
+.gallery {
+  position: relative;
+  width: 100%;
+  perspective: 1000px;
+}
+
+.gallery__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.gallery__row + .gallery__row {
+  margin-top: 50px;
+}
+
+.gallery__row__image {
+  text-align: center;
+}
+
+.gallery-display .postcard {
+  transform: none !important;
+}
+
+.postcard {
+  transform-style: preserve-3d;
+  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048),
+    0 12.5px 10px rgba(0, 0, 0, 0.06), 0 2.3px 70.9px rgba(0, 0, 0, 0.072),
+    0 6.8px 15.4px rgba(0, 0, 0, 0.01);
+  overflow: hidden;
+  margin: auto;
+  transition: all 0.6s;
+  position: relative;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+  border: none;
+  display: block;
+}
+
+.postcard__front {
+  background-color: floralwhite;
+  box-sizing: border-box;
+  padding: 14px;
+  height: 100%;
+  width: 100%;
+}
+
+.postcard__front img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}

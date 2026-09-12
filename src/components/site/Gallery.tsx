@@ -1,39 +1,89 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import type { GalleryImage, GalleryShape } from '@/lib/types';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { GalleryImage } from '@/lib/types';
 
 const PREVIEW_LIMIT = 12;
+const COLUMNS = 3;
+const WIDTH = 300;
+const HEIGHT = 200;
+const CARD_W = WIDTH + 40;
+const CARD_H = HEIGHT + 60;
+// Below this the scatter transforms overflow the viewport, so cards stay put.
+const SCATTER_MIN_WIDTH = 768;
 
-// Repeating mosaic template. Any number of photos tiles into it, so new
-// uploads are auto-shaped without anyone picking a size.
-const AUTO_TEMPLATE: Exclude<GalleryShape, null>[] = [
-  'tall',
-  'square',
-  'square',
-  'tall',
-  'wide',
-  'square',
-  'tall',
-  'square',
-];
+interface Offset {
+  row: number;
+  col: number;
+  rot: number;
+}
 
-const SHAPE_CLASS: Record<Exclude<GalleryShape, null>, string> = {
-  square: 'col-span-1 row-span-1',
-  tall: 'col-span-1 row-span-2',
-  wide: 'col-span-2 row-span-1',
-};
+function chunk<T>(items: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+  return out;
+}
 
-function shapeFor(image: GalleryImage, index: number): Exclude<GalleryShape, null> {
-  return image.shape ?? AUTO_TEMPLATE[index % AUTO_TEMPLATE.length];
+const random = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
+
+function buildOffsets(rowsCount: number, rows: unknown[][], containerWidth: number) {
+  const offsets: Record<string, Offset> = {};
+
+  rows.forEach((row, i) =>
+    row.forEach((_, j) => {
+      // Centre of the grid slot, then jitter around it.
+      const rowOffset = rowsCount / 2 - i;
+      let translateY = rowOffset * CARD_H + rowOffset * 50;
+      if (!(rowsCount % 2)) translateY = translateY ? translateY / 2 : -155;
+
+      const colOffset = Math.floor(COLUMNS / 2 - j);
+      let translateX = colOffset * CARD_W + (colOffset * (containerWidth - CARD_W * COLUMNS)) / COLUMNS;
+
+      translateY += random(-CARD_H * 0.5, CARD_H * 0.5);
+      translateX += random(-CARD_W * 0.5, CARD_W * 0.5);
+
+      offsets[`${i},${j}`] = { row: translateY, col: translateX, rot: random(-60, 60) };
+    })
+  );
+
+  return offsets;
 }
 
 export function Gallery({ images }: { images: GalleryImage[] }) {
   const [expanded, setExpanded] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [isHover, setIsHover] = useState(false);
+  const [offsets, setOffsets] = useState<Record<string, Offset> | null>(null);
+  const [canScatter, setCanScatter] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const visible = expanded ? images : images.slice(0, PREVIEW_LIMIT);
   const hasMore = images.length > PREVIEW_LIMIT;
+  const rows = chunk(visible, COLUMNS);
+
+  // Re-scatter on mount and whenever the cards settle back out of hover.
+  useEffect(() => {
+    const node = containerRef.current;
+    if (!node) return;
+    const width = node.clientWidth;
+    const scatterable = width >= SCATTER_MIN_WIDTH;
+    setCanScatter(scatterable);
+    setOffsets(scatterable ? buildOffsets(rows.length, rows, width) : null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHover, expanded, images.length]);
+
+  useEffect(() => {
+    function onResize() {
+      const node = containerRef.current;
+      if (!node) return;
+      const scatterable = node.clientWidth >= SCATTER_MIN_WIDTH;
+      setCanScatter(scatterable);
+      setOffsets(scatterable ? buildOffsets(rows.length, rows, node.clientWidth) : null);
+    }
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows.length]);
 
   const close = useCallback(() => setLightboxIndex(null), []);
   const step = useCallback(
@@ -56,31 +106,51 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
 
   const active = lightboxIndex === null ? null : images[lightboxIndex];
 
+  function cardStyle(rowIndex: number, colIndex: number): React.CSSProperties {
+    const base: React.CSSProperties = { width: CARD_W, height: CARD_H, maxWidth: '100%' };
+    const offset = offsets?.[`${rowIndex},${colIndex}`];
+    if (!canScatter || !offset) return base;
+    return {
+      ...base,
+      transform: `translateX(${offset.col}px) translateY(${offset.row}px) rotateZ(${offset.rot}deg)`,
+    };
+  }
+
   return (
     <section id="gallery" className="flex w-full flex-col items-center gap-8 px-4 py-10 sm:px-8 sm:py-12 lg:px-16">
       <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">View more of us</h2>
 
-      <div className="grid w-full max-w-5xl auto-rows-[110px] grid-flow-dense grid-cols-2 gap-2 sm:auto-rows-[140px] sm:grid-cols-3 sm:gap-3 lg:auto-rows-[160px] lg:grid-cols-4">
-        {visible.map((image, index) => (
-          <button
-            key={image.id}
-            onClick={() => setLightboxIndex(index)}
-            className={`group relative overflow-hidden rounded-lg ${SHAPE_CLASS[shapeFor(image, index)]}`}
-            aria-label={image.caption ?? 'Open photo'}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={image.image_url}
-              alt={image.caption ?? ''}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-            {image.caption && (
-              <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2 text-left text-[11px] text-white opacity-0 transition-opacity group-hover:opacity-100">
-                {image.caption}
-              </span>
-            )}
-          </button>
-        ))}
+      <div
+        ref={containerRef}
+        className={`gallery max-w-5xl ${isHover ? 'gallery-display' : ''}`}
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
+      >
+        <div>
+          {rows.map((row, rowIndex) => (
+            <div className="gallery__row" key={rowIndex}>
+              {row.map((image, colIndex) => (
+                <div
+                  className="gallery__row__image"
+                  style={{ width: `${100 / COLUMNS}%` }}
+                  key={image.id}
+                >
+                  <button
+                    className="postcard"
+                    style={cardStyle(rowIndex, colIndex)}
+                    onClick={() => setLightboxIndex(images.indexOf(image))}
+                    aria-label={image.caption ?? 'Open photo'}
+                  >
+                    <div className="postcard__front">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={image.image_url} alt={image.caption ?? ''} />
+                    </div>
+                  </button>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
 
       {hasMore && (
