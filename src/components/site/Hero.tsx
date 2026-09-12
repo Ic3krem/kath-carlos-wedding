@@ -13,6 +13,9 @@ function FrameLayer({ name, className }: { name: string; className?: string }) {
       <img
         src={`/hero/${name}-mobile.png`}
         alt=""
+        width={1280}
+        height={790}
+        fetchPriority="high"
         className={`absolute inset-0 h-full w-full object-cover object-center ${className ?? ''}`}
       />
     </picture>
@@ -29,7 +32,14 @@ export function Hero({ settings }: { settings: Settings }) {
         <div className="absolute inset-0">
           {settings.hero_image_url && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={settings.hero_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <img
+              src={settings.hero_image_url}
+              alt=""
+              width={1280}
+              height={790}
+              fetchPriority="high"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
           )}
 
           {/* Layers 2 + 3 — grouped background */}

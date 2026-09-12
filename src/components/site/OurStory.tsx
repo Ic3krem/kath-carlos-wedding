@@ -7,7 +7,14 @@ import { StoryModal } from './StoryModal';
 function StoryImage({ src, alt }: { src: string; alt: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} className="aspect-[3/2] w-full rounded-2xl object-cover shadow-sm" />
+    <img
+      src={src}
+      alt={alt}
+      width={1280}
+      height={790}
+      loading="lazy"
+      className="aspect-[3/2] w-full rounded-2xl object-cover shadow-sm"
+    />
   );
 }
 

@@ -50,7 +50,7 @@ function Postcard({
     <button className="postcard aspect-[3/2] w-full" style={style} onClick={onClick} aria-label={image.caption ?? 'Open photo'}>
       <div className="postcard__front">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={image.image_url} alt={image.caption ?? ''} />
+        <img src={image.image_url} alt={image.caption ?? ''} width={1280} height={790} loading="lazy" />
       </div>
     </button>
   );
@@ -158,7 +158,7 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
           aria-modal="true"
         >
           <div
-            className="postcard__front max-h-[85vh] w-full max-w-4xl overflow-y-auto rounded"
+            className="postcard__front max-h-[85vh] w-full max-w-4xl overflow-y-auto overscroll-contain rounded"
             style={{ padding: '24px' }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -179,7 +179,7 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
 
       {active && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center overscroll-contain bg-black/90 p-4"
           onClick={close}
           role="dialog"
           aria-modal="true"
@@ -200,7 +200,13 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
           <figure className="flex max-h-full max-w-4xl flex-col items-center gap-3" onClick={(e) => e.stopPropagation()}>
             <div className="postcard__front rounded" style={{ padding: '16px' }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={active.image_url} alt={active.caption ?? ''} className="max-h-[72vh] w-auto object-contain" />
+              <img
+                src={active.image_url}
+                alt={active.caption ?? ''}
+                width={1280}
+                height={790}
+                className="max-h-[72vh] w-auto object-contain"
+              />
             </div>
             {active.caption && <figcaption className="text-sm text-white/70">{active.caption}</figcaption>}
             <span className="text-xs text-white/40">

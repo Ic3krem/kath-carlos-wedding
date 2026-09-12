@@ -48,7 +48,7 @@ export function Countdown({ weddingDate }: { weddingDate: string }) {
     >
       <div
         ref={sentinel}
-        className={`flex w-full flex-col items-center gap-4 px-4 pt-28 transition-all duration-700 ease-out sm:gap-5 sm:pt-36 lg:pt-44 ${
+        className={`flex w-full flex-col items-center gap-4 px-4 pt-28 transition-[transform,opacity] duration-700 ease-out sm:gap-5 sm:pt-36 lg:pt-44 ${
           revealed ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
         }`}
       >
