@@ -1,35 +1,109 @@
 import type { Settings } from '@/lib/types';
+import { marckScript, poppins } from '@/lib/fonts';
 import { RsvpTrigger } from './RsvpTrigger';
 
 export function Hero({ settings }: { settings: Settings }) {
   return (
-    <header className="relative w-full overflow-hidden bg-black" style={{ aspectRatio: '1280 / 790' }}>
-      {settings.hero_image_url && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={settings.hero_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
-      )}
-      <div className="absolute inset-0 bg-gradient-to-b from-zinc-300/40 via-neutral-400/10 via-[57%] to-neutral-500/0" />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/hero/couple.png"
-        alt=""
-        className="absolute object-contain"
-        style={{ left: '44.45%', top: '36.1%', width: '11.9%', height: '13.1%' }}
-      />
-      <div className="absolute text-center" style={{ left: '4.79%', top: '20.39%', width: '90.41%' }}>
-        <h1
-          className="font-script text-3xl text-white sm:text-5xl lg:text-8xl"
-          style={{ textShadow: '-2px 5px 5px rgba(0, 0, 0, 0.55)' }}
-        >
-          {settings.couple_names}
-        </h1>
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        paddingBottom: 27,
+        background: 'black',
+        overflow: 'hidden',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        display: 'inline-flex',
+      }}
+    >
+      <div style={{ width: 1404, height: 789.75, position: 'relative' }}>
+        <div
+          style={{
+            width: 1404,
+            height: 789.75,
+            left: 0,
+            top: 0,
+            position: 'absolute',
+            background:
+              'linear-gradient(180deg, #D9D9D9 0%, rgba(158.64, 158.64, 158.64, 0.17) 57%, rgba(115, 115, 115, 0) 100%)',
+          }}
+        />
+        {settings.hero_image_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            style={{ width: 1404, height: 1008.39, left: 0, top: 0, position: 'absolute', objectFit: 'cover' }}
+            src={settings.hero_image_url}
+            alt=""
+          />
+        )}
+        <div style={{ width: 1404, height: 1008.39, left: 0, top: 0, position: 'absolute' }}>
+          {settings.hero_image_url && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              style={{ width: 1404, height: 1008.39, left: 0, top: 0, position: 'absolute', objectFit: 'cover' }}
+              src={settings.hero_image_url}
+              alt=""
+            />
+          )}
+          <div
+            style={{
+              width: 1157.01,
+              height: 187.66,
+              left: 123.26,
+              top: 161,
+              position: 'absolute',
+              textAlign: 'center',
+              color: 'white',
+              fontSize: 147.73,
+              fontFamily: marckScript.style.fontFamily,
+              fontWeight: '400',
+              wordWrap: 'break-word',
+              textShadow: '-2px 5px 5px rgba(0, 0, 0, 0.55)',
+            }}
+          >
+            {settings.couple_names}
+          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            style={{ width: 152, height: 103.39, left: 631, top: 285, position: 'absolute' }}
+            src="/hero/couple.png"
+            alt=""
+          />
+        </div>
+        <div style={{ width: 237, height: 51.87, left: 583, top: 493, position: 'absolute', background: 'white', borderRadius: 8.78 }}>
+          <a
+            href="#our-story"
+            style={{
+              width: 237,
+              height: 51.87,
+              left: 0,
+              top: 0,
+              position: 'absolute',
+              overflow: 'hidden',
+              justifyContent: 'center',
+              alignItems: 'center',
+              display: 'inline-flex',
+            }}
+          >
+            <div
+              style={{
+                textAlign: 'center',
+                color: '#170E01',
+                fontSize: 19.15,
+                fontFamily: poppins.style.fontFamily,
+                fontWeight: '600',
+                wordWrap: 'break-word',
+              }}
+            >
+              GET STARTED
+            </div>
+          </a>
+        </div>
+        <div style={{ left: 836, top: 493, position: 'absolute' }}>
+          <RsvpTrigger />
+        </div>
       </div>
-      <div className="absolute left-1/2 flex -translate-x-1/2 flex-wrap items-center justify-center gap-3 px-4" style={{ top: '62.4%' }}>
-        <a href="#our-story" className="rounded-lg bg-white px-6 py-3 font-metropolis font-semibold uppercase text-[#170E01]">
-          Get Started
-        </a>
-        <RsvpTrigger />
-      </div>
-    </header>
+    </div>
   );
 }

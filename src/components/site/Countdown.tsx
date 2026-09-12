@@ -2,8 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { getCountdownParts, type CountdownParts } from '@/lib/countdown';
+import { poppins } from '@/lib/fonts';
 
-const UNITS: (keyof Omit<CountdownParts, 'isPast'>)[] = ['months', 'weeks', 'days', 'hours', 'minutes', 'seconds'];
+const UNITS: { key: keyof Omit<CountdownParts, 'isPast'>; label: string }[] = [
+  { key: 'months', label: 'Months' },
+  { key: 'weeks', label: 'Weeks' },
+  { key: 'days', label: 'Days' },
+  { key: 'hours', label: 'Hours' },
+  { key: 'minutes', label: 'Minutes' },
+  { key: 'seconds', label: 'Seconds' },
+];
 
 export function Countdown({ weddingDate }: { weddingDate: string }) {
   const target = new Date(weddingDate);
@@ -15,22 +23,87 @@ export function Countdown({ weddingDate }: { weddingDate: string }) {
   }, [weddingDate]);
 
   return (
-    <section className="flex w-full flex-col items-center gap-5 bg-black py-10 text-white">
-      <h2 className="font-metropolis text-2xl font-semibold uppercase tracking-wide sm:text-3xl lg:text-4xl">
-        {parts.isPast ? 'WE ARE MARRIED!' : 'LIVE COUNTDOWN'}
-      </h2>
+    <div
+      style={{
+        width: '100%',
+        alignSelf: 'stretch',
+        background: 'black',
+        overflow: 'hidden',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 20,
+        display: 'flex',
+      }}
+    >
+      <div style={{ alignSelf: 'stretch', overflow: 'hidden', justifyContent: 'center', alignItems: 'center', display: 'inline-flex' }}>
+        <div style={{ textAlign: 'center', color: 'white', fontSize: 40, fontFamily: poppins.style.fontFamily, fontWeight: '600', wordWrap: 'break-word' }}>
+          {parts.isPast ? 'WE ARE MARRIED!' : 'LIVE COUNTDOWN'}
+        </div>
+      </div>
       {!parts.isPast && (
-        <div className="grid w-full max-w-4xl grid-cols-3 gap-4 px-4 text-center sm:grid-cols-6">
-          {UNITS.map((unit) => (
-            <div key={unit} className="flex flex-col items-center">
-              <span className="font-metropolis text-3xl font-semibold text-white sm:text-4xl lg:text-5xl">
-                {String(parts[unit]).padStart(2, '0')}
-              </span>
-              <span className="font-metropolis text-xs font-semibold capitalize text-white/70 sm:text-sm lg:text-base">{unit}</span>
+        <div
+          style={{
+            alignSelf: 'stretch',
+            paddingTop: 37,
+            paddingBottom: 115,
+            paddingLeft: 522,
+            paddingRight: 522,
+            overflow: 'hidden',
+            justifyContent: 'center',
+            alignItems: 'center',
+            display: 'inline-flex',
+          }}
+        >
+          {UNITS.map(({ key, label }) => (
+            <div
+              key={key}
+              style={{
+                paddingTop: 20,
+                paddingBottom: 20,
+                overflow: 'hidden',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                display: 'inline-flex',
+              }}
+            >
+              <div
+                style={{
+                  width: 147,
+                  height: 55,
+                  textAlign: 'center',
+                  justifyContent: 'flex-end',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  color: 'white',
+                  fontSize: 48,
+                  fontFamily: poppins.style.fontFamily,
+                  fontWeight: '600',
+                  wordWrap: 'break-word',
+                }}
+              >
+                {String(parts[key]).padStart(2, '0')}
+              </div>
+              <div
+                style={{
+                  textAlign: 'center',
+                  justifyContent: 'flex-end',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  color: 'white',
+                  fontSize: 16,
+                  fontFamily: poppins.style.fontFamily,
+                  fontWeight: '600',
+                  wordWrap: 'break-word',
+                }}
+              >
+                {label}
+              </div>
             </div>
           ))}
         </div>
       )}
-    </section>
+    </div>
   );
 }
