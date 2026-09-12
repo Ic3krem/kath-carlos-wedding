@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type { Rsvp } from '@/lib/types';
 
-const HEADERS: (keyof Rsvp)[] = ['name', 'email', 'phone', 'attending', 'guest_count', 'meal_preference', 'message', 'created_at'];
+const HEADERS: (keyof Rsvp)[] = ['name', 'email', 'phone', 'attending', 'guest_count', 'guest_names', 'meal_preference', 'allergies', 'song_request', 'message', 'created_at'];
 
 function csvEscape(value: unknown): string {
   const str = value === null || value === undefined ? '' : String(value);

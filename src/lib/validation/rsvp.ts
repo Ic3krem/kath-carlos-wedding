@@ -6,7 +6,12 @@ export const rsvpSchema = z.object({
   phone: z.string().max(50).optional().nullable(),
   attending: z.boolean(),
   guest_count: z.number().int().min(1).max(20),
+  /** Who they're bringing — needed for seating and place cards. */
+  guest_names: z.string().max(500).optional().nullable(),
   meal_preference: z.string().max(200).optional().nullable(),
+  /** Allergies and dietary needs for the whole party. */
+  allergies: z.string().max(500).optional().nullable(),
+  song_request: z.string().max(200).optional().nullable(),
   message: z.string().max(2000).optional().nullable(),
 });
 

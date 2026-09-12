@@ -1,7 +1,5 @@
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type { Settings, OurStory as OurStoryData, EntourageMember, GalleryImage } from '@/lib/types';
-import { RsvpModalProvider } from '@/lib/rsvp-modal-context';
-import { RsvpModal } from '@/components/site/RsvpModalLazy';
 import { Hero } from '@/components/site/Hero';
 import { Countdown } from '@/components/site/Countdown';
 import { OurStory } from '@/components/site/OurStory';
@@ -43,21 +41,18 @@ export default async function HomePage() {
 
   return (
     <div data-theme={resolvedSettings.theme}>
-      <RsvpModalProvider>
-        <main className="flex w-full flex-col items-center">
-          <Hero settings={resolvedSettings} />
-          <Countdown weddingDate={resolvedSettings.wedding_date} />
-          <OurStory story={resolvedStory} />
-          <Gallery images={(gallery as GalleryImage[]) ?? []} />
-          <Entourage members={(entourage as EntourageMember[]) ?? []} />
-          <Theme details={theme.details} colors={theme.colors} />
-          <MapEmbed address={resolvedSettings.maps_address} embedUrl={resolvedSettings.maps_embed_url} />
-          <GiftGuide intro={gifts.intro} options={gifts.options} />
-          <Rsvp weddingDate={resolvedSettings.wedding_date} />
-          <Footer settings={resolvedSettings} contacts={contacts} />
-        </main>
-        <RsvpModal />
-      </RsvpModalProvider>
+      <main className="flex w-full flex-col items-center">
+        <Hero settings={resolvedSettings} />
+        <Countdown weddingDate={resolvedSettings.wedding_date} />
+        <OurStory story={resolvedStory} />
+        <Gallery images={(gallery as GalleryImage[]) ?? []} />
+        <Entourage members={(entourage as EntourageMember[]) ?? []} />
+        <Theme details={theme.details} colors={theme.colors} />
+        <MapEmbed address={resolvedSettings.maps_address} embedUrl={resolvedSettings.maps_embed_url} />
+        <GiftGuide intro={gifts.intro} options={gifts.options} />
+        <Rsvp weddingDate={resolvedSettings.wedding_date} />
+        <Footer settings={resolvedSettings} contacts={contacts} />
+      </main>
     </div>
   );
 }

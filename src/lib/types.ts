@@ -86,7 +86,10 @@ export interface Rsvp {
   phone: string | null;
   attending: boolean;
   guest_count: number;
+  guest_names: string | null;
   meal_preference: string | null;
+  allergies: string | null;
+  song_request: string | null;
   message: string | null;
   created_at: string;
 }

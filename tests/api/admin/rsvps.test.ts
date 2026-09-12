@@ -41,7 +41,9 @@ describe('/api/admin/rsvps', () => {
     const response = await exportRsvps();
     const text = await response.text();
     expect(response.headers.get('content-type')).toContain('text/csv');
-    expect(text.split('\n')[0]).toBe('name,email,phone,attending,guest_count,meal_preference,message,created_at');
+    expect(text.split('\n')[0]).toBe(
+      'name,email,phone,attending,guest_count,guest_names,meal_preference,allergies,song_request,message,created_at'
+    );
     expect(text).toContain('Juan Dela Cruz');
   });
 });

@@ -4,13 +4,16 @@ import { useEffect, useRef, useState } from 'react';
 import { getCountdownParts, type CountdownParts } from '@/lib/countdown';
 import { poppins } from '@/lib/fonts';
 
-const UNITS: { key: keyof Omit<CountdownParts, 'isPast'>; label: string }[] = [
-  { key: 'months', label: 'Months' },
-  { key: 'weeks', label: 'Weeks' },
-  { key: 'days', label: 'Days' },
-  { key: 'hours', label: 'Hours' },
-  { key: 'minutes', label: 'Minutes' },
-  { key: 'seconds', label: 'Seconds' },
+// Hours, minutes and seconds are hidden on narrow screens — six units squeeze
+// into an unreadable two-row grid there, so small widths show the three that
+// actually matter at a glance.
+const UNITS: { key: keyof Omit<CountdownParts, 'isPast'>; label: string; smallScreen: boolean }[] = [
+  { key: 'months', label: 'Months', smallScreen: true },
+  { key: 'weeks', label: 'Weeks', smallScreen: true },
+  { key: 'days', label: 'Days', smallScreen: true },
+  { key: 'hours', label: 'Hours', smallScreen: false },
+  { key: 'minutes', label: 'Minutes', smallScreen: false },
+  { key: 'seconds', label: 'Seconds', smallScreen: false },
 ];
 
 export function Countdown({ weddingDate }: { weddingDate: string }) {
@@ -57,9 +60,14 @@ export function Countdown({ weddingDate }: { weddingDate: string }) {
         </h2>
 
         {!parts.isPast && (
-          <div className="grid w-full max-w-5xl grid-cols-3 justify-items-center gap-x-2 gap-y-4 sm:grid-cols-6 sm:gap-x-4">
-            {UNITS.map(({ key, label }) => (
-              <div key={key} className="flex flex-col items-center justify-center py-2 sm:py-5">
+          <div className="grid w-full max-w-5xl grid-cols-3 justify-items-center gap-x-2 gap-y-4 pb-16 sm:grid-cols-6 sm:gap-x-4 sm:pb-20 lg:pb-24">
+            {UNITS.map(({ key, label, smallScreen }) => (
+              <div
+                key={key}
+                className={`flex-col items-center justify-center py-2 sm:flex sm:py-5 ${
+                  smallScreen ? 'flex' : 'hidden'
+                }`}
+              >
                 <div className="text-center text-3xl font-semibold leading-tight text-white sm:text-4xl md:text-5xl lg:text-[48px]">
                   {String(parts[key]).padStart(2, '0')}
                 </div>
