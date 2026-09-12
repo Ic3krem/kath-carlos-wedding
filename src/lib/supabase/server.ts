@@ -9,7 +9,15 @@ export function getSupabaseServerClient(): SupabaseClient {
     throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env vars');
   }
   if (!cachedClient) {
-    cachedClient = createClient(url, serviceRoleKey, { auth: { persistSession: false } });
+    cachedClient = createClient(url, serviceRoleKey, {
+      auth: { persistSession: false },
+      global: {
+        // Next.js patches the global fetch to cache requests by default; without
+        // this override, admin edits silently fail to appear until a server
+        // restart because Supabase reads get served from Next's Data Cache.
+        fetch: (input, init) => fetch(input, { ...init, cache: 'no-store' }),
+      },
+    });
   }
   return cachedClient;
 }
