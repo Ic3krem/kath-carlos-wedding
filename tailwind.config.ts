@@ -11,6 +11,7 @@ const config: Config = {
       },
       fontFamily: {
         script: ['var(--font-script)', 'cursive'],
+        metropolis: ['var(--font-metropolis)', 'sans-serif'],
       },
     },
   },

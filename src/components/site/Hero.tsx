@@ -13,7 +13,7 @@ export function Hero({ settings }: { settings: Settings }) {
           {settings.couple_names}
         </h1>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <a href="#our-story" className="rounded-lg bg-white px-6 py-3 font-semibold text-black">
+          <a href="#our-story" className="rounded-lg bg-white px-6 py-3 font-metropolis font-semibold uppercase text-[#170E01]">
             Get Started
           </a>
           <RsvpTrigger />
