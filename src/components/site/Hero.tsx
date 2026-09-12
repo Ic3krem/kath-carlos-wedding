@@ -1,6 +1,5 @@
 import type { Settings } from '@/lib/types';
 import { marckScript, poppins } from '@/lib/fonts';
-import { RsvpTrigger } from './RsvpTrigger';
 
 // The design ships every layer at three frame sizes:
 //   mobile 375x568, tablet 800x661, desktop 1280x790
@@ -67,7 +66,6 @@ export function Hero({ settings }: { settings: Settings }) {
           >
             Get Started
           </a>
-          <RsvpTrigger className="flex h-[26px] w-[116px] items-center justify-center whitespace-nowrap rounded-[8.78px] bg-white text-[9.4px] font-semibold uppercase text-[#170E01] md:h-[32px] md:w-[143px] md:text-[11.6px] lg:h-[51.87px] lg:w-[237px] lg:text-[19.15px]" />
         </div>
       </div>
 

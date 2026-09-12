@@ -8,6 +8,8 @@ import { OurStory } from '@/components/site/OurStory';
 import { Gallery } from '@/components/site/Gallery';
 import { Entourage } from '@/components/site/Entourage';
 import { MapEmbed } from '@/components/site/MapEmbed';
+import { Rsvp } from '@/components/site/Rsvp';
+import { Footer } from '@/components/site/Footer';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,6 +44,8 @@ export default async function HomePage() {
           <Gallery images={(gallery as GalleryImage[]) ?? []} />
           <Entourage members={(entourage as EntourageMember[]) ?? []} />
           <MapEmbed address={resolvedSettings.maps_address} embedUrl={resolvedSettings.maps_embed_url} />
+          <Rsvp weddingDate={resolvedSettings.wedding_date} />
+          <Footer settings={resolvedSettings} />
         </main>
         <RsvpModal />
       </RsvpModalProvider>
