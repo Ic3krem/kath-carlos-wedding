@@ -41,10 +41,7 @@ export function Hero({ settings }: { settings: Settings }) {
           }}
         />
 
-        {/* Layer 0 — couple, in front, same full-frame sizing as layers 2 and 3 */}
-        <FrameLayer name="couple" />
-
-        {/* Layer 1 — couple names, in front */}
+        {/* Layer 1 — couple names, behind the couple frame */}
         <div className="absolute left-0 w-full px-3 text-center" style={{ top: '20.39%' }}>
           <h1
             className="text-[40px] leading-none text-white sm:text-[56px] md:text-[88px] lg:text-[147.73px]"
@@ -53,6 +50,9 @@ export function Hero({ settings }: { settings: Settings }) {
             {settings.couple_names}
           </h1>
         </div>
+
+        {/* Layer 0 — couple frame, in front of the title */}
+        <FrameLayer name="couple" />
 
         <div
           className="absolute left-1/2 flex -translate-x-1/2 flex-wrap items-center justify-center gap-2 sm:gap-3"
