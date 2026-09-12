@@ -24,35 +24,40 @@ export function Hero({ settings }: { settings: Settings }) {
   return (
     <div className="w-full overflow-hidden bg-black">
       <div className="relative h-[568px] w-full overflow-hidden md:h-[661px] lg:h-[790px]">
-        {settings.hero_image_url && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={settings.hero_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        )}
+        {/* Layer frame — every design layer lives in this one container */}
+        <div className="absolute inset-0">
+          {/* Gradient at the bottom of the stack — shows through the transparent
+              sky in the layer art and fades out toward the foot of the frame */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(180deg, #D9D9D9 0%, rgba(158.64, 158.64, 158.64, 0.17) 57%, rgba(115, 115, 115, 0) 100%)',
+            }}
+          />
 
-        {/* Layers 2 + 3 — grouped background */}
-        <FrameLayer name="bg2" />
-        <FrameLayer name="bg3" />
+          {settings.hero_image_url && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={settings.hero_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          )}
 
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(180deg, #D9D9D9 0%, rgba(158.64, 158.64, 158.64, 0.17) 57%, rgba(115, 115, 115, 0) 100%)',
-          }}
-        />
+          {/* Layers 2 + 3 — grouped background */}
+          <FrameLayer name="bg2" />
+          <FrameLayer name="bg3" />
 
-        {/* Layer 1 — couple names, behind the couple frame */}
-        <div className="absolute left-0 w-full px-3 text-center" style={{ top: '20.39%' }}>
-          <h1
-            className="text-[40px] leading-none text-white sm:text-[56px] md:text-[88px] lg:text-[147.73px]"
-            style={{ fontFamily: marckScript.style.fontFamily, textShadow: '-2px 5px 5px rgba(0, 0, 0, 0.55)' }}
-          >
-            {settings.couple_names}
-          </h1>
+          {/* Layer 1 — couple names, behind the couple frame */}
+          <div className="absolute left-0 w-full px-3 text-center" style={{ top: '20.39%' }}>
+            <h1
+              className="text-[40px] leading-none text-white sm:text-[56px] md:text-[88px] lg:text-[147.73px]"
+              style={{ fontFamily: marckScript.style.fontFamily, textShadow: '-2px 5px 5px rgba(0, 0, 0, 0.55)' }}
+            >
+              {settings.couple_names}
+            </h1>
+          </div>
+
+          {/* Layer 0 — couple frame, in front of the title */}
+          <FrameLayer name="couple" />
         </div>
-
-        {/* Layer 0 — couple frame, in front of the title */}
-        <FrameLayer name="couple" />
 
         <div
           className="absolute left-1/2 flex -translate-x-1/2 flex-wrap items-center justify-center gap-2 sm:gap-3"
