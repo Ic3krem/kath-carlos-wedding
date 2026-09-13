@@ -43,11 +43,11 @@ export const THEME_FALLBACK: Omit<ThemeDetails, 'id'> = {
 };
 
 export const THEME_COLORS_FALLBACK: Pick<ThemeColor, 'name' | 'hex'>[] = [
-  { name: 'Sage', hex: '#7C8C6B' },
-  { name: 'Olive', hex: '#4F5D3A' },
-  { name: 'Cream', hex: '#F2E9D8' },
-  { name: 'Champagne', hex: '#D9C089' },
-  { name: 'Terracotta', hex: '#B66A4A' },
+  { name: 'Mist', hex: '#D7E1EA' },
+  { name: 'Dusty Blue', hex: '#8AA2B8' },
+  { name: 'Steel Blue', hex: '#5E7D9A' },
+  { name: 'Deep Navy', hex: '#2F4358' },
+  { name: 'Sand', hex: '#C7B9A1' },
 ];
 
 export const GIFT_INTRO_FALLBACK =

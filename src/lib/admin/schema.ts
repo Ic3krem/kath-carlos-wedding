@@ -204,7 +204,7 @@ export function emptyRow(fields: FieldSpec[], sortOrder = 0): Row {
     else if (field.type === 'checkbox') row[field.key] = false;
     else if (field.type === 'number') row[field.key] = 0;
     else if (field.type === 'image') row[field.key] = null;
-    else if (field.type === 'color') row[field.key] = '#7C8C6B';
+    else if (field.type === 'color') row[field.key] = '#8AA2B8';
     else row[field.key] = '';
   }
   return row;
