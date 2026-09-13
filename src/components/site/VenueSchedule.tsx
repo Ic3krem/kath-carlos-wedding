@@ -46,11 +46,13 @@ function VenueCard({ venue, index }: { venue: Venue; index: number }) {
     <Reveal
       from={index === 0 ? 'left' : 'right'}
       delay={index * 140}
-      className="overflow-hidden rounded-3xl border border-black/10 bg-white shadow-sm"
+      className="h-full overflow-hidden rounded-3xl border border-black/10 bg-white shadow-sm"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12">
+      {/* The two venues sit side by side, so each card stacks its map over its
+          details rather than splitting them left and right. */}
+      <div className="flex h-full flex-col">
         {venue.embedUrl && (
-          <div className="aspect-[16/10] lg:col-span-7 lg:aspect-auto lg:min-h-[340px]">
+          <div className="aspect-[16/10]">
             <iframe
               src={venue.embedUrl}
               className="h-full w-full border-0"
@@ -61,7 +63,7 @@ function VenueCard({ venue, index }: { venue: Venue; index: number }) {
           </div>
         )}
 
-        <div className="flex flex-col justify-between gap-6 p-8 lg:col-span-5 lg:p-10">
+        <div className="flex flex-1 flex-col justify-between gap-6 p-8 lg:p-10">
           <div className="space-y-3">
             <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-accent">
               {venue.label}
@@ -165,7 +167,8 @@ export function VenueSchedule({ settings, events }: { settings: Settings; events
         blurb="Where to be, and when to be there."
       />
 
-      <div className="flex w-full max-w-[1200px] flex-col gap-8">
+      {/* Ceremony left, reception right — buildVenues keeps that order. */}
+      <div className="grid w-full max-w-[1200px] grid-cols-1 items-stretch gap-8 md:grid-cols-2">
         {venues.map((venue, index) => (
           <VenueCard key={venue.label} venue={venue} index={index} />
         ))}

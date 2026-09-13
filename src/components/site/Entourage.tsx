@@ -67,12 +67,6 @@ export function Entourage({ members }: { members: Member[] }) {
   const parents = { bride: by(ordered, 'parents', 'bride'), groom: by(ordered, 'parents', 'groom') };
   const ninongs = by(ordered, 'godparents', 'groom');
   const ninangs = by(ordered, 'godparents', 'bride');
-  // The reference presents principal sponsors as couples, so pair them off and
-  // let any odd one out stand alone.
-  const sponsorPairs = Array.from({ length: Math.max(ninongs.length, ninangs.length) }, (_, i) => ({
-    ninong: ninongs[i],
-    ninang: ninangs[i],
-  }));
 
   const bestMan = by(ordered, 'best_man');
   const maidOfHonor = by(ordered, 'maid_of_honor');
@@ -124,25 +118,38 @@ export function Entourage({ members }: { members: Member[] }) {
           </div>
         )}
 
-        {/* Principal sponsors */}
-        {sponsorPairs.length > 0 && (
-          <div className="space-y-6 border-t border-black/10 pt-10">
+        {/* Principal sponsors — two plain columns, like the bridal party below. */}
+        {(ninongs.length > 0 || ninangs.length > 0) && (
+          <div className="space-y-8 border-t border-black/10 pt-10">
             <Reveal className="space-y-1 text-center">
               <h3 className={GROUP_TITLE}>Life Godparents</h3>
               <p className={GROUP_NOTE}>Our principal sponsors</p>
             </Reveal>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
-              {sponsorPairs.map((pair, index) => (
-                <Reveal
-                  key={`${pair.ninong?.name ?? ''}-${pair.ninang?.name ?? ''}`}
-                  delay={(index % 2) * 100}
-                  className="space-y-1 rounded-xl border border-black/10 bg-white p-6 text-center shadow-sm"
-                >
-                  {pair.ninong && <p className="text-lg text-black">{pair.ninong.name}</p>}
-                  {pair.ninong && pair.ninang && <p className="font-script text-xl text-accent">&amp;</p>}
-                  {pair.ninang && <p className="text-lg text-black">{pair.ninang.name}</p>}
-                </Reveal>
-              ))}
+            <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-16">
+              {[
+                { heading: 'Ninong', people: ninongs },
+                { heading: 'Ninang', people: ninangs },
+              ]
+                .filter((column) => column.people.length > 0)
+                .map((column, index) => (
+                  <Reveal
+                    key={column.heading}
+                    from={index === 0 ? 'left' : 'right'}
+                    delay={index * 120}
+                    className="space-y-6"
+                  >
+                    <div className="space-y-1 border-b border-black/10 pb-2 text-center md:text-left">
+                      <h4 className="font-script text-2xl text-black sm:text-3xl">{column.heading}</h4>
+                    </div>
+                    <ul className="space-y-4 text-center md:text-left">
+                      {column.people.map((person) => (
+                        <li key={person.name}>
+                          <p className="text-lg text-black">{person.name}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </Reveal>
+                ))}
             </div>
           </div>
         )}
@@ -213,12 +220,14 @@ export function Entourage({ members }: { members: Member[] }) {
               <h3 className={GROUP_TITLE}>Bearers &amp; Flower Girls</h3>
               <p className={GROUP_NOTE}>The little ones of the ceremony</p>
             </Reveal>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
+            {/* Flex rather than a fixed grid so a row of two or three cards
+                stays centred instead of stacking against the left edge. */}
+            <div className="flex flex-wrap justify-center gap-6">
               {littles.map((little, index) => (
                 <Reveal
                   key={little.category}
                   delay={index * 100}
-                  className="space-y-2 rounded-xl border border-black/10 bg-white p-6 text-center shadow-sm transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-lg motion-reduce:hover:translate-y-0"
+                  className="w-full max-w-xs space-y-2 rounded-xl border border-black/10 bg-white p-6 text-center shadow-sm transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-lg motion-reduce:hover:translate-y-0 sm:w-[calc(50%-0.75rem)] sm:max-w-none md:w-[calc(25%-1.125rem)]"
                 >
                   <Icon category={little.category} />
                   {by(ordered, little.category).map((person) => (

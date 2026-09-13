@@ -1,4 +1,4 @@
-export type ThemeKey = 'classic-green' | 'blush' | 'ivory-gold';
+export type ThemeKey = 'dusty-blue' | 'classic-green' | 'blush' | 'ivory-gold';
 
 export interface ThemeDefinition {
   label: string;
@@ -10,6 +10,12 @@ export interface ThemeDefinition {
 }
 
 export const THEMES: Record<ThemeKey, ThemeDefinition> = {
+  'dusty-blue': {
+    label: 'Dusty Blue',
+    // The accent carries small uppercase type on white, so it is darkened
+    // until it clears 4.5:1 rather than using the lighter swatch blue.
+    colors: { primary: '#33506b', secondary: '#eef3f8', accent: '#4f7091' },
+  },
   'classic-green': {
     label: 'Classic Green',
     colors: { primary: '#2f4f3a', secondary: '#f5f1e6', accent: '#c9a24b' },
@@ -24,7 +30,7 @@ export const THEMES: Record<ThemeKey, ThemeDefinition> = {
   },
 };
 
-export const DEFAULT_THEME: ThemeKey = 'classic-green';
+export const DEFAULT_THEME: ThemeKey = 'dusty-blue';
 
 export function isValidTheme(value: string): value is ThemeKey {
   return Object.prototype.hasOwnProperty.call(THEMES, value);

@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server';
 const singleMock = vi.fn();
 const orderMock = vi.fn();
 const selectMock = vi.fn(() => ({ order: orderMock, eq: () => ({ single: singleMock }) }));
-const insertMock = vi.fn(() => ({ select: () => ({ single: singleMock }) }));
+const insertMock = vi.fn((_row: Record<string, unknown>) => ({ select: () => ({ single: singleMock }) }));
 const upsertMock = vi.fn(() => ({ select: () => ({ single: singleMock }) }));
 const eqMock = vi.fn(() => ({ select: () => ({ single: singleMock }) }));
 const updateMock = vi.fn(() => ({ eq: eqMock }));
@@ -66,7 +66,7 @@ describe('/api/admin/collections/[table]', () => {
     await POST(post('schedule_events', { title: 'Ceremony', is_highlight: 'true', sort_order: '3' }), {
       params: { table: 'schedule_events' },
     });
-    const written = insertMock.mock.calls[0][0] as Record<string, unknown>;
+    const written = insertMock.mock.calls[0][0];
     expect(written.is_highlight).toBe(true);
     expect(written.sort_order).toBe(3);
   });

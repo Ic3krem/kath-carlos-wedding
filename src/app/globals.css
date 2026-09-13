@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: #2f4f3a;
-  --color-secondary: #f5f1e6;
-  --color-accent: #c9a24b;
+  --color-primary: #33506b;
+  --color-secondary: #eef3f8;
+  --color-accent: #4f7091;
 }
 
 html {
@@ -14,7 +14,7 @@ html {
   scroll-behavior: smooth;
 }
 
-/* The page sits on black: the countdown pins against it and the cream content
+/* The page sits on black: the countdown pins against it and the pale content
    sheet stacks over the top. Sections paint their own background. */
 html, body {
   @apply bg-black text-black;
@@ -41,7 +41,7 @@ select:focus-visible,
 [tabindex]:focus-visible {
   /* Double ring so a focus indicator is always visible regardless of
      background: a white inner ring reads against the black hero/countdown/
-     footer bands, and a black outer ring reads against the cream content
+     footer bands, and a black outer ring reads against the pale content
      sections. At least one ring clears 3:1 in every section of the page. */
   outline: 2px solid #fff;
   outline-offset: 2px;
@@ -85,6 +85,11 @@ select:focus-visible,
   }
 }
 
+[data-theme='dusty-blue'] {
+  --color-primary: #33506b;
+  --color-secondary: #eef3f8;
+  --color-accent: #4f7091;
+}
 [data-theme='classic-green'] {
   --color-primary: #2f4f3a;
   --color-secondary: #f5f1e6;

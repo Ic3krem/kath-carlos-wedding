@@ -6,3 +6,6 @@ tsconfig.tsbuildinfo
 resources/
 Desktop.svg
 __pycache__/
+
+.vercel
+.env*
