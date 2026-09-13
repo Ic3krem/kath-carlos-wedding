@@ -10,10 +10,6 @@ const initialForm = {
   phone: '',
   attending: true,
   guest_count: 1,
-  guest_names: '',
-  meal_preference: '',
-  allergies: '',
-  song_request: '',
   message: '',
 };
 
@@ -24,9 +20,6 @@ const LABEL_CLASS = 'text-[10px] font-semibold uppercase tracking-[0.2em] text-b
 const STEP_CLASS = 'flex items-center gap-2.5 text-lg text-black';
 const STEP_BADGE =
   'flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[11px] font-semibold text-white';
-
-/** Chips write into the free-text allergies field the API already accepts. */
-const DIET_CHIPS = ['Gluten-free', 'Vegetarian', 'Vegan', 'Seafood allergy', 'Nut allergy'];
 
 function Step({ number, title }: { number: number; title: string }) {
   return (
@@ -39,8 +32,13 @@ function Step({ number, title }: { number: number; title: string }) {
 
 export function Rsvp({ weddingDate }: { weddingDate: string }) {
   const [form, setForm] = useState(initialForm);
-  const [diets, setDiets] = useState<string[]>([]);
+  // One box per companion, so the party size decides how many names are asked
+  // for. The array is kept longer than the current count so lowering and
+  // raising the number again does not wipe what was already typed.
+  const [guestNames, setGuestNames] = useState<string[]>([]);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+
+  const companionCount = Math.max(0, form.guest_count - 1);
 
   const formatted = new Date(weddingDate).toLocaleDateString('en-US', {
     month: 'long',
@@ -49,22 +47,27 @@ export function Rsvp({ weddingDate }: { weddingDate: string }) {
     timeZone: 'UTC',
   });
 
-  function toggleDiet(diet: string) {
-    setDiets((current) =>
-      current.includes(diet) ? current.filter((d) => d !== diet) : [...current, diet]
-    );
+  function setGuestName(index: number, value: string) {
+    setGuestNames((current) => {
+      const next = [...current];
+      while (next.length <= index) next.push('');
+      next[index] = value;
+      return next;
+    });
   }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setStatus('submitting');
-    // The chips and the free-text box both describe dietary needs, so they are
-    // merged into the one column the API stores.
-    const allergies = [diets.join(', '), form.allergies].filter(Boolean).join(' — ');
+    // Only the boxes actually on screen are sent, so names left over from a
+    // larger party size are dropped rather than stored.
+    const guest_names = form.attending
+      ? guestNames.slice(0, companionCount).map((name) => name.trim()).filter(Boolean).join(', ')
+      : '';
     const response = await fetch('/api/rsvp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, allergies }),
+      body: JSON.stringify({ ...form, guest_names }),
     }).catch(() => null);
     setStatus(response?.ok ? 'success' : 'error');
   }
@@ -210,123 +213,51 @@ export function Rsvp({ weddingDate }: { weddingDate: string }) {
               </div>
             </fieldset>
 
-            {attending && (
-              <>
-                {/* Step 3 — the rest of the party */}
-                <div className="flex flex-col gap-4 border-t border-black/10 pt-6">
-                  <Step number={3} title="Who is coming with you?" />
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div className="flex flex-col gap-1">
-                      <label className={LABEL_CLASS} htmlFor="rsvp-guest-names">
-                        Names of your guests
+            {/* Step 3 — one name box per companion, as set in step 1 */}
+            {attending && companionCount > 0 && (
+              <div className="flex flex-col gap-4 border-t border-black/10 pt-6">
+                <Step number={3} title="Who is coming with you?" />
+                <p className="-mt-2 text-xs text-black/45">
+                  {companionCount === 1
+                    ? 'One guest besides yourself — their name goes on their place card.'
+                    : `${companionCount} guests besides yourself — their names go on their place cards.`}
+                </p>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  {Array.from({ length: companionCount }, (_, index) => (
+                    <div key={index} className="flex flex-col gap-1">
+                      <label className={LABEL_CLASS} htmlFor={`rsvp-guest-${index + 2}`}>
+                        Guest {index + 2}
                       </label>
                       <input
-                        id="rsvp-guest-names"
-                        name="guest_names"
+                        id={`rsvp-guest-${index + 2}`}
+                        name={`guest_name_${index + 2}`}
                         type="text"
-                        placeholder="So we can print their place cards"
+                        autoComplete="off"
+                        placeholder="Full name"
                         className={FIELD_CLASS}
-                        value={form.guest_names}
-                        onChange={(e) => setForm((c) => ({ ...c, guest_names: e.target.value }))}
+                        value={guestNames[index] ?? ''}
+                        onChange={(e) => setGuestName(index, e.target.value)}
                       />
                     </div>
-
-                    <div className="flex flex-col gap-1">
-                      <label className={LABEL_CLASS} htmlFor="rsvp-meal">
-                        Meal preference
-                      </label>
-                      <select
-                        id="rsvp-meal"
-                        name="meal_preference"
-                        className={FIELD_CLASS}
-                        value={form.meal_preference}
-                        onChange={(e) => setForm((c) => ({ ...c, meal_preference: e.target.value }))}
-                      >
-                        <option value="">No preference</option>
-                        <option value="Chicken">Chicken</option>
-                        <option value="Beef">Beef</option>
-                        <option value="Fish">Fish</option>
-                        <option value="Vegetarian">Vegetarian</option>
-                        <option value="Vegan">Vegan</option>
-                      </select>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-
-                {/* Step 4 — dietary chips plus a free-text catch-all */}
-                <fieldset className="flex flex-col gap-4 border-t border-black/10 pt-6">
-                  <legend className="sr-only">Dietary requirements</legend>
-                  <Step number={4} title="Anything we should know?" />
-                  <div className="flex flex-wrap gap-3">
-                    {DIET_CHIPS.map((diet) => (
-                      <label
-                        key={diet}
-                        className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs transition-colors duration-300 ${
-                          diets.includes(diet)
-                            ? 'border-accent bg-accent/[0.08] text-black'
-                            : 'border-black/10 text-black/60 hover:border-accent/60'
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          className="h-3.5 w-3.5 rounded accent-[color:var(--color-accent)]"
-                          checked={diets.includes(diet)}
-                          onChange={() => toggleDiet(diet)}
-                        />
-                        {diet}
-                      </label>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <label className={LABEL_CLASS} htmlFor="rsvp-allergies">
-                      Other allergies or dietary needs
-                    </label>
-                    <input
-                      id="rsvp-allergies"
-                      name="allergies"
-                      type="text"
-                      placeholder="For anyone in your party"
-                      className={FIELD_CLASS}
-                      value={form.allergies}
-                      onChange={(e) => setForm((c) => ({ ...c, allergies: e.target.value }))}
-                    />
-                  </div>
-                </fieldset>
-              </>
+              </div>
             )}
 
-            {/* Step 5 — song and note */}
-            <div className="grid grid-cols-1 gap-6 border-t border-black/10 pt-6 sm:grid-cols-2">
-              <div className="flex flex-col gap-1">
-                <label className={LABEL_CLASS} htmlFor="rsvp-song">
-                  Song request
-                </label>
-                <input
-                  id="rsvp-song"
-                  name="song_request"
-                  type="text"
-                  placeholder="What will get you on the floor?"
-                  className={FIELD_CLASS}
-                  value={form.song_request}
-                  onChange={(e) => setForm((c) => ({ ...c, song_request: e.target.value }))}
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className={LABEL_CLASS} htmlFor="rsvp-message">
-                  A note for the couple
-                </label>
-                <input
-                  id="rsvp-message"
-                  name="message"
-                  type="text"
-                  placeholder="Share a wish or a word"
-                  className={FIELD_CLASS}
-                  value={form.message}
-                  onChange={(e) => setForm((c) => ({ ...c, message: e.target.value }))}
-                />
-              </div>
+            {/* A note for the couple */}
+            <div className="flex flex-col gap-1 border-t border-black/10 pt-6">
+              <label className={LABEL_CLASS} htmlFor="rsvp-message">
+                A note for the couple
+              </label>
+              <input
+                id="rsvp-message"
+                name="message"
+                type="text"
+                placeholder="Share a wish or a word"
+                className={FIELD_CLASS}
+                value={form.message}
+                onChange={(e) => setForm((c) => ({ ...c, message: e.target.value }))}
+              />
             </div>
 
             <div className="flex flex-col items-center gap-4 pt-2">

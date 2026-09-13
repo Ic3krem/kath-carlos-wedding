@@ -9,7 +9,7 @@ export function RsvpTable({ rsvps }: { rsvps: Rsvp[] }) {
           Export CSV
         </a>
       </div>
-      <table className="min-w-[1100px] w-full border-collapse text-left text-sm">
+      <table className="min-w-[720px] w-full border-collapse text-left text-sm">
         <thead>
           <tr className="border-b border-black/10">
             <th className="py-2 pr-4">Name</th>
@@ -17,9 +17,6 @@ export function RsvpTable({ rsvps }: { rsvps: Rsvp[] }) {
             <th className="py-2 pr-4">Attending</th>
             <th className="py-2 pr-4">Guests</th>
             <th className="py-2 pr-4">Guest names</th>
-            <th className="py-2 pr-4">Meal</th>
-            <th className="py-2 pr-4">Allergies</th>
-            <th className="py-2 pr-4">Song</th>
             <th className="py-2 pr-4">Message</th>
           </tr>
         </thead>
@@ -31,12 +28,6 @@ export function RsvpTable({ rsvps }: { rsvps: Rsvp[] }) {
               <td className="py-2 pr-4">{rsvp.attending ? 'Yes' : 'No'}</td>
               <td className="py-2 pr-4">{rsvp.guest_count}</td>
               <td className="py-2 pr-4">{rsvp.guest_names ?? '—'}</td>
-              <td className="py-2 pr-4">{rsvp.meal_preference ?? '—'}</td>
-              {/* Allergies drive catering, so make them stand out in the table. */}
-              <td className="py-2 pr-4">
-                {rsvp.allergies ? <span className="font-medium text-red-700">{rsvp.allergies}</span> : '—'}
-              </td>
-              <td className="py-2 pr-4">{rsvp.song_request ?? '—'}</td>
               <td className="py-2 pr-4">{rsvp.message ?? '—'}</td>
             </tr>
           ))}
