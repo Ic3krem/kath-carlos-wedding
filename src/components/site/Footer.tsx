@@ -1,4 +1,6 @@
 import type { Contact, Settings } from '@/lib/types';
+import { buildVenues } from './VenueSchedule';
+import { Reveal } from './Reveal';
 
 interface FooterProps {
   settings: Settings;
@@ -11,16 +13,21 @@ export function Footer({ settings, contacts }: FooterProps) {
   return (
     <footer className="w-full bg-black px-1.5 py-12 text-white sm:px-3 lg:px-6">
       <div className="mx-auto flex w-full max-w-[1550px] flex-col gap-10">
-        <div className="flex flex-col items-center gap-2 text-center">
+        <Reveal className="flex flex-col items-center gap-2 text-center">
           <h2 className="font-script text-4xl sm:text-5xl">{settings.couple_names}</h2>
-          {settings.maps_address && <p className="max-w-xl text-sm text-white/60">{settings.maps_address}</p>}
-        </div>
+          {buildVenues(settings).map((venue) => (
+            <p key={venue.label} className="max-w-xl text-sm text-white/60">
+              {[venue.label, venue.name, venue.address].filter(Boolean).join(' · ')}
+            </p>
+          ))}
+        </Reveal>
 
         {contacts.length > 0 && (
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-            {contacts.map((contact) => (
-              <div
+            {contacts.map((contact, index) => (
+              <Reveal
                 key={`${contact.role}-${contact.name}`}
+                delay={index * 120}
                 className="flex flex-col items-center gap-1 text-center sm:items-start sm:text-left"
               >
                 <span className="text-xs uppercase tracking-wide text-white/60">{contact.role}</span>
@@ -35,7 +42,7 @@ export function Footer({ settings, contacts }: FooterProps) {
                     {contact.email}
                   </a>
                 )}
-              </div>
+              </Reveal>
             ))}
           </div>
         )}

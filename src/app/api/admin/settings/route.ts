@@ -25,6 +25,12 @@ export async function PUT(request: NextRequest) {
       theme: body.theme,
       maps_address: body.maps_address,
       maps_embed_url: body.maps_embed_url,
+      ceremony_name: body.ceremony_name,
+      ceremony_address: body.ceremony_address,
+      ceremony_embed_url: body.ceremony_embed_url,
+      reception_name: body.reception_name,
+      reception_address: body.reception_address,
+      reception_embed_url: body.reception_embed_url,
     })
     .eq('id', 1)
     .select()

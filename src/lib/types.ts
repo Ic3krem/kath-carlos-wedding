@@ -4,8 +4,15 @@ export interface Settings {
   wedding_date: string;
   hero_image_url: string | null;
   theme: string;
+  /** Legacy single-venue fields; used as the ceremony fallback. */
   maps_address: string | null;
   maps_embed_url: string | null;
+  ceremony_name: string | null;
+  ceremony_address: string | null;
+  ceremony_embed_url: string | null;
+  reception_name: string | null;
+  reception_address: string | null;
+  reception_embed_url: string | null;
 }
 
 export interface OurStory {
@@ -19,7 +26,47 @@ export interface OurStory {
   button_label: string;
 }
 
-export type EntourageCategory = 'parents' | 'godparents' | 'other';
+export type EntourageCategory =
+  | 'parents'
+  | 'godparents'
+  | 'best_man'
+  | 'maid_of_honor'
+  | 'groomsmen'
+  | 'bridesmaids'
+  | 'flower_girls'
+  | 'ring_bearer'
+  | 'coin_bearer'
+  | 'bible_bearer'
+  | 'other';
+
+export const ENTOURAGE_CATEGORIES: EntourageCategory[] = [
+  'parents',
+  'godparents',
+  'best_man',
+  'maid_of_honor',
+  'groomsmen',
+  'bridesmaids',
+  'flower_girls',
+  'ring_bearer',
+  'coin_bearer',
+  'bible_bearer',
+  'other',
+];
+
+/** Heading shown above each group on the public page. */
+export const ENTOURAGE_CATEGORY_LABELS: Record<EntourageCategory, string> = {
+  parents: 'Parents',
+  godparents: 'Life Godparents',
+  best_man: 'Best Man',
+  maid_of_honor: 'Maid of Honor',
+  groomsmen: 'Groomsmen',
+  bridesmaids: 'Bridesmaids',
+  flower_girls: 'Flower Girls',
+  ring_bearer: 'Ring Bearer',
+  coin_bearer: 'Coin Bearer',
+  bible_bearer: 'Bible Bearer',
+  other: 'Entourage',
+};
 export type EntourageSide = 'bride' | 'groom' | null;
 
 export interface EntourageMember {
@@ -29,6 +76,41 @@ export interface EntourageMember {
   name: string;
   side: EntourageSide;
   sort_order: number;
+}
+
+export interface StoryMilestone {
+  id: string;
+  era: string;
+  place: string;
+  title: string;
+  body: string;
+  quote: string;
+  image_url: string | null;
+  caption: string;
+  sort_order: number;
+}
+
+export interface ScheduleEvent {
+  id: string;
+  day_label: string;
+  date_label: string;
+  title: string;
+  time_label: string;
+  body: string;
+  attire: string;
+  /** newline-separated "time|what" rows; replaces `body` when present */
+  agenda: string;
+  is_highlight: boolean;
+  sort_order: number;
+}
+
+export interface Logistics {
+  id: number;
+  dress_note: string;
+  stay_title: string;
+  stay_body: string;
+  travel_title: string;
+  travel_body: string;
 }
 
 export type GalleryShape = 'square' | 'tall' | 'wide' | null;

@@ -66,6 +66,7 @@ export function Hero({ settings }: { settings: Settings }) {
               background: 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.55) 57%, #000000 100%)',
             }}
           />
+
         </div>
 
         <div

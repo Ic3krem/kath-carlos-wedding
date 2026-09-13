@@ -8,8 +8,16 @@
   --color-accent: #c9a24b;
 }
 
+html {
+  /* Anchor jumps (the hero's "Get Started") glide instead of teleporting.
+     The reduced-motion block below turns this back off. */
+  scroll-behavior: smooth;
+}
+
+/* The page sits on black: the countdown pins against it and the cream content
+   sheet stacks over the top. Sections paint their own background. */
 html, body {
-  @apply bg-secondary text-black;
+  @apply bg-black text-black;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -41,12 +49,37 @@ select:focus-visible,
   border-radius: 2px;
 }
 
+/* Reveal-on-scroll starts hidden in the SSR markup, so restore it when the
+   browser will never run the observer that would show it. */
+@media (scripting: none) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Section headings underline themselves as they arrive. */
+.heading-flourish::after {
+  content: '';
+  display: block;
+  height: 1px;
+  width: 0;
+  margin: 0.35rem auto 0;
+  background: var(--color-accent);
+  transition: width 900ms ease-out 250ms;
+}
+[data-reveal].opacity-100 .heading-flourish::after,
+.heading-flourish.is-shown::after {
+  width: 4.5rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }

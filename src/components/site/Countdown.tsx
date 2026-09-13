@@ -46,12 +46,15 @@ export function Countdown({ weddingDate }: { weddingDate: string }) {
 
   return (
     <section
-      className="flex w-full flex-col items-center justify-center gap-4 overflow-hidden bg-black sm:gap-5"
+      // Solid black panel, one full viewport tall so that once it pins (see
+      // page.tsx) the countdown sits dead centre of the screen. svh keeps it
+      // honest on mobile, where the browser chrome collapses on scroll.
+      className="relative flex min-h-[100svh] w-full flex-col items-center justify-center gap-4 overflow-hidden bg-black px-4 py-16 sm:gap-5"
       style={{ fontFamily: poppins.style.fontFamily }}
     >
       <div
         ref={sentinel}
-        className={`flex w-full flex-col items-center gap-4 px-4 pt-28 transition-[transform,opacity] duration-700 ease-out sm:gap-5 sm:pt-36 lg:pt-44 ${
+        className={`flex w-full flex-col items-center gap-6 transition-[transform,opacity] duration-700 ease-out sm:gap-8 ${
           revealed ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
         }`}
       >
@@ -60,13 +63,14 @@ export function Countdown({ weddingDate }: { weddingDate: string }) {
         </h2>
 
         {!parts.isPast && (
-          <div className="grid w-full max-w-5xl grid-cols-3 justify-items-center gap-x-2 gap-y-4 pb-16 sm:grid-cols-6 sm:gap-x-4 sm:pb-20 lg:pb-24">
-            {UNITS.map(({ key, label, smallScreen }) => (
+          <div className="grid w-full max-w-5xl grid-cols-3 justify-items-center gap-x-2 gap-y-4 sm:grid-cols-6 sm:gap-x-4">
+            {UNITS.map(({ key, label, smallScreen }, index) => (
               <div
                 key={key}
-                className={`flex-col items-center justify-center py-2 sm:flex sm:py-5 ${
+                style={{ transitionDelay: `${120 + index * 90}ms` }}
+                className={`flex-col items-center justify-center py-2 transition-[transform,opacity] duration-700 ease-out sm:flex sm:py-5 ${
                   smallScreen ? 'flex' : 'hidden'
-                }`}
+                } ${revealed ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
               >
                 <div className="text-center text-3xl font-semibold leading-tight text-white sm:text-4xl md:text-5xl lg:text-[48px]">
                   {String(parts[key]).padStart(2, '0')}
@@ -78,11 +82,6 @@ export function Countdown({ weddingDate }: { weddingDate: string }) {
         )}
       </div>
 
-      {/* Transition into the content sections below */}
-      <div
-        className="h-24 w-full sm:h-32 lg:h-40"
-        style={{ background: 'linear-gradient(180deg, #000000 0%, var(--color-secondary) 100%)' }}
-      />
     </section>
   );
 }

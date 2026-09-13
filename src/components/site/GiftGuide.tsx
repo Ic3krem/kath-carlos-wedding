@@ -1,4 +1,5 @@
 import type { GiftOption } from '@/lib/types';
+import { Reveal } from './Reveal';
 
 interface GiftGuideProps {
   intro: string;
@@ -10,14 +11,21 @@ export function GiftGuide({ intro, options }: GiftGuideProps) {
 
   return (
     <section id="gift-guide" className="flex w-full flex-col items-center gap-6 px-1.5 py-12 sm:px-3 sm:py-16 lg:px-6 lg:py-20">
-      <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">Gift Guide</h2>
-      {intro && <p className="max-w-2xl text-center text-black/55">{intro}</p>}
+      <Reveal className="w-full text-center">
+        <h2 className="heading-flourish font-script text-5xl text-black sm:text-6xl lg:text-7xl">Gift Guide</h2>
+      </Reveal>
+      {intro && (
+        <Reveal delay={80}>
+          <p className="max-w-2xl text-center text-black/55">{intro}</p>
+        </Reveal>
+      )}
 
       <div className="grid w-full max-w-[1550px] grid-cols-1 gap-6 sm:grid-cols-3">
-        {options.map((option) => (
-          <div
+        {options.map((option, index) => (
+          <Reveal
             key={option.title}
-            className="flex flex-col items-center gap-2 rounded-lg border border-black/10 p-6 text-center"
+            delay={index * 120}
+            className="flex flex-col items-center gap-2 rounded-lg border border-black/10 p-6 text-center hover:-translate-y-1 hover:border-accent/40 hover:shadow-lg motion-reduce:hover:translate-y-0"
           >
             <h3 className="text-lg font-semibold text-black">{option.title}</h3>
             {option.detail && <p className="text-sm text-black/55">{option.detail}</p>}
@@ -33,7 +41,7 @@ export function GiftGuide({ intro, options }: GiftGuideProps) {
                   ))}
               </div>
             )}
-          </div>
+          </Reveal>
         ))}
       </div>
     </section>

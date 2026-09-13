@@ -5,3 +5,4 @@ node_modules
 tsconfig.tsbuildinfo
 resources/
 Desktop.svg
+__pycache__/

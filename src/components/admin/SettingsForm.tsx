@@ -57,22 +57,61 @@ export function SettingsForm({ initial }: { initial: Settings }) {
           ))}
         </select>
       </div>
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">Venue address</label>
-        <input
-          className="rounded-md border border-black/20 px-3 py-2"
-          value={form.maps_address ?? ''}
-          onChange={(e) => setForm({ ...form, maps_address: e.target.value })}
-        />
-      </div>
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">Google Maps embed URL</label>
-        <input
-          className="rounded-md border border-black/20 px-3 py-2"
-          value={form.maps_embed_url ?? ''}
-          onChange={(e) => setForm({ ...form, maps_embed_url: e.target.value })}
-        />
-      </div>
+      <fieldset className="flex flex-col gap-4 rounded-md border border-black/10 p-4">
+        <legend className="px-1 text-sm font-semibold">Ceremony venue</legend>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Name</label>
+          <input
+            className="rounded-md border border-black/20 px-3 py-2"
+            value={form.ceremony_name ?? ''}
+            onChange={(e) => setForm({ ...form, ceremony_name: e.target.value })}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Address</label>
+          <input
+            className="rounded-md border border-black/20 px-3 py-2"
+            value={form.ceremony_address ?? ''}
+            onChange={(e) => setForm({ ...form, ceremony_address: e.target.value })}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Google Maps embed URL</label>
+          <input
+            className="rounded-md border border-black/20 px-3 py-2"
+            value={form.ceremony_embed_url ?? ''}
+            onChange={(e) => setForm({ ...form, ceremony_embed_url: e.target.value })}
+          />
+        </div>
+      </fieldset>
+
+      <fieldset className="flex flex-col gap-4 rounded-md border border-black/10 p-4">
+        <legend className="px-1 text-sm font-semibold">Reception venue</legend>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Name</label>
+          <input
+            className="rounded-md border border-black/20 px-3 py-2"
+            value={form.reception_name ?? ''}
+            onChange={(e) => setForm({ ...form, reception_name: e.target.value })}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Address</label>
+          <input
+            className="rounded-md border border-black/20 px-3 py-2"
+            value={form.reception_address ?? ''}
+            onChange={(e) => setForm({ ...form, reception_address: e.target.value })}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Google Maps embed URL</label>
+          <input
+            className="rounded-md border border-black/20 px-3 py-2"
+            value={form.reception_embed_url ?? ''}
+            onChange={(e) => setForm({ ...form, reception_embed_url: e.target.value })}
+          />
+        </div>
+      </fieldset>
       <button type="submit" className="w-full rounded-md bg-black px-4 py-2 text-white sm:w-fit">
         {status === 'saving' ? 'Saving…' : 'Save settings'}
       </button>

@@ -2,81 +2,111 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import type { OurStory as OurStoryData } from '@/lib/types';
+import type { OurStory as OurStoryData, StoryMilestone } from '@/lib/types';
+import { Reveal } from './Reveal';
+import { SectionIntro } from './SectionIntro';
 
 // StoryModal is an interaction-only overlay (renders null until "Continue
 // Reading" is clicked); load it lazily so it doesn't ship in the initial bundle.
 const StoryModal = dynamic(() => import('./StoryModal').then((m) => m.StoryModal), { ssr: false });
 
-function StoryImage({ src, alt }: { src: string; alt: string }) {
+type Milestone = Omit<StoryMilestone, 'id'>;
+
+function MilestoneImage({ src, alt, caption }: { src: string; alt: string; caption: string }) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={alt}
-      width={1280}
-      height={790}
-      loading="lazy"
-      className="aspect-[3/2] w-full rounded-2xl object-cover shadow-sm"
-    />
+    <figure className="rounded-2xl border border-black/10 bg-white p-2.5 shadow-sm">
+      <div className="overflow-hidden rounded-xl">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt={alt}
+          width={1280}
+          height={960}
+          loading="lazy"
+          className="aspect-[4/3] w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03] motion-reduce:hover:scale-100"
+        />
+      </div>
+      {caption && (
+        <figcaption className="mt-2 text-center text-sm italic text-black/45">{caption}</figcaption>
+      )}
+    </figure>
   );
 }
 
-function StoryText({ children }: { children: React.ReactNode }) {
-  return <p className="whitespace-pre-line text-center text-sm leading-relaxed text-black/60 sm:text-base">{children}</p>;
-}
-
-export function OurStory({ story }: { story: OurStoryData }) {
+export function OurStory({ story, milestones }: { story: OurStoryData; milestones: Milestone[] }) {
   const [open, setOpen] = useState(false);
-  const secondImage = story.image_url_2 ?? story.image_url;
-  const secondText = story.excerpt_2?.trim() ? story.excerpt_2 : null;
+  // Milestones that carry no image of their own borrow the two story images, so
+  // the section still reads as a photo essay before any are uploaded.
+  const spares = [story.image_url, story.image_url_2].filter(Boolean) as string[];
 
   return (
-    <section id="our-story" className="flex w-full flex-col items-center gap-6 px-1.5 py-12 sm:px-3 sm:py-16 lg:gap-10 lg:px-6 lg:py-20">
-      <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">Our Story</h2>
+    <section
+      id="our-story"
+      className="flex w-full flex-col items-center gap-6 px-1.5 py-12 sm:px-3 sm:py-16 lg:gap-10 lg:px-6 lg:py-20"
+    >
+      <SectionIntro
+        eyebrow="Chapter I • How it happened"
+        title="How Our Journey Began"
+        blurb="From a rainy afternoon in Pampanga to vows on the shore at Alasasin."
+      />
 
-      <div className="flex w-full max-w-[1550px] flex-col gap-10 lg:gap-16">
-        {/* Row 1 — image left, text right */}
-        <div className="flex flex-col items-center gap-6 lg:flex-row lg:gap-14">
-          {story.image_url && (
-            <div className="w-full lg:w-[55%]">
-              <StoryImage src={story.image_url} alt={story.title} />
-            </div>
-          )}
-          <div className="flex w-full flex-col gap-4 lg:w-[45%]">
-            <StoryText>{story.excerpt}</StoryText>
-            {/* Button lives here on mobile, where the second row's image is hidden */}
-            {!secondText && (
-              <button
-                onClick={() => setOpen(true)}
-                className="mx-auto rounded-md bg-accent px-6 py-2 text-xs font-semibold uppercase tracking-wide text-white"
-              >
-                {story.button_label}
-              </button>
-            )}
-          </div>
-        </div>
+      <div className="flex w-full max-w-[1100px] flex-col gap-16 lg:gap-24">
+        {milestones.map((milestone, index) => {
+          const image = milestone.image_url ?? spares[index % Math.max(spares.length, 1)] ?? null;
+          const flipped = index % 2 === 1;
 
-        {/* Row 2 — text left, image right. The image is hidden on mobile. */}
-        {secondText && (
-          <div className="flex flex-col items-center gap-6 lg:flex-row lg:gap-14">
-            <div className="order-2 flex w-full flex-col gap-4 lg:order-1 lg:w-[45%]">
-              <StoryText>{secondText}</StoryText>
-              <button
-                onClick={() => setOpen(true)}
-                className="mx-auto rounded-md bg-accent px-6 py-2 text-xs font-semibold uppercase tracking-wide text-white"
+          return (
+            <div
+              key={`${milestone.sort_order}-${milestone.title}`}
+              className="grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-12"
+            >
+              <Reveal
+                from={flipped ? 'right' : 'left'}
+                className={`flex flex-col gap-4 md:col-span-6 ${flipped ? 'md:order-2 md:pl-6' : 'md:pr-6'}`}
               >
-                {story.button_label}
-              </button>
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-accent">
+                    {milestone.era}
+                  </span>
+                  <span className="h-px w-8 bg-accent/50" />
+                  <span className="text-xs text-black/45">{milestone.place}</span>
+                </div>
+
+                <h3 className="text-2xl text-black sm:text-3xl">{milestone.title}</h3>
+
+                <p className="text-sm leading-relaxed text-black/60 sm:text-base">{milestone.body}</p>
+
+                {milestone.quote && (
+                  <p className="font-script text-2xl leading-snug text-accent sm:text-3xl">
+                    “{milestone.quote}”
+                  </p>
+                )}
+              </Reveal>
+
+              {image && (
+                <Reveal
+                  from={flipped ? 'left' : 'right'}
+                  delay={120}
+                  className={`md:col-span-6 ${flipped ? 'md:order-1' : ''}`}
+                >
+                  <MilestoneImage src={image} alt={milestone.title} caption={milestone.caption} />
+                </Reveal>
+              )}
             </div>
-            {secondImage && (
-              <div className="order-1 hidden w-full lg:order-2 lg:block lg:w-[55%]">
-                <StoryImage src={secondImage} alt={story.title} />
-              </div>
-            )}
-          </div>
-        )}
+          );
+        })}
       </div>
+
+      {story.full_story?.trim() && (
+        <Reveal>
+          <button
+            onClick={() => setOpen(true)}
+            className="rounded-full bg-accent px-8 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-white transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 motion-reduce:hover:translate-y-0"
+          >
+            {story.button_label}
+          </button>
+        </Reveal>
+      )}
 
       <StoryModal open={open} title={story.title} fullStory={story.full_story} onClose={() => setOpen(false)} />
     </section>

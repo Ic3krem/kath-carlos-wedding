@@ -9,6 +9,10 @@ const LINKS = [
   { href: '/admin/our-story', label: 'Our Story' },
   { href: '/admin/entourage', label: 'Entourage' },
   { href: '/admin/gallery', label: 'Gallery' },
+  { href: '/admin/schedule', label: 'Schedule' },
+  { href: '/admin/logistics', label: 'Guest notes' },
+  { href: '/admin/gifts', label: 'Gifts' },
+  { href: '/admin/contacts', label: 'Contacts' },
   { href: '/admin/rsvps', label: 'RSVPs' },
 ];
 

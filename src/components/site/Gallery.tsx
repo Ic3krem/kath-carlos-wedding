@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GalleryImage } from '@/lib/types';
 import { useFocusTrap } from '@/lib/use-focus-trap';
+import { Reveal } from './Reveal';
 
 const PREVIEW_DESKTOP = 6;
 const PREVIEW_MOBILE = 4;
@@ -130,7 +131,11 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
 
   return (
     <section id="gallery" className="flex w-full flex-col items-center gap-6 px-1.5 py-12 sm:px-3 sm:py-16 lg:px-6 lg:py-20">
-      <h2 className="font-script text-5xl text-black sm:text-6xl lg:text-7xl">View more of us</h2>
+      <Reveal className="w-full text-center">
+        <h2 className="heading-flourish font-script text-5xl text-black sm:text-6xl lg:text-7xl">
+          View more of us
+        </h2>
+      </Reveal>
 
       <div ref={gridRef} className="grid w-full max-w-[1550px] grid-cols-2 md:grid-cols-3" style={{ gap: GRID_GAP }}>
         {preview.map((image, index) => (

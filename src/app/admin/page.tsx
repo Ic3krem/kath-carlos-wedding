@@ -2,9 +2,13 @@ import Link from 'next/link';
 
 const SECTIONS = [
   { href: '/admin/settings', label: 'Site Settings', description: 'Couple names, wedding date, hero image, theme, maps.' },
-  { href: '/admin/our-story', label: 'Our Story', description: 'Story image, title, excerpt, and full story.' },
+  { href: '/admin/our-story', label: 'Our Story', description: 'Story blocks, full story, and the dated milestones.' },
   { href: '/admin/entourage', label: 'Entourage', description: 'Parents, godparents, and other roles.' },
   { href: '/admin/gallery', label: 'Gallery', description: 'Photo gallery images.' },
+  { href: '/admin/schedule', label: 'Schedule', description: 'The weekend itinerary cards.' },
+  { href: '/admin/logistics', label: 'Guest Notes', description: 'Dress code, palette, where to stay, getting there.' },
+  { href: '/admin/gifts', label: 'Gifts', description: 'Gift guide intro and the gift options.' },
+  { href: '/admin/contacts', label: 'Contacts', description: 'Who guests can reach, shown in the footer.' },
   { href: '/admin/rsvps', label: 'RSVPs', description: 'View and export guest responses.' },
 ];
 

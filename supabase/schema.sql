@@ -6,6 +6,12 @@ create table if not exists settings (
   theme text not null default 'classic-green',
   maps_address text,
   maps_embed_url text,
+  ceremony_name text,
+  ceremony_address text,
+  ceremony_embed_url text,
+  reception_name text,
+  reception_address text,
+  reception_embed_url text,
   constraint settings_singleton check (id = 1)
 );
 insert into settings (id) values (1) on conflict (id) do nothing;
@@ -23,7 +29,11 @@ insert into our_story (id) values (1) on conflict (id) do nothing;
 
 create table if not exists entourage_members (
   id uuid primary key default gen_random_uuid(),
-  category text not null check (category in ('parents', 'godparents', 'other')),
+  category text not null check (category in (
+    'parents', 'godparents', 'best_man', 'maid_of_honor', 'groomsmen',
+    'bridesmaids', 'flower_girls', 'ring_bearer', 'coin_bearer',
+    'bible_bearer', 'other'
+  )),
   role_label text not null,
   name text not null,
   side text check (side in ('bride', 'groom')),
