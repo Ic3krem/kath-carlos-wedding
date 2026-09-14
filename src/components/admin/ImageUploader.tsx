@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { upload } from '@vercel/blob/client';
 
 interface ImageUploaderProps {
   label: string;
@@ -17,16 +18,17 @@ export function ImageUploader({ label, value, onUploaded }: ImageUploaderProps) 
     if (!file) return;
     setUploading(true);
     setError(null);
-    const formData = new FormData();
-    formData.set('file', file);
-    const response = await fetch('/api/admin/upload', { method: 'POST', body: formData });
-    setUploading(false);
-    if (!response.ok) {
+    try {
+      const blob = await upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: '/api/admin/upload',
+      });
+      onUploaded(blob.url);
+    } catch {
       setError('Upload failed');
-      return;
+    } finally {
+      setUploading(false);
     }
-    const data = await response.json();
-    onUploaded(data.url);
   }
 
   return (
