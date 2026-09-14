@@ -159,7 +159,7 @@ export function VenueSchedule({ settings, events }: { settings: Settings; events
   return (
     <section
       id="venue"
-      className="flex w-full flex-col items-center gap-12 px-1.5 py-12 sm:px-3 sm:py-16 lg:px-6 lg:py-20"
+      className="flex w-full flex-col items-center gap-12 px-4 py-12 sm:px-6 sm:py-16 lg:px-10 lg:py-20"
     >
       <SectionIntro
         eyebrow="Chapter III • The places"

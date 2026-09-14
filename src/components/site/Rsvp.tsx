@@ -77,7 +77,7 @@ export function Rsvp({ weddingDate }: { weddingDate: string }) {
   return (
     <section
       id="rsvp"
-      className="flex w-full flex-col items-center gap-10 px-1.5 py-12 sm:px-3 sm:py-16 lg:px-6 lg:py-20"
+      className="flex w-full flex-col items-center gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:px-10 lg:py-20"
     >
       <SectionIntro
         eyebrow="Chapter V • The favour of your reply"

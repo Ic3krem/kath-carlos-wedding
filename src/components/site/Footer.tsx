@@ -11,7 +11,7 @@ export function Footer({ settings, contacts }: FooterProps) {
   const year = new Date(settings.wedding_date).getUTCFullYear();
 
   return (
-    <footer className="w-full bg-black px-1.5 py-12 text-white sm:px-3 lg:px-6">
+    <footer className="w-full bg-black px-4 py-12 text-white sm:px-6 lg:px-10">
       <div className="mx-auto flex w-full max-w-[1550px] flex-col gap-10">
         <Reveal className="flex flex-col items-center gap-2 text-center">
           <h2 className="font-script text-4xl sm:text-5xl">{settings.couple_names}</h2>

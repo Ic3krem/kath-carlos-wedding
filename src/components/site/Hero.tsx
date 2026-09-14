@@ -25,9 +25,13 @@ function FrameLayer({ name, className }: { name: string; className?: string }) {
 export function Hero({ settings }: { settings: Settings }) {
   return (
     <div className="w-full overflow-hidden bg-black">
-      {/* The art is 1280px wide, so on wider monitors object-cover has to scale
-          up and crop vertically. Taller frames at xl/2xl claw that crop back. */}
-      <div className="relative h-[470px] w-full overflow-hidden md:h-[560px] lg:h-[720px] xl:h-[860px] 2xl:h-[1000px]">
+      {/* One full viewport, on every device: the art is the whole first screen
+          and the black countdown only appears once the guest scrolls. svh
+          rather than vh so a phone's collapsing browser chrome cannot leave a
+          strip of black under the photo. The layers are object-cover, so a
+          tall phone crops the sides of the frame — the couple sits centred and
+          survives that crop. */}
+      <div className="relative h-[100svh] min-h-[470px] w-full overflow-hidden">
         {/* Layer frame — every design layer lives in this one container */}
         <div className="absolute inset-0">
           {settings.hero_image_url && (
