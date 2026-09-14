@@ -12,12 +12,23 @@ html {
   /* Anchor jumps (the hero's "Get Started") glide instead of teleporting.
      The reduced-motion block below turns this back off. */
   scroll-behavior: smooth;
+
+  /* Several effects deliberately park content outside the viewport before
+     they animate it in — the gallery scatters its cards a full column wide,
+     and every Reveal starts offset — which on a phone left the page swipeable
+     sideways onto the black body behind it. Clipping here rather than on an
+     inner wrapper keeps html the scroll container, so the pinned countdown
+     goes on sticking. overscroll-behavior stops the rubber-band tug with it. */
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
 }
 
 /* The page sits on black: the countdown pins against it and the pale content
    sheet stacks over the top. Sections paint their own background. */
 html, body {
   @apply bg-black text-black;
+  /* Belt and braces: nothing may make the page itself wider than the screen. */
+  max-width: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {

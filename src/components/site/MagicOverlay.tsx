@@ -3,9 +3,9 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * A drifting layer of butterflies over the whole page.
+ * Butterflies and stardust drifting over the whole page.
  *
- * Canvas 2D rather than a 3D library: the whole effect is a dozen small
+ * Canvas 2D rather than a 3D library: the whole effect is a few dozen small
  * shapes, so it costs a few kilobytes of code instead of the few hundred a
  * WebGL runtime would add to the first load. The canvas is fixed, behind
  * nothing and clickable through, so it never interferes with the page.
@@ -31,8 +31,60 @@ interface Butterfly {
   opacity: number;
 }
 
+/** Stardust is warmer than the butterflies, so it reads as light, not colour. */
+const DUST_COLORS = ['#FFFFFF', '#EAF1F8', '#D7E1EA', '#C9D8E6'];
+
+interface Dust {
+  x: number;
+  y: number;
+  size: number;
+  /** Slow upward drift with a sideways sway. */
+  riseSpeed: number;
+  swayWidth: number;
+  swaySpeed: number;
+  swayPhase: number;
+  twinkleSpeed: number;
+  twinklePhase: number;
+  peakOpacity: number;
+  color: string;
+  /** The bigger motes get a four-point sparkle instead of a plain dot. */
+  sparkle: boolean;
+}
+
 function random(min: number, max: number) {
   return min + Math.random() * (max - min);
+}
+
+function makeDust(width: number, height: number, atBottom: boolean): Dust {
+  const size = random(0.7, 2.4);
+  return {
+    x: random(0, width),
+    y: atBottom ? height + random(0, 40) : random(0, height),
+    size,
+    riseSpeed: random(6, 20),
+    swayWidth: random(4, 18),
+    swaySpeed: random(0.2, 0.7),
+    swayPhase: random(0, Math.PI * 2),
+    twinkleSpeed: random(0.8, 2.4),
+    twinklePhase: random(0, Math.PI * 2),
+    peakOpacity: random(0.16, 0.3),
+    color: DUST_COLORS[Math.floor(Math.random() * DUST_COLORS.length)],
+    sparkle: size > 1.8,
+  };
+}
+
+/** A four-point star: two crossed tapers, which is what a sparkle reads as. */
+function drawSparkle(ctx: CanvasRenderingContext2D, size: number) {
+  const long = size * 4;
+  const short = size * 0.55;
+  ctx.beginPath();
+  ctx.moveTo(0, -long);
+  ctx.quadraticCurveTo(short, -short, long, 0);
+  ctx.quadraticCurveTo(short, short, 0, long);
+  ctx.quadraticCurveTo(-short, short, -long, 0);
+  ctx.quadraticCurveTo(-short, -short, 0, -long);
+  ctx.closePath();
+  ctx.fill();
 }
 
 function makeButterfly(width: number, height: number, offscreen: boolean): Butterfly {
@@ -50,7 +102,7 @@ function makeButterfly(width: number, height: number, offscreen: boolean): Butte
     flapPhase: random(0, Math.PI * 2),
     tilt: random(-0.25, 0.25),
     color: COLORS[Math.floor(Math.random() * COLORS.length)],
-    opacity: random(0.22, 0.5),
+    opacity: random(0.14, 0.3),
   };
 }
 
@@ -71,7 +123,7 @@ function drawWings(ctx: CanvasRenderingContext2D, size: number) {
   ctx.fill();
 }
 
-export function Butterflies() {
+export function MagicOverlay() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -88,6 +140,7 @@ export function Butterflies() {
     let width = 0;
     let height = 0;
     let butterflies: Butterfly[] = [];
+    let dust: Dust[] = [];
     let frame = 0;
     let last = performance.now();
 
@@ -108,6 +161,11 @@ export function Butterflies() {
       if (butterflies.length !== count) {
         butterflies = Array.from({ length: count }, () => makeButterfly(width, height, false));
       }
+
+      const dustCount = width < 640 ? 45 : width < 1024 ? 75 : 110;
+      if (dust.length !== dustCount) {
+        dust = Array.from({ length: dustCount }, () => makeDust(width, height, false));
+      }
     }
 
     function draw(now: number) {
@@ -118,6 +176,36 @@ export function Butterflies() {
       last = now;
 
       ctx.clearRect(0, 0, width, height);
+
+      // Stardust first, so the butterflies pass in front of it.
+      for (const mote of dust) {
+        mote.y -= mote.riseSpeed * delta;
+        mote.swayPhase += mote.swaySpeed * delta;
+        mote.twinklePhase += mote.twinkleSpeed * delta;
+
+        // A half-wave, so each mote spends part of its cycle fully dark.
+        const twinkle = Math.max(0, Math.sin(mote.twinklePhase));
+        if (twinkle > 0.01) {
+          ctx.save();
+          ctx.translate(mote.x + Math.sin(mote.swayPhase) * mote.swayWidth, mote.y);
+          ctx.globalAlpha = twinkle * mote.peakOpacity;
+          ctx.fillStyle = mote.color;
+          if (mote.sparkle) {
+            ctx.rotate(mote.swayPhase * 0.2);
+            drawSparkle(ctx, mote.size);
+          } else {
+            ctx.beginPath();
+            ctx.arc(0, 0, mote.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        // Risen off the top: start it again from below.
+        if (mote.y < -20) {
+          Object.assign(mote, makeDust(width, height, true));
+        }
+      }
 
       for (const butterfly of butterflies) {
         butterfly.x += butterfly.speedX * delta;
