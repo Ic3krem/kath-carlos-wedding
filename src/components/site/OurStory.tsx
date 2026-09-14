@@ -62,9 +62,14 @@ export function OurStory({ story, milestones }: { story: OurStoryData; milestone
             >
               <Reveal
                 from={flipped ? 'right' : 'left'}
-                className={`flex flex-col gap-4 md:col-span-6 ${flipped ? 'md:order-2 md:pl-6' : 'md:pr-6'}`}
+                // Centred on phones, where the text sits under its own photo in
+                // one column; left-aligned again from md, where it pairs with
+                // the image side by side.
+                className={`flex flex-col gap-4 text-center md:col-span-6 md:text-left ${
+                  flipped ? 'md:order-2 md:pl-6' : 'md:pr-6'
+                }`}
               >
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
                   <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-accent">
                     {milestone.era}
                   </span>

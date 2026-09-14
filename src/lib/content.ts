@@ -47,7 +47,6 @@ export const THEME_COLORS_FALLBACK: Pick<ThemeColor, 'name' | 'hex'>[] = [
   { name: 'Dusty Blue', hex: '#8AA2B8' },
   { name: 'Steel Blue', hex: '#5E7D9A' },
   { name: 'Deep Navy', hex: '#2F4358' },
-  { name: 'Sand', hex: '#C7B9A1' },
 ];
 
 export const GIFT_INTRO_FALLBACK =
