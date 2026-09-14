@@ -106,6 +106,21 @@ select:focus-visible,
   --color-accent: #c9a24b;
 }
 
+/* Equaliser bars on the music toggle. The reduced-motion block above stops
+   the animation, so the bars simply hold their height. */
+.music-bar {
+  height: 40%;
+  animation: music-bar 900ms ease-in-out infinite alternate;
+}
+@keyframes music-bar {
+  from {
+    height: 25%;
+  }
+  to {
+    height: 100%;
+  }
+}
+
 /* Postcard gallery — cards start scattered and settle into the grid once,
    when the gallery is scrolled into view. */
 .postcard {
