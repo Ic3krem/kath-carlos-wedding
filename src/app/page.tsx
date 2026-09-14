@@ -11,7 +11,9 @@ import { GiftGuide } from '@/components/site/GiftGuide';
 import { Rsvp } from '@/components/site/Rsvp';
 import { Footer } from '@/components/site/Footer';
 import { MusicPlayer } from '@/components/site/MusicPlayer';
-import { MagicOverlay } from '@/components/site/MagicOverlay';
+import nextDynamic from 'next/dynamic';
+
+const MagicOverlay = nextDynamic(() => import('@/components/site/MagicOverlay').then(m => m.MagicOverlay), { ssr: false });
 import { SectionDivider } from '@/components/site/SectionIntro';
 import {
   getContacts,

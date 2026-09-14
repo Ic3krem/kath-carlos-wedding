@@ -2,6 +2,8 @@
 const nextConfig = {
   images: {
     remotePatterns: [{ protocol: 'https', hostname: '*.public.blob.vercel-storage.com' }],
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
   },
+  compress: true,
 };
 export default nextConfig;

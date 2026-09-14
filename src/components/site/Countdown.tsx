@@ -23,8 +23,15 @@ export function Countdown({ weddingDate }: { weddingDate: string }) {
   const sentinel = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const interval = setInterval(() => setParts(getCountdownParts(target)), 1000);
-    return () => clearInterval(interval);
+    let interval: ReturnType<typeof setInterval>;
+    function start() { interval = setInterval(() => setParts(getCountdownParts(target)), 1000); }
+    function onVisibility() {
+      clearInterval(interval);
+      if (!document.hidden) { setParts(getCountdownParts(target)); start(); }
+    }
+    start();
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisibility); };
   }, [weddingDate]);
 
   // Stay hidden until the block is scrolled into view.
