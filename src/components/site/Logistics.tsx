@@ -47,6 +47,28 @@ export function Logistics({ logistics, theme, colors }: LogisticsProps) {
               </p>
             )}
 
+            {/* Sample attire. The illustration is on white, so it sits on the
+                panel without a frame; the webp is served where it is
+                understood and the jpeg covers everything else. */}
+            <figure className="space-y-2 pt-1">
+              <picture>
+                <source srcSet="/dress/attire.webp" type="image/webp" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/dress/attire.jpg"
+                  alt="Two couples in dusty blue: the gentlemen in a grey suit and in a white shirt with navy trousers, the ladies in long dusty blue dresses."
+                  width={1600}
+                  height={1013}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full rounded-xl"
+                />
+              </picture>
+              <figcaption className="text-center text-[11px] italic text-black/45">
+                A guide, not a uniform — anything in these colours is perfect.
+              </figcaption>
+            </figure>
+
             {guests.length > 0 && (
               <ul className="flex flex-col gap-3 sm:flex-row sm:gap-8">
                 {guests.map((guest) => (
