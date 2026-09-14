@@ -59,7 +59,18 @@ export function MusicPlayer() {
       );
     };
 
-    const events = ['pointerdown', 'keydown', 'touchstart', 'scroll'] as const;
+    // Every gesture a browser is willing to count, so the music starts on
+    // whatever the guest happens to do first.
+    const events = [
+      'pointerdown',
+      'pointerup',
+      'click',
+      'keydown',
+      'touchstart',
+      'touchend',
+      'wheel',
+      'scroll',
+    ] as const;
     function detach() {
       events.forEach((event) => window.removeEventListener(event, start));
     }
@@ -119,7 +130,9 @@ export function MusicPlayer() {
         ref={audioRef}
         src={PLAYLIST[track]}
         onEnded={handleEnded}
-        preload="none"
+        // Enough of the file to start promptly on that first gesture, without
+        // pulling five megabytes down for a guest who never interacts.
+        preload="metadata"
         aria-hidden
       />
       {ready && (
