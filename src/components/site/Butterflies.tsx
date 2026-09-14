@@ -1,0 +1,195 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+
+/**
+ * A drifting layer of butterflies over the whole page.
+ *
+ * Canvas 2D rather than a 3D library: the whole effect is a dozen small
+ * shapes, so it costs a few kilobytes of code instead of the few hundred a
+ * WebGL runtime would add to the first load. The canvas is fixed, behind
+ * nothing and clickable through, so it never interferes with the page.
+ */
+
+/** Palette colours, so the swarm reads as part of the dusty blue theme. */
+const COLORS = ['#8AA2B8', '#5E7D9A', '#D7E1EA', '#2F4358', '#FFFFFF'];
+
+interface Butterfly {
+  x: number;
+  y: number;
+  size: number;
+  /** Horizontal drift, px per second. */
+  speedX: number;
+  /** How far it rises and falls, and how quickly. */
+  waveHeight: number;
+  waveSpeed: number;
+  wavePhase: number;
+  flapSpeed: number;
+  flapPhase: number;
+  tilt: number;
+  color: string;
+  opacity: number;
+}
+
+function random(min: number, max: number) {
+  return min + Math.random() * (max - min);
+}
+
+function makeButterfly(width: number, height: number, offscreen: boolean): Butterfly {
+  const size = random(9, 20);
+  const leftToRight = Math.random() < 0.5;
+  return {
+    x: offscreen ? (leftToRight ? -size * 3 : width + size * 3) : random(0, width),
+    y: random(height * 0.05, height * 0.95),
+    size,
+    speedX: (leftToRight ? 1 : -1) * random(14, 34),
+    waveHeight: random(12, 46),
+    waveSpeed: random(0.3, 0.8),
+    wavePhase: random(0, Math.PI * 2),
+    flapSpeed: random(6, 11),
+    flapPhase: random(0, Math.PI * 2),
+    tilt: random(-0.25, 0.25),
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    opacity: random(0.22, 0.5),
+  };
+}
+
+/** One wing pair, drawn from the body outward; mirrored for the other side. */
+function drawWings(ctx: CanvasRenderingContext2D, size: number) {
+  // Forewing
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.bezierCurveTo(-size * 0.95, -size * 1.15, -size * 1.55, -size * 0.15, -size * 0.5, size * 0.08);
+  ctx.closePath();
+  ctx.fill();
+
+  // Hindwing
+  ctx.beginPath();
+  ctx.moveTo(0, size * 0.05);
+  ctx.bezierCurveTo(-size * 0.8, size * 0.3, -size * 0.85, size * 1.05, -size * 0.18, size * 0.6);
+  ctx.closePath();
+  ctx.fill();
+}
+
+export function Butterflies() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // A guest who asks for less motion gets none of this.
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (reduced.matches) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let width = 0;
+    let height = 0;
+    let butterflies: Butterfly[] = [];
+    let frame = 0;
+    let last = performance.now();
+
+    function resize() {
+      if (!canvas || !ctx) return;
+      width = window.innerWidth;
+      height = window.innerHeight;
+      // Cap the pixel ratio: past 2x the extra pixels cost more than they show.
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(width * ratio);
+      canvas.height = Math.floor(height * ratio);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+      // Fewer on a phone, where there is less room and less battery to spare.
+      const count = width < 640 ? 7 : width < 1024 ? 11 : 15;
+      if (butterflies.length !== count) {
+        butterflies = Array.from({ length: count }, () => makeButterfly(width, height, false));
+      }
+    }
+
+    function draw(now: number) {
+      if (!ctx) return;
+      // Seconds since the last frame, clamped so a backgrounded tab does not
+      // teleport everything across the screen when it wakes up.
+      const delta = Math.min((now - last) / 1000, 0.05);
+      last = now;
+
+      ctx.clearRect(0, 0, width, height);
+
+      for (const butterfly of butterflies) {
+        butterfly.x += butterfly.speedX * delta;
+        butterfly.wavePhase += butterfly.waveSpeed * delta;
+        butterfly.flapPhase += butterfly.flapSpeed * delta;
+
+        const y = butterfly.y + Math.sin(butterfly.wavePhase) * butterfly.waveHeight;
+
+        // Wings squash horizontally as they beat, which reads as perspective.
+        const flap = Math.abs(Math.sin(butterfly.flapPhase));
+        const spread = 0.25 + flap * 0.75;
+
+        ctx.save();
+        ctx.translate(butterfly.x, y);
+        // Tip into the direction of travel, and bank slightly with the climb.
+        ctx.rotate(butterfly.tilt + Math.cos(butterfly.wavePhase) * 0.18);
+        ctx.globalAlpha = butterfly.opacity;
+        ctx.fillStyle = butterfly.color;
+
+        ctx.save();
+        ctx.scale(spread, 1);
+        drawWings(ctx, butterfly.size);
+        ctx.scale(-1, 1);
+        drawWings(ctx, butterfly.size);
+        ctx.restore();
+
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(0, butterfly.size * 0.15, butterfly.size * 0.07, butterfly.size * 0.45, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Once clear of the edge, send it back in from the other side.
+        const margin = butterfly.size * 3;
+        if (butterfly.speedX > 0 && butterfly.x > width + margin) {
+          Object.assign(butterfly, makeButterfly(width, height, true), { speedX: butterfly.speedX });
+          butterfly.x = -margin;
+        } else if (butterfly.speedX < 0 && butterfly.x < -margin) {
+          Object.assign(butterfly, makeButterfly(width, height, true), { speedX: butterfly.speedX });
+          butterfly.x = width + margin;
+        }
+      }
+
+      frame = requestAnimationFrame(draw);
+    }
+
+    function onVisibility() {
+      if (document.hidden) {
+        cancelAnimationFrame(frame);
+      } else {
+        last = performance.now();
+        frame = requestAnimationFrame(draw);
+      }
+    }
+
+    resize();
+    frame = requestAnimationFrame(draw);
+    window.addEventListener('resize', resize);
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('resize', resize);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-hidden
+      className="pointer-events-none fixed inset-0 z-30 h-full w-full"
+    />
+  );
+}

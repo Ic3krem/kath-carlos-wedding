@@ -11,6 +11,7 @@ import { GiftGuide } from '@/components/site/GiftGuide';
 import { Rsvp } from '@/components/site/Rsvp';
 import { Footer } from '@/components/site/Footer';
 import { MusicPlayer } from '@/components/site/MusicPlayer';
+import { Butterflies } from '@/components/site/Butterflies';
 import { SectionDivider } from '@/components/site/SectionIntro';
 import {
   getContacts,
@@ -65,6 +66,7 @@ export default async function HomePage() {
 
   return (
     <div data-theme={resolvedSettings.theme}>
+      <Butterflies />
       <MusicPlayer />
       <main className="flex w-full flex-col items-center">
         <Hero settings={resolvedSettings} />
