@@ -61,7 +61,7 @@ export function Hero({ settings }: { settings: Settings }) {
           {/* Date & time — script font, sitting a little lower and larger than before */}
           <div className="absolute left-0 w-full px-3 text-center" style={{ top: '14%' }}>
             <p
-              className="text-[14px] text-white sm:text-[18px] md:text-[21px]"
+              className="text-[18px] text-white sm:text-[23px] md:text-[27px]"
               style={{ fontFamily: marckScript.style.fontFamily, textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
             >
               {formatHeroDate(settings.wedding_date)}
@@ -93,21 +93,21 @@ export function Hero({ settings }: { settings: Settings }) {
             {settings.couple_names}
           </h1>
 
+          <a
+            href="#rsvp"
+            className="relative flex h-[26px] w-[116px] items-center justify-center whitespace-nowrap rounded-[8.78px] bg-white text-[9.4px] font-semibold uppercase text-[#170E01] before:absolute before:-inset-y-[9px] before:inset-x-0 before:content-[''] md:h-[32px] md:w-[143px] md:text-[11.6px] md:before:-inset-y-[6px] lg:h-[51.87px] lg:w-[237px] lg:text-[19.15px] lg:before:inset-0"
+          >
+            RSVP
+          </a>
+
           {settings.hero_message && (
             <p
-              className="text-[11px] leading-relaxed text-white opacity-80 sm:text-sm md:text-base"
+              className="mt-10 text-[11px] leading-relaxed text-white opacity-80 sm:mt-16 sm:text-sm md:text-base lg:mt-20"
               style={{ fontFamily: poppins.style.fontFamily, textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
             >
               {settings.hero_message}
             </p>
           )}
-
-          <a
-            href="#rsvp"
-            className="relative mt-10 flex h-[26px] w-[116px] items-center justify-center whitespace-nowrap rounded-[8.78px] bg-white text-[9.4px] font-semibold uppercase text-[#170E01] before:absolute before:-inset-y-[9px] before:inset-x-0 before:content-[''] sm:mt-16 md:h-[32px] md:w-[143px] md:text-[11.6px] md:before:-inset-y-[6px] lg:mt-20 lg:h-[51.87px] lg:w-[237px] lg:text-[19.15px] lg:before:inset-0"
-          >
-            RSVP
-          </a>
         </div>
       </div>
 
