@@ -59,7 +59,7 @@ export function Hero({ settings }: { settings: Settings }) {
           <FrameLayer name="bg3" />
 
           {/* Date & time — script font, sitting a little lower and larger than before */}
-          <div className="absolute left-0 w-full px-3 text-center" style={{ top: '14%' }}>
+          <div className="absolute left-0 w-full px-3 text-center" style={{ top: 'calc(14% + 300px)' }}>
             <p
               className="text-[14px] text-white sm:text-[18px] md:text-[21px]"
               style={{ fontFamily: marckScript.style.fontFamily, textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
@@ -82,12 +82,12 @@ export function Hero({ settings }: { settings: Settings }) {
         </div>
 
         <div
-          className="absolute left-1/2 flex w-full max-w-[90%] -translate-x-1/2 flex-col items-center gap-4 text-center sm:max-w-md"
+          className="absolute left-1/2 flex w-full max-w-[90%] -translate-x-1/2 flex-col items-center gap-4 text-center sm:max-w-md lg:max-w-4xl"
           style={{ top: '52%' }}
         >
           {/* Title — moved down to where the note used to sit */}
           <h1
-            className="text-[40px] leading-none text-white sm:text-[56px] md:text-[88px] lg:text-[100px]"
+            className="mb-2 text-[40px] leading-none text-white sm:text-[56px] md:mb-4 md:text-[88px] lg:mb-6 lg:text-[100px]"
             style={{ fontFamily: marckScript.style.fontFamily, textShadow: '-2px 5px 5px rgba(0, 0, 0, 0.55)' }}
           >
             {settings.couple_names}
@@ -102,7 +102,7 @@ export function Hero({ settings }: { settings: Settings }) {
 
           {settings.hero_message && (
             <p
-              className="text-[11px] leading-relaxed text-white sm:text-sm md:text-base"
+              className="text-[11px] leading-relaxed text-white opacity-80 sm:text-sm md:text-base"
               style={{ fontFamily: poppins.style.fontFamily, textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
             >
               {settings.hero_message}
