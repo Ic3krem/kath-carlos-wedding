@@ -123,6 +123,20 @@ export const COLLECTIONS = {
       SORT_FIELD,
     ],
   },
+  invite_allocations: {
+    table: 'invite_allocations',
+    title: 'Invite allocations',
+    description:
+      'The exact number of seats reserved for each invitee. On the RSVP form, a guest types their full name (no dropdown); it is matched here to cap their party size so it can’t be exceeded.',
+    addLabel: 'Add invitee',
+    titleKey: 'name',
+    subtitleKey: 'max_guests',
+    fields: [
+      { key: 'name', label: 'Full name', type: 'text', hint: 'Must match what the guest types on the RSVP form.' },
+      { key: 'max_guests', label: 'Max guests', type: 'number' },
+      SORT_FIELD,
+    ],
+  },
 } satisfies Record<string, CollectionSpec>;
 
 export const SINGLETONS = {
@@ -141,12 +155,17 @@ export const SINGLETONS = {
   theme_details: {
     table: 'theme_details',
     title: 'Dress code',
-    description: 'The headline and per-guest detail shown beside the palette.',
+    description: 'The headline and per-group attire shown beside the palette.',
     fields: [
       { key: 'headline', label: 'Headline', type: 'text' },
-      { key: 'note', label: 'Note', type: 'textarea' },
-      { key: 'ladies_detail', label: 'For the ladies', type: 'text' },
-      { key: 'gentlemen_detail', label: 'For the gentlemen', type: 'text' },
+      { key: 'note', label: 'Godparents/Entourage intro note', type: 'textarea' },
+      { key: 'godparents_gentlemen_detail', label: 'Godparents/Entourage — gentlemen', type: 'text' },
+      { key: 'godparents_ladies_detail', label: 'Godparents/Entourage — ladies', type: 'text' },
+      { key: 'gentlemen_detail', label: 'Guests — gentlemen', type: 'text' },
+      { key: 'ladies_detail', label: 'Guests — ladies', type: 'text' },
+      { key: 'guest_note', label: 'Guests — general note', type: 'textarea' },
+      { key: 'avoid_note', label: 'Guests — avoid note', type: 'textarea' },
+      { key: 'comfort_note', label: 'Guests — comfort note', type: 'textarea' },
     ],
   },
   gift_guide: {

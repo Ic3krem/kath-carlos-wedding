@@ -9,6 +9,11 @@ const SECTIONS = [
   { href: '/admin/logistics', label: 'Guest Notes', description: 'Dress code, palette, where to stay, getting there.' },
   { href: '/admin/gifts', label: 'Gifts', description: 'Gift guide intro and the gift options.' },
   { href: '/admin/contacts', label: 'Contacts', description: 'Who guests can reach, shown in the footer.' },
+  {
+    href: '/admin/invites',
+    label: 'Invite allocations',
+    description: 'The max party size allowed for each invitee, matched by name on the RSVP form.',
+  },
   { href: '/admin/rsvps', label: 'RSVPs', description: 'View and export guest responses.' },
 ];
 

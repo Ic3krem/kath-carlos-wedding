@@ -16,7 +16,6 @@ import nextDynamic from 'next/dynamic';
 const MagicOverlay = nextDynamic(() => import('@/components/site/MagicOverlay').then(m => m.MagicOverlay), { ssr: false });
 import { SectionDivider } from '@/components/site/SectionIntro';
 import {
-  getContacts,
   getEntourage,
   getGiftContent,
   getLogistics,
@@ -41,7 +40,6 @@ export default async function HomePage() {
     logistics,
     theme,
     gifts,
-    contacts,
   ] = await Promise.all([
     getSettings(),
     supabase.from('our_story').select('*').eq('id', 1).single<OurStoryData>(),
@@ -52,7 +50,6 @@ export default async function HomePage() {
     getLogistics(),
     getThemeContent(),
     getGiftContent(),
-    getContacts(),
   ]);
 
   const resolvedSettings = settings;
@@ -97,8 +94,8 @@ export default async function HomePage() {
             <Logistics logistics={logistics} theme={theme.details} colors={theme.colors} />
             <SectionDivider />
             <GiftGuide intro={gifts.intro} options={gifts.options} />
-            <Rsvp weddingDate={resolvedSettings.wedding_date} />
-            <Footer settings={resolvedSettings} contacts={contacts} />
+            <Rsvp weddingDate={resolvedSettings.wedding_date} rsvpDueDate={resolvedSettings.rsvp_due_date} />
+            <Footer settings={resolvedSettings} />
           </div>
         </div>
       </main>

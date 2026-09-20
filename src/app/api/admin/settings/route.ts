@@ -31,6 +31,8 @@ export async function PUT(request: NextRequest) {
       reception_name: body.reception_name,
       reception_address: body.reception_address,
       reception_embed_url: body.reception_embed_url,
+      rsvp_due_date: body.rsvp_due_date,
+      hero_message: body.hero_message,
     })
     .eq('id', 1)
     .select()

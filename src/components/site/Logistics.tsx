@@ -17,9 +17,14 @@ export function Logistics({ logistics, theme, colors }: LogisticsProps) {
     { title: logistics.travel_title, body: logistics.travel_body },
   ].filter((note) => note.title && note.body);
 
-  const guests = [
-    { label: 'Ladies', detail: theme.ladies_detail },
-    { label: 'Gentlemen', detail: theme.gentlemen_detail },
+  const godparentsAttire = [
+    { label: 'Gentlemen', detail: theme.godparents_gentlemen_detail },
+    { label: 'Ladies', detail: theme.godparents_ladies_detail },
+  ].filter((guest) => guest.detail);
+
+  const guestAttire = [
+    { label: 'Gentlemen and Ladies', detail: theme.gentlemen_detail },
+    { label: '', detail: theme.ladies_detail },
   ].filter((guest) => guest.detail);
 
   return (
@@ -27,25 +32,15 @@ export function Logistics({ logistics, theme, colors }: LogisticsProps) {
       id="logistics"
       className="flex w-full flex-col items-center gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:px-10 lg:py-20"
     >
-      <SectionIntro
-        eyebrow="Practical guest notes"
-        title="Logistics & Guest Guide"
-        blurb="What to wear, where to sleep, and how to get to Mariveles."
-      />
+      <SectionIntro eyebrow="Practical guest notes" title="Logistics & Guest Guide" />
 
       <div className="w-full max-w-3xl rounded-3xl border border-black/10 bg-black/[0.02] p-6 sm:p-10 lg:p-12">
         <div className="flex flex-col gap-8">
           {/* Dress code & palette */}
-          <Reveal className={`${PANEL} space-y-4`}>
+          <Reveal className={`${PANEL} space-y-5`}>
             <h3 className="text-lg text-black">
-              {theme.headline || 'Dress Code'} <span className="text-accent">&amp; Palette</span>
+              {theme.headline || 'Wedding Attire Guidelines'}
             </h3>
-
-            {(logistics.dress_note || theme.note) && (
-              <p className="text-xs leading-relaxed text-black/60 sm:text-sm">
-                {logistics.dress_note || theme.note}
-              </p>
-            )}
 
             {/* Sample attire. The illustration is on white, so it sits on the
                 panel without a frame; the webp is served where it is
@@ -69,21 +64,8 @@ export function Logistics({ logistics, theme, colors }: LogisticsProps) {
               </figcaption>
             </figure>
 
-            {guests.length > 0 && (
-              <ul className="flex flex-col gap-3 sm:flex-row sm:gap-8">
-                {guests.map((guest) => (
-                  <li key={guest.label} className="flex flex-col gap-0.5">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-accent">
-                      {guest.label}
-                    </span>
-                    <span className="text-xs text-black/60">{guest.detail}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-
             {colors.length > 0 && (
-              <div className="flex flex-wrap items-center gap-4 pt-2">
+              <div className="flex flex-wrap items-center gap-4 pt-1">
                 {colors.map((colour) => (
                   <div key={`${colour.name}-${colour.hex}`} className="flex items-center gap-2">
                     <span
@@ -95,6 +77,37 @@ export function Logistics({ logistics, theme, colors }: LogisticsProps) {
                     </span>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {godparentsAttire.length > 0 && (
+              <div className="space-y-2 border-t border-black/10 pt-4">
+                <h4 className="text-sm font-semibold text-black">Godparents/Entourage</h4>
+                {theme.note && <p className="text-xs leading-relaxed text-black/60">{theme.note}</p>}
+                <ul className="flex flex-col gap-1 text-xs text-black/70">
+                  {godparentsAttire.map((guest) => (
+                    <li key={guest.label}>
+                      <span className="font-medium text-black">{guest.label}:</span> {guest.detail}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {guestAttire.length > 0 && (
+              <div className="space-y-2 border-t border-black/10 pt-4">
+                <h4 className="text-sm font-semibold text-black">Guests</h4>
+                {theme.guest_note && <p className="text-xs leading-relaxed text-black/60">{theme.guest_note}</p>}
+                {theme.avoid_note && (
+                  <p className="text-xs leading-relaxed text-black/70">
+                    <strong className="font-semibold">{theme.avoid_note}</strong>
+                  </p>
+                )}
+                {theme.comfort_note && (
+                  <p className="text-xs leading-relaxed text-black/70">
+                    <strong className="font-semibold">{theme.comfort_note}</strong>
+                  </p>
+                )}
               </div>
             )}
           </Reveal>

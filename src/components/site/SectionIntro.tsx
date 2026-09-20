@@ -10,7 +10,7 @@ export function SectionIntro({
   blurb,
   tone = 'dark',
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   blurb?: string;
   /** `light` is for the few sections that sit on a dark panel. */
@@ -21,9 +21,11 @@ export function SectionIntro({
 
   return (
     <Reveal className="mx-auto flex w-full max-w-2xl flex-col items-center gap-3 text-center">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-accent sm:text-[11px]">
-        {eyebrow}
-      </p>
+      {eyebrow && (
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-accent sm:text-[11px]">
+          {eyebrow}
+        </p>
+      )}
       <h2 className={`heading-flourish font-script text-5xl sm:text-6xl lg:text-7xl ${heading}`}>{title}</h2>
       {blurb && <p className={`text-sm sm:text-base ${body}`}>{blurb}</p>}
     </Reveal>

@@ -1,13 +1,12 @@
-import type { Contact, Settings } from '@/lib/types';
+import type { Settings } from '@/lib/types';
 import { buildVenues } from './VenueSchedule';
 import { Reveal } from './Reveal';
 
 interface FooterProps {
   settings: Settings;
-  contacts: Pick<Contact, 'role' | 'name' | 'phone' | 'email'>[];
 }
 
-export function Footer({ settings, contacts }: FooterProps) {
+export function Footer({ settings }: FooterProps) {
   const year = new Date(settings.wedding_date).getUTCFullYear();
 
   return (
@@ -21,31 +20,6 @@ export function Footer({ settings, contacts }: FooterProps) {
             </p>
           ))}
         </Reveal>
-
-        {contacts.length > 0 && (
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-            {contacts.map((contact, index) => (
-              <Reveal
-                key={`${contact.role}-${contact.name}`}
-                delay={index * 120}
-                className="flex flex-col items-center gap-1 text-center sm:items-start sm:text-left"
-              >
-                <span className="text-xs uppercase tracking-wide text-white/60">{contact.role}</span>
-                <span className="font-semibold">{contact.name}</span>
-                {contact.phone && (
-                  <a href={`tel:${contact.phone.replace(/\s/g, '')}`} className="text-sm text-white/70 hover:text-white">
-                    {contact.phone}
-                  </a>
-                )}
-                {contact.email && (
-                  <a href={`mailto:${contact.email}`} className="text-sm text-white/70 hover:text-white">
-                    {contact.email}
-                  </a>
-                )}
-              </Reveal>
-            ))}
-          </div>
-        )}
 
         <p className="border-t border-white/10 pt-6 text-center text-xs text-white/55">
           {settings.couple_names} — {year}

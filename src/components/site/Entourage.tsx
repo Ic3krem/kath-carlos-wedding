@@ -1,10 +1,10 @@
 import type { EntourageCategory, EntourageMember } from '@/lib/types';
+import { CEREMONY_SPONSOR_TITLES } from '@/lib/types';
 import { Reveal } from './Reveal';
 import { SectionIntro } from './SectionIntro';
 
 type Member = Omit<EntourageMember, 'id'>;
 
-const CARD = 'rounded-2xl border border-black/10 bg-white p-6 shadow-sm sm:p-8';
 const PILL =
   'inline-block rounded-full bg-black/[0.04] px-3.5 py-1 text-[9px] font-semibold uppercase tracking-[0.2em] text-accent';
 const GROUP_TITLE = 'font-script text-3xl text-black sm:text-4xl';
@@ -73,6 +73,12 @@ export function Entourage({ members }: { members: Member[] }) {
   const groomsmen = by(ordered, 'groomsmen');
   const bridesmaids = by(ordered, 'bridesmaids');
 
+  const sponsors = by(ordered, 'ceremony_sponsors');
+  const sponsorGroups = CEREMONY_SPONSOR_TITLES.map((title) => ({
+    title,
+    people: sponsors.filter((s) => s.role_label === title),
+  })).filter((group) => group.people.length > 0);
+
   const LITTLES = [
     { category: 'flower_girls', heading: 'Flower Girls', note: 'Scattering petals down the aisle' },
     { category: 'ring_bearer', heading: 'Ring Bearer', note: 'Entrusted with the rings' },
@@ -88,27 +94,53 @@ export function Entourage({ members }: { members: Member[] }) {
       id="entourage"
       className="flex w-full max-w-[1200px] flex-col items-center gap-12 rounded-3xl border border-black/10 bg-black/[0.02] px-4 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-20"
     >
-      <SectionIntro
-        eyebrow="Chapter II • The wedding party"
-        title="The Entourage"
-        blurb="The family and friends standing with us on the day."
-      />
+      <SectionIntro title="The Entourage" blurb="The family and friends standing with us on the day." />
 
       <div className="flex w-full max-w-4xl flex-col gap-14">
-        {/* Parents */}
+        {/* Principal sponsors — a single combined list, no Ninong/Ninang subheadings. */}
+        {(ninongs.length > 0 || ninangs.length > 0) && (
+          <div className="space-y-6">
+            <Reveal className="space-y-1 text-center">
+              <h3 className={GROUP_TITLE}>Life Godparents</h3>
+              <p className={GROUP_NOTE}>Our principal sponsors</p>
+            </Reveal>
+            <ul className="grid grid-cols-1 gap-3 text-center sm:grid-cols-2 sm:gap-x-10">
+              {[...ninongs, ...ninangs].map((person) => (
+                <li key={person.name} className="text-lg text-black">
+                  {person.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Ceremony sponsors — light / veil / cord, each a Mr.-and-Ms. pair. */}
+        {sponsorGroups.length > 0 && (
+          <div className="grid grid-cols-1 gap-10 border-t border-black/10 pt-10 sm:grid-cols-3">
+            {sponsorGroups.map((group, index) => (
+              <Reveal key={group.title} delay={index * 120} className="space-y-3 text-center">
+                <h4 className="font-script text-xl text-black sm:text-2xl">{group.title}</h4>
+                <ul className="space-y-1">
+                  {group.people.map((person) => (
+                    <li key={person.name} className="text-sm text-black/80">
+                      {person.name}
+                    </li>
+                  ))}
+                </ul>
+              </Reveal>
+            ))}
+          </div>
+        )}
+
+        {/* Parents — plain text, no tiles. */}
         {(parents.bride.length > 0 || parents.groom.length > 0) && (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-10">
-            {(['bride', 'groom'] as const).map((side, index) =>
+          <div className="grid grid-cols-1 gap-8 border-t border-black/10 pt-10 md:grid-cols-2">
+            {(['groom', 'bride'] as const).map((side) =>
               parents[side].length > 0 ? (
-                <Reveal
-                  key={side}
-                  from={index === 0 ? 'left' : 'right'}
-                  delay={index * 120}
-                  className={`${CARD} space-y-2 text-center`}
-                >
+                <Reveal key={side} className="space-y-1 text-center">
                   <span className={PILL}>Parents of the {side}</span>
                   {parents[side].map((parent) => (
-                    <p key={parent.name} className="pt-1 text-xl text-black sm:text-2xl">
+                    <p key={parent.name} className="pt-1 text-lg text-black">
                       {parent.name}
                     </p>
                   ))}
@@ -118,64 +150,22 @@ export function Entourage({ members }: { members: Member[] }) {
           </div>
         )}
 
-        {/* Principal sponsors — two plain columns, like the bridal party below. */}
-        {(ninongs.length > 0 || ninangs.length > 0) && (
-          <div className="space-y-8 border-t border-black/10 pt-10">
-            <Reveal className="space-y-1 text-center">
-              <h3 className={GROUP_TITLE}>Life Godparents</h3>
-              <p className={GROUP_NOTE}>Our principal sponsors</p>
-            </Reveal>
-            <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-16">
-              {[
-                { heading: 'Ninong', people: ninongs },
-                { heading: 'Ninang', people: ninangs },
-              ]
-                .filter((column) => column.people.length > 0)
-                .map((column, index) => (
-                  <Reveal
-                    key={column.heading}
-                    from={index === 0 ? 'left' : 'right'}
-                    delay={index * 120}
-                    className="space-y-6"
-                  >
-                    <div className="space-y-1 border-b border-black/10 pb-2 text-center md:text-left">
-                      <h4 className="font-script text-2xl text-black sm:text-3xl">{column.heading}</h4>
-                    </div>
-                    <ul className="space-y-4 text-center md:text-left">
-                      {column.people.map((person) => (
-                        <li key={person.name}>
-                          <p className="text-lg text-black">{person.name}</p>
-                        </li>
-                      ))}
-                    </ul>
-                  </Reveal>
-                ))}
-            </div>
-          </div>
-        )}
-
-        {/* Maid of honor & best man */}
+        {/* Groom's Bests & Bride's Best — plain text, no tiles. */}
         {(maidOfHonor.length > 0 || bestMan.length > 0) && (
-          <div className="grid grid-cols-1 gap-6 border-t border-black/10 pt-10 md:grid-cols-2 md:gap-10">
+          <div className="grid grid-cols-1 gap-8 border-t border-black/10 pt-10 md:grid-cols-2">
             {[
-              { label: 'Maid of Honor', people: maidOfHonor, note: 'Beside the bride' },
-              { label: 'Best Man', people: bestMan, note: 'Beside the groom' },
+              { label: "Bride's Best", people: maidOfHonor, note: 'Beside the bride' },
+              { label: "Groom's Bests", people: bestMan, note: 'Beside the groom' },
             ]
               .filter((role) => role.people.length > 0)
-              .map((role, index) => (
-                <Reveal
-                  key={role.label}
-                  from={index === 0 ? 'left' : 'right'}
-                  delay={index * 120}
-                  className={`${CARD} space-y-3 text-center`}
-                >
+              .map((role) => (
+                <Reveal key={role.label} className="space-y-1 text-center">
                   <span className={PILL}>{role.label}</span>
                   {role.people.map((person) => (
-                    <h3 key={person.name} className="text-2xl text-black sm:text-3xl">
+                    <p key={person.name} className="pt-1 text-lg text-black">
                       {person.name}
-                    </h3>
+                    </p>
                   ))}
-                  <div className="mx-auto my-2 h-px w-12 bg-accent/40" />
                   <p className="text-xs font-medium uppercase tracking-wide text-accent">{role.note}</p>
                 </Reveal>
               ))}
@@ -220,14 +210,14 @@ export function Entourage({ members }: { members: Member[] }) {
               <h3 className={GROUP_TITLE}>Bearers &amp; Flower Girls</h3>
               <p className={GROUP_NOTE}>The little ones of the ceremony</p>
             </Reveal>
-            {/* Flex rather than a fixed grid so a row of two or three cards
+            {/* Flex rather than a fixed grid so a row of two or three items
                 stays centred instead of stacking against the left edge. */}
-            <div className="flex flex-wrap justify-center gap-6">
+            <div className="flex flex-wrap justify-center gap-8">
               {littles.map((little, index) => (
                 <Reveal
                   key={little.category}
                   delay={index * 100}
-                  className="w-full max-w-xs space-y-2 rounded-xl border border-black/10 bg-white p-6 text-center shadow-sm transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-lg motion-reduce:hover:translate-y-0 sm:w-[calc(50%-0.75rem)] sm:max-w-none md:w-[calc(25%-1.125rem)]"
+                  className="w-full max-w-xs space-y-2 text-center sm:w-[calc(50%-1rem)] sm:max-w-none md:w-[calc(25%-1.5rem)]"
                 >
                   <Icon category={little.category} />
                   {by(ordered, little.category).map((person) => (

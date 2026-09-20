@@ -13,6 +13,7 @@ const LINKS = [
   { href: '/admin/logistics', label: 'Guest notes' },
   { href: '/admin/gifts', label: 'Gifts' },
   { href: '/admin/contacts', label: 'Contacts' },
+  { href: '/admin/invites', label: 'Invite allocations' },
   { href: '/admin/rsvps', label: 'RSVPs' },
 ];
 

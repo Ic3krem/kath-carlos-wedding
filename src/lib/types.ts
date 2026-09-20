@@ -13,6 +13,8 @@ export interface Settings {
   reception_name: string | null;
   reception_address: string | null;
   reception_embed_url: string | null;
+  rsvp_due_date: string | null;
+  hero_message: string;
 }
 
 export interface OurStory {
@@ -37,6 +39,7 @@ export type EntourageCategory =
   | 'ring_bearer'
   | 'coin_bearer'
   | 'bible_bearer'
+  | 'ceremony_sponsors'
   | 'other';
 
 export const ENTOURAGE_CATEGORIES: EntourageCategory[] = [
@@ -50,6 +53,7 @@ export const ENTOURAGE_CATEGORIES: EntourageCategory[] = [
   'ring_bearer',
   'coin_bearer',
   'bible_bearer',
+  'ceremony_sponsors',
   'other',
 ];
 
@@ -57,16 +61,28 @@ export const ENTOURAGE_CATEGORIES: EntourageCategory[] = [
 export const ENTOURAGE_CATEGORY_LABELS: Record<EntourageCategory, string> = {
   parents: 'Parents',
   godparents: 'Life Godparents',
-  best_man: 'Best Man',
-  maid_of_honor: 'Maid of Honor',
+  best_man: "Groom's Bests",
+  maid_of_honor: "Bride's Best",
   groomsmen: 'Groomsmen',
   bridesmaids: 'Bridesmaids',
   flower_girls: 'Flower Girls',
   ring_bearer: 'Ring Bearer',
   coin_bearer: 'Coin Bearer',
   bible_bearer: 'Bible Bearer',
+  ceremony_sponsors: 'Ceremony Sponsors',
   other: 'Entourage',
 };
+
+/**
+ * The three candle/veil/cord roles, added per the client's revision. Each is
+ * shown as a Mr.-and-Ms. pair ("magkasama"); `role_label` on the member row
+ * holds one of these titles so the public page can group pairs under it.
+ */
+export const CEREMONY_SPONSOR_TITLES = [
+  'To Light Our Path',
+  'To Clothe Us as One',
+  'To Bind Us Together',
+] as const;
 export type EntourageSide = 'bride' | 'groom' | null;
 
 export interface EntourageMember {
@@ -127,8 +143,15 @@ export interface ThemeDetails {
   id: number;
   headline: string;
   note: string;
+  /** Guests' attire (the general "dress in our colours" guidance). */
   ladies_detail: string;
   gentlemen_detail: string;
+  /** Godparents'/entourage's attire, which is stricter than the general guest guidance. */
+  godparents_ladies_detail: string;
+  godparents_gentlemen_detail: string;
+  guest_note: string;
+  avoid_note: string;
+  comfort_note: string;
 }
 
 export interface ThemeColor {
@@ -161,10 +184,17 @@ export interface Contact {
   sort_order: number;
 }
 
+export interface InviteAllocation {
+  id: string;
+  name: string;
+  max_guests: number;
+  sort_order: number;
+}
+
 export interface Rsvp {
   id: string;
   name: string;
-  email: string;
+  email: string | null;
   phone: string | null;
   attending: boolean;
   guest_count: number;

@@ -4,6 +4,7 @@ import type {
   Contact,
   EntourageMember,
   GiftOption,
+  InviteAllocation,
   Logistics,
   ScheduleEvent,
   Settings,
@@ -38,8 +39,14 @@ export const getSettings = cache(async (): Promise<Settings | null> => {
 export const THEME_FALLBACK: Omit<ThemeDetails, 'id'> = {
   headline: 'Formal / Filipiniana-inspired',
   note: 'We would love to see you in our colours. Kindly reserve white and ivory for the bride.',
-  ladies_detail: 'Long dress or Filipiniana in any of the palette colours',
-  gentlemen_detail: 'Barong Tagalog with black slacks, or a formal suit',
+  ladies_detail: 'Beige or brown formal attire',
+  gentlemen_detail: 'Polo or long sleeves',
+  godparents_ladies_detail: 'Formal gown in the wedding colours',
+  godparents_gentlemen_detail: 'Black suit and pants, tie',
+  guest_note: 'We encourage everyone to dress according to our wedding colors and the overall style of the event.',
+  avoid_note: 'Please refrain from wearing white, denim, and slippers.',
+  comfort_note:
+    'Most importantly, wear something you feel comfortable and confident in, while complementing on our wedding theme.',
 };
 
 export const THEME_COLORS_FALLBACK: Pick<ThemeColor, 'name' | 'hex'>[] = [
@@ -50,7 +57,7 @@ export const THEME_COLORS_FALLBACK: Pick<ThemeColor, 'name' | 'hex'>[] = [
 ];
 
 export const GIFT_INTRO_FALLBACK =
-  'Your presence on our wedding day is the greatest gift of all. But if you wish to honour us with something more, a contribution toward our new home together would mean the world.';
+  'With all that we have, we are truly blessed. Your presence and prayers are what we request.\n\nBut if you desire to give nonetheless, a monetary gift is the one we suggest.';
 
 export const GIFT_OPTIONS_FALLBACK: Pick<GiftOption, 'title' | 'detail' | 'lines'>[] = [
   {
@@ -58,8 +65,6 @@ export const GIFT_OPTIONS_FALLBACK: Pick<GiftOption, 'title' | 'detail' | 'lines
     detail: 'A gift envelope may be dropped in the wishing well at the reception.',
     lines: 'BPI • 1234-5678-90\nAccount name: Kath Santos',
   },
-  { title: 'GCash', detail: 'For guests joining us from afar.', lines: '+63 917 000 0001\nKath S.' },
-  { title: 'Registry', detail: 'A short list of things for our new home.', lines: 'registry.example.com/kath-carlos' },
 ];
 
 export const CONTACTS_FALLBACK: Pick<Contact, 'role' | 'name' | 'phone' | 'email'>[] = [
@@ -155,6 +160,13 @@ export const ENTOURAGE_FALLBACK: Omit<EntourageMember, 'id'>[] = [
   { category: 'flower_girls', role_label: 'Flower Girl', name: 'Ayah Cruz', side: 'bride', sort_order: 62 },
   { category: 'flower_girls', role_label: 'Flower Girl', name: 'Daniella Lim', side: 'bride', sort_order: 63 },
   { category: 'flower_girls', role_label: 'Flower Girl', name: 'Jasmine Tolentino', side: 'bride', sort_order: 64 },
+
+  { category: 'ceremony_sponsors', role_label: 'To Light Our Path', name: 'Mr. Antonio Guanzon', side: null, sort_order: 70 },
+  { category: 'ceremony_sponsors', role_label: 'To Light Our Path', name: 'Mrs. Angelica Guanzon', side: null, sort_order: 71 },
+  { category: 'ceremony_sponsors', role_label: 'To Clothe Us as One', name: 'Mr. Rudolf Interno', side: null, sort_order: 72 },
+  { category: 'ceremony_sponsors', role_label: 'To Clothe Us as One', name: 'Mrs. Gia Amor Interno', side: null, sort_order: 73 },
+  { category: 'ceremony_sponsors', role_label: 'To Bind Us Together', name: 'Mr. Sonny Gotladera', side: null, sort_order: 74 },
+  { category: 'ceremony_sponsors', role_label: 'To Bind Us Together', name: 'Mrs. Hazel Joy Gotladera', side: null, sort_order: 75 },
 ];
 
 export async function getEntourage(): Promise<Omit<EntourageMember, 'id'>[]> {
@@ -266,4 +278,14 @@ export async function getLogistics(): Promise<Omit<Logistics, 'id'>> {
 export async function getContacts() {
   const contacts = await safeList<Contact>('contacts');
   return contacts && contacts.length > 0 ? contacts : CONTACTS_FALLBACK;
+}
+
+/**
+ * The seat allocation matched against the name a guest types on the RSVP
+ * form. Empty until the couple fills it in via /admin/invites — the RSVP
+ * route treats an empty list (or no match) as "no cap" so the form still
+ * works before the guest list is entered.
+ */
+export async function getInviteAllocations(): Promise<InviteAllocation[]> {
+  return (await safeList<InviteAllocation>('invite_allocations')) ?? [];
 }

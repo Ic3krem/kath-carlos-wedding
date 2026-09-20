@@ -46,6 +46,27 @@ export function SettingsForm({ initial }: { initial: Settings }) {
         onUploaded={(url) => setForm((curr) => ({ ...curr, hero_image_url: url }))}
       />
       <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium">Hero message</label>
+        <textarea
+          className="rounded-md border border-black/20 px-3 py-2"
+          rows={3}
+          value={form.hero_message}
+          onChange={(e) => setForm({ ...form, hero_message: e.target.value })}
+        />
+        <p className="text-xs text-black/50">Shown above the RSVP button on the hero.</p>
+      </div>
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium">RSVP due date</label>
+        <input
+          type="datetime-local"
+          className="rounded-md border border-black/20 px-3 py-2"
+          value={form.rsvp_due_date ? toLocalDatetimeInputValue(form.rsvp_due_date) : ''}
+          onChange={(e) =>
+            setForm({ ...form, rsvp_due_date: e.target.value ? new Date(e.target.value).toISOString() : null })
+          }
+        />
+      </div>
+      <div className="flex flex-col gap-2">
         <label className="text-sm font-medium">Theme</label>
         <select
           className="rounded-md border border-black/20 px-3 py-2"

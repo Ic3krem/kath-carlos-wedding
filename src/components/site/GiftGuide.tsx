@@ -16,7 +16,7 @@ export function GiftGuide({ intro, options }: GiftGuideProps) {
       </Reveal>
       {intro && (
         <Reveal delay={80}>
-          <p className="max-w-2xl text-center text-black/55">{intro}</p>
+          <p className="max-w-2xl whitespace-pre-line text-center text-black/55">{intro}</p>
         </Reveal>
       )}
 

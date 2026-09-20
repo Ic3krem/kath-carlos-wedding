@@ -45,7 +45,6 @@ export function OurStory({ story, milestones }: { story: OurStoryData; milestone
       className="flex w-full flex-col items-center gap-6 px-4 py-12 sm:px-6 sm:py-16 lg:gap-10 lg:px-10 lg:py-20"
     >
       <SectionIntro
-        eyebrow="Chapter I • How it happened"
         title="How Our Journey Began"
         blurb="From a rainy afternoon in Pampanga to vows on the shore at Alasasin."
       />

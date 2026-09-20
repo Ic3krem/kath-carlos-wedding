@@ -6,8 +6,6 @@ import { SectionIntro } from './SectionIntro';
 
 const initialForm = {
   name: '',
-  email: '',
-  phone: '',
   attending: true,
   guest_count: 1,
   message: '',
@@ -30,13 +28,14 @@ function Step({ number, title }: { number: number; title: string }) {
   );
 }
 
-export function Rsvp({ weddingDate }: { weddingDate: string }) {
+export function Rsvp({ weddingDate, rsvpDueDate }: { weddingDate: string; rsvpDueDate?: string | null }) {
   const [form, setForm] = useState(initialForm);
   // One box per companion, so the party size decides how many names are asked
   // for. The array is kept longer than the current count so lowering and
   // raising the number again does not wipe what was already typed.
   const [guestNames, setGuestNames] = useState<string[]>([]);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const companionCount = Math.max(0, form.guest_count - 1);
 
@@ -46,6 +45,10 @@ export function Rsvp({ weddingDate }: { weddingDate: string }) {
     year: 'numeric',
     timeZone: 'UTC',
   });
+
+  const dueFormatted = rsvpDueDate
+    ? new Date(rsvpDueDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+    : null;
 
   function setGuestName(index: number, value: string) {
     setGuestNames((current) => {
@@ -59,6 +62,7 @@ export function Rsvp({ weddingDate }: { weddingDate: string }) {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setStatus('submitting');
+    setErrorMessage(null);
     // Only the boxes actually on screen are sent, so names left over from a
     // larger party size are dropped rather than stored.
     const guest_names = form.attending
@@ -69,7 +73,15 @@ export function Rsvp({ weddingDate }: { weddingDate: string }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form, guest_names }),
     }).catch(() => null);
-    setStatus(response?.ok ? 'success' : 'error');
+
+    if (response?.ok) {
+      setStatus('success');
+      return;
+    }
+
+    const body = await response?.json().catch(() => null);
+    setErrorMessage(body?.error?.formErrors?.[0] ?? null);
+    setStatus('error');
   }
 
   const attending = form.attending;
@@ -80,9 +92,12 @@ export function Rsvp({ weddingDate }: { weddingDate: string }) {
       className="flex w-full flex-col items-center gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:px-10 lg:py-20"
     >
       <SectionIntro
-        eyebrow="Chapter V • The favour of your reply"
         title="RSVP"
-        blurb={`We would love to celebrate with you on ${formatted}. Kindly reply so we can save you a seat.`}
+        blurb={
+          dueFormatted
+            ? `We would love to celebrate with you on ${formatted}. Kindly reply by ${dueFormatted} so we can save you a seat.`
+            : `We would love to celebrate with you on ${formatted}. Kindly reply so we can save you a seat.`
+        }
       />
 
       {status === 'success' ? (
@@ -107,7 +122,7 @@ export function Rsvp({ weddingDate }: { weddingDate: string }) {
             <div className="flex flex-col gap-4">
               <Step number={1} title="Your details" />
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 sm:col-span-2">
                   <label className={LABEL_CLASS} htmlFor="rsvp-name">
                     Full name *
                   </label>
@@ -122,42 +137,6 @@ export function Rsvp({ weddingDate }: { weddingDate: string }) {
                     className={FIELD_CLASS}
                     value={form.name}
                     onChange={(e) => setForm((c) => ({ ...c, name: e.target.value }))}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className={LABEL_CLASS} htmlFor="rsvp-email">
-                    Email *
-                  </label>
-                  <input
-                    id="rsvp-email"
-                    name="email"
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    spellCheck={false}
-                    required
-                    placeholder="you@example.com"
-                    className={FIELD_CLASS}
-                    value={form.email}
-                    onChange={(e) => setForm((c) => ({ ...c, email: e.target.value }))}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className={LABEL_CLASS} htmlFor="rsvp-phone">
-                    Contact number
-                  </label>
-                  <input
-                    id="rsvp-phone"
-                    name="phone"
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    placeholder="+63 917 000 0000"
-                    className={FIELD_CLASS}
-                    value={form.phone}
-                    onChange={(e) => setForm((c) => ({ ...c, phone: e.target.value }))}
                   />
                 </div>
 
@@ -271,7 +250,7 @@ export function Rsvp({ weddingDate }: { weddingDate: string }) {
 
               {status === 'error' && (
                 <p className="text-center text-sm text-red-700" aria-live="polite">
-                  Something went wrong. Please check your details and try again.
+                  {errorMessage ?? 'Something went wrong. Please check your details and try again.'}
                 </p>
               )}
             </div>

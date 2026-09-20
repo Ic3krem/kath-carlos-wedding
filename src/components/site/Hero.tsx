@@ -22,6 +22,14 @@ function FrameLayer({ name, className }: { name: string; className?: string }) {
   );
 }
 
+function formatHeroDate(iso: string) {
+  const date = new Date(iso);
+  const weekday = date.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
+  const day = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+  const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' });
+  return `${day} · ${weekday} · ${time}`;
+}
+
 export function Hero({ settings }: { settings: Settings }) {
   return (
     <div className="w-full overflow-hidden bg-black">
@@ -50,6 +58,16 @@ export function Hero({ settings }: { settings: Settings }) {
           <FrameLayer name="bg2" />
           <FrameLayer name="bg3" />
 
+          {/* Date & time — sits above the couple names, as in the reference */}
+          <div className="absolute left-0 w-full px-3 text-center" style={{ top: '9%' }}>
+            <p
+              className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white sm:text-sm md:text-base"
+              style={{ fontFamily: poppins.style.fontFamily, textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
+            >
+              {formatHeroDate(settings.wedding_date)}
+            </p>
+          </div>
+
           {/* Layer 1 — couple names, behind the couple frame */}
           <div className="absolute left-0 w-full px-3 text-center" style={{ top: '20.39%' }}>
             <h1
@@ -74,14 +92,23 @@ export function Hero({ settings }: { settings: Settings }) {
         </div>
 
         <div
-          className="absolute left-1/2 flex -translate-x-1/2 flex-wrap items-center justify-center gap-2 sm:gap-3"
-          style={{ top: '62.4%', fontFamily: poppins.style.fontFamily }}
+          className="absolute left-1/2 flex w-full max-w-[90%] -translate-x-1/2 flex-col items-center gap-3 text-center sm:max-w-md"
+          style={{ top: '52%', fontFamily: poppins.style.fontFamily }}
         >
+          {settings.hero_message && (
+            <p
+              className="text-[11px] leading-relaxed text-white sm:text-sm md:text-base"
+              style={{ textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
+            >
+              {settings.hero_message}
+            </p>
+          )}
+
           <a
-            href="#our-story"
+            href="#rsvp"
             className="relative flex h-[26px] w-[116px] items-center justify-center whitespace-nowrap rounded-[8.78px] bg-white text-[9.4px] font-semibold uppercase text-[#170E01] before:absolute before:-inset-y-[9px] before:inset-x-0 before:content-[''] md:h-[32px] md:w-[143px] md:text-[11.6px] md:before:-inset-y-[6px] lg:h-[51.87px] lg:w-[237px] lg:text-[19.15px] lg:before:inset-0"
           >
-            Get Started
+            RSVP
           </a>
         </div>
       </div>
