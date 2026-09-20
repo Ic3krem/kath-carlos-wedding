@@ -58,24 +58,14 @@ export function Hero({ settings }: { settings: Settings }) {
           <FrameLayer name="bg2" />
           <FrameLayer name="bg3" />
 
-          {/* Date & time — sits above the couple names, as in the reference */}
-          <div className="absolute left-0 w-full px-3 text-center" style={{ top: '9%' }}>
+          {/* Date & time — script font, sitting a little lower and larger than before */}
+          <div className="absolute left-0 w-full px-3 text-center" style={{ top: '14%' }}>
             <p
-              className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white sm:text-sm md:text-base"
-              style={{ fontFamily: poppins.style.fontFamily, textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
+              className="text-[14px] text-white sm:text-[18px] md:text-[21px]"
+              style={{ fontFamily: marckScript.style.fontFamily, textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
             >
               {formatHeroDate(settings.wedding_date)}
             </p>
-          </div>
-
-          {/* Layer 1 — couple names, behind the couple frame */}
-          <div className="absolute left-0 w-full px-3 text-center" style={{ top: '20.39%' }}>
-            <h1
-              className="text-[40px] leading-none text-white sm:text-[56px] md:text-[88px] lg:text-[147.73px]"
-              style={{ fontFamily: marckScript.style.fontFamily, textShadow: '-2px 5px 5px rgba(0, 0, 0, 0.55)' }}
-            >
-              {settings.couple_names}
-            </h1>
           </div>
 
           {/* Layer 0 — couple frame, in front of the title */}
@@ -92,17 +82,16 @@ export function Hero({ settings }: { settings: Settings }) {
         </div>
 
         <div
-          className="absolute left-1/2 flex w-full max-w-[90%] -translate-x-1/2 flex-col items-center gap-3 text-center sm:max-w-md"
-          style={{ top: '52%', fontFamily: poppins.style.fontFamily }}
+          className="absolute left-1/2 flex w-full max-w-[90%] -translate-x-1/2 flex-col items-center gap-4 text-center sm:max-w-md"
+          style={{ top: '52%' }}
         >
-          {settings.hero_message && (
-            <p
-              className="text-[11px] leading-relaxed text-white sm:text-sm md:text-base"
-              style={{ textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
-            >
-              {settings.hero_message}
-            </p>
-          )}
+          {/* Title — moved down to where the note used to sit */}
+          <h1
+            className="text-[40px] leading-none text-white sm:text-[56px] md:text-[88px] lg:text-[100px]"
+            style={{ fontFamily: marckScript.style.fontFamily, textShadow: '-2px 5px 5px rgba(0, 0, 0, 0.55)' }}
+          >
+            {settings.couple_names}
+          </h1>
 
           <a
             href="#rsvp"
@@ -110,6 +99,15 @@ export function Hero({ settings }: { settings: Settings }) {
           >
             RSVP
           </a>
+
+          {settings.hero_message && (
+            <p
+              className="text-[11px] leading-relaxed text-white sm:text-sm md:text-base"
+              style={{ fontFamily: poppins.style.fontFamily, textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
+            >
+              {settings.hero_message}
+            </p>
+          )}
         </div>
       </div>
 
