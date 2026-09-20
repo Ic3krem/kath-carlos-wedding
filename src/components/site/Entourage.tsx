@@ -100,9 +100,8 @@ export function Entourage({ members }: { members: Member[] }) {
         {/* Principal sponsors — a single combined list, no Ninong/Ninang subheadings. */}
         {(ninongs.length > 0 || ninangs.length > 0) && (
           <div className="space-y-6">
-            <Reveal className="space-y-1 text-center">
+            <Reveal className="text-center">
               <h3 className={GROUP_TITLE}>Life Godparents</h3>
-              <p className={GROUP_NOTE}>Our principal sponsors</p>
             </Reveal>
             <ul className="grid grid-cols-1 gap-3 text-center sm:grid-cols-2 sm:gap-x-10">
               {[...ninongs, ...ninangs].map((person) => (
@@ -154,8 +153,8 @@ export function Entourage({ members }: { members: Member[] }) {
         {(maidOfHonor.length > 0 || bestMan.length > 0) && (
           <div className="grid grid-cols-1 gap-8 border-t border-black/10 pt-10 md:grid-cols-2">
             {[
-              { label: "Bride's Best", people: maidOfHonor, note: 'Beside the bride' },
-              { label: "Groom's Bests", people: bestMan, note: 'Beside the groom' },
+              { label: "Bride's Best", people: maidOfHonor },
+              { label: "Groom's Bests", people: bestMan },
             ]
               .filter((role) => role.people.length > 0)
               .map((role) => (
@@ -166,7 +165,6 @@ export function Entourage({ members }: { members: Member[] }) {
                       {person.name}
                     </p>
                   ))}
-                  <p className="text-xs font-medium uppercase tracking-wide text-accent">{role.note}</p>
                 </Reveal>
               ))}
           </div>
@@ -206,9 +204,8 @@ export function Entourage({ members }: { members: Member[] }) {
         {/* Bearers & flower girls */}
         {littles.length > 0 && (
           <div className="space-y-6 border-t border-black/10 pt-10">
-            <Reveal className="space-y-1 text-center">
+            <Reveal className="text-center">
               <h3 className={GROUP_TITLE}>Bearers &amp; Flower Girls</h3>
-              <p className={GROUP_NOTE}>The little ones of the ceremony</p>
             </Reveal>
             {/* Flex rather than a fixed grid so a row of two or three items
                 stays centred instead of stacking against the left edge. */}

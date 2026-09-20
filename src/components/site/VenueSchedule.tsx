@@ -202,7 +202,7 @@ export function VenueSchedule({ settings, events }: { settings: Settings; events
       id="venue"
       className="flex w-full flex-col items-center gap-12 px-4 py-12 sm:px-6 sm:py-16 lg:px-10 lg:py-20"
     >
-      <SectionIntro title="The Details" blurb="Where to be, and when to be there." />
+      <SectionIntro title="The Details" />
 
       <DateTimeBlock weddingDate={settings.wedding_date} />
 

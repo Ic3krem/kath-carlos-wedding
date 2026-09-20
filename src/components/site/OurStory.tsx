@@ -44,10 +44,7 @@ export function OurStory({ story, milestones }: { story: OurStoryData; milestone
       id="our-story"
       className="flex w-full flex-col items-center gap-6 px-4 py-12 sm:px-6 sm:py-16 lg:gap-10 lg:px-10 lg:py-20"
     >
-      <SectionIntro
-        title="How Our Journey Began"
-        blurb="From a rainy afternoon in Pampanga to vows on the shore at Alasasin."
-      />
+      <SectionIntro title="How Our Journey Began" />
 
       <div className="flex w-full max-w-[1100px] flex-col gap-16 lg:gap-24">
         {milestones.map((milestone, index) => {
