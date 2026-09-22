@@ -71,8 +71,8 @@ export default async function HomePage() {
         <Hero settings={resolvedSettings} />
 
         {/* Stacking group: the countdown pins to the top of the viewport and
-            the content sheet below scrolls up over it. The page itself is
-            black, so the countdown is what shows through behind the sheet. */}
+            the content sheet below scrolls up over it. Both share the same
+            secondary background, so the countdown reads as part of the sheet. */}
         <div className="relative w-full">
           <div className="sticky top-0 z-0 w-full">
             <Countdown weddingDate={resolvedSettings.wedding_date} />
@@ -83,7 +83,7 @@ export default async function HomePage() {
               starts covering it. */}
           <div aria-hidden className="h-[35svh] w-full" />
 
-          <div className="relative z-10 flex w-full flex-col items-center bg-secondary shadow-[0_-24px_60px_rgba(0,0,0,0.55)]">
+          <div className="relative z-10 flex w-full flex-col items-center bg-secondary shadow-[0_-24px_60px_rgba(0,0,0,0.12)]">
             <OurStory story={resolvedStory} milestones={milestones} />
             <SectionDivider />
             <Entourage members={entourage} />

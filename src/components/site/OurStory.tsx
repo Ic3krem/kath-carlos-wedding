@@ -4,7 +4,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { OurStory as OurStoryData, StoryMilestone } from '@/lib/types';
 import { Reveal } from './Reveal';
-import { SectionIntro } from './SectionIntro';
+import { SectionDivider, SectionIntro } from './SectionIntro';
 
 // StoryModal is an interaction-only overlay (renders null until "Continue
 // Reading" is clicked); load it lazily so it doesn't ship in the initial bundle.
@@ -45,6 +45,9 @@ export function OurStory({ story, milestones }: { story: OurStoryData; milestone
       className="flex w-full flex-col items-center gap-6 px-4 py-12 sm:px-6 sm:py-16 lg:gap-10 lg:px-10 lg:py-20"
     >
       <SectionIntro title="How Our Journey Began" />
+      <span aria-hidden className="-mt-4 text-lg text-accent">
+        ❦
+      </span>
 
       <div className="flex w-full max-w-[1100px] flex-col gap-16 lg:gap-24">
         {milestones.map((milestone, index) => {
@@ -52,47 +55,47 @@ export function OurStory({ story, milestones }: { story: OurStoryData; milestone
           const flipped = index % 2 === 1;
 
           return (
-            <div
-              key={`${milestone.sort_order}-${milestone.title}`}
-              className="grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-12"
-            >
-              <Reveal
-                from={flipped ? 'right' : 'left'}
-                // Centred on phones, where the text sits under its own photo in
-                // one column; left-aligned again from md, where it pairs with
-                // the image side by side.
-                className={`flex flex-col gap-4 text-center md:col-span-6 md:text-left ${
-                  flipped ? 'md:order-2 md:pl-6' : 'md:pr-6'
-                }`}
-              >
-                <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-accent">
-                    {milestone.era}
-                  </span>
-                  <span className="h-px w-8 bg-accent/50" />
-                  <span className="text-xs text-black/45">{milestone.place}</span>
-                </div>
-
-                <h3 className="text-2xl text-black sm:text-3xl">{milestone.title}</h3>
-
-                <p className="text-sm leading-relaxed text-black/60 sm:text-base">{milestone.body}</p>
-
-                {milestone.quote && (
-                  <p className="font-script text-2xl leading-snug text-accent sm:text-3xl">
-                    “{milestone.quote}”
-                  </p>
-                )}
-              </Reveal>
-
-              {image && (
+            <div key={`${milestone.sort_order}-${milestone.title}`} className="contents">
+              {index > 0 && <SectionDivider />}
+              <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-12">
                 <Reveal
-                  from={flipped ? 'left' : 'right'}
-                  delay={120}
-                  className={`md:col-span-6 ${flipped ? 'md:order-1' : ''}`}
+                  from={flipped ? 'right' : 'left'}
+                  // Centred on phones, where the text sits under its own photo in
+                  // one column; left-aligned again from md, where it pairs with
+                  // the image side by side.
+                  className={`flex flex-col gap-4 text-center md:col-span-6 md:text-left ${
+                    flipped ? 'md:order-2 md:pl-6' : 'md:pr-6'
+                  }`}
                 >
-                  <MilestoneImage src={image} alt={milestone.title} caption={milestone.caption} />
+                  <div className="flex flex-wrap items-center justify-center gap-2 md:justify-start">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-accent">
+                      {milestone.era}
+                    </span>
+                    <span className="text-xs text-black/45">·</span>
+                    <span className="text-xs text-black/45">{milestone.place}</span>
+                  </div>
+
+                  <h3 className="text-2xl text-black sm:text-3xl">{milestone.title}</h3>
+
+                  <p className="text-sm leading-relaxed text-black/60 sm:text-base">{milestone.body}</p>
+
+                  {milestone.quote && (
+                    <p className="font-script text-2xl leading-snug text-accent sm:text-3xl">
+                      “{milestone.quote}”
+                    </p>
+                  )}
                 </Reveal>
-              )}
+
+                {image && (
+                  <Reveal
+                    from={flipped ? 'left' : 'right'}
+                    delay={120}
+                    className={`md:col-span-6 ${flipped ? 'md:order-1' : ''}`}
+                  >
+                    <MilestoneImage src={image} alt={milestone.title} caption={milestone.caption} />
+                  </Reveal>
+                )}
+              </div>
             </div>
           );
         })}

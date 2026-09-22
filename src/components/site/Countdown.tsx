@@ -4,16 +4,15 @@ import { useEffect, useRef, useState } from 'react';
 import { getCountdownParts, type CountdownParts } from '@/lib/countdown';
 import { poppins } from '@/lib/fonts';
 
-// Hours, minutes and seconds are hidden on narrow screens — six units squeeze
-// into an unreadable two-row grid there, so small widths show the three that
-// actually matter at a glance.
-const UNITS: { key: keyof Omit<CountdownParts, 'isPast'>; label: string; smallScreen: boolean }[] = [
-  { key: 'months', label: 'Months', smallScreen: true },
-  { key: 'weeks', label: 'Weeks', smallScreen: true },
-  { key: 'days', label: 'Days', smallScreen: true },
-  { key: 'hours', label: 'Hours', smallScreen: false },
-  { key: 'minutes', label: 'Minutes', smallScreen: false },
-  { key: 'seconds', label: 'Seconds', smallScreen: false },
+// All six units show at every width, as in the reference — a tight 3-column
+// wrap on phones, one row from sm up.
+const UNITS: { key: keyof Omit<CountdownParts, 'isPast'>; label: string }[] = [
+  { key: 'months', label: 'Months' },
+  { key: 'weeks', label: 'Weeks' },
+  { key: 'days', label: 'Days' },
+  { key: 'hours', label: 'Hours' },
+  { key: 'minutes', label: 'Minutes' },
+  { key: 'seconds', label: 'Seconds' },
 ];
 
 export function Countdown({ weddingDate }: { weddingDate: string }) {
@@ -53,10 +52,10 @@ export function Countdown({ weddingDate }: { weddingDate: string }) {
 
   return (
     <section
-      // Solid black panel, one full viewport tall so that once it pins (see
+      // Light panel, one full viewport tall so that once it pins (see
       // page.tsx) the countdown sits dead centre of the screen. svh keeps it
       // honest on mobile, where the browser chrome collapses on scroll.
-      className="relative flex min-h-[100svh] w-full flex-col items-center justify-center gap-4 overflow-hidden bg-black px-4 py-16 sm:gap-5"
+      className="relative flex min-h-[100svh] w-full flex-col items-center justify-center gap-4 overflow-hidden bg-secondary px-4 py-16 sm:gap-5"
       style={{ fontFamily: poppins.style.fontFamily }}
     >
       <div
@@ -65,24 +64,24 @@ export function Countdown({ weddingDate }: { weddingDate: string }) {
           revealed ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
         }`}
       >
-        <h2 className="text-center text-xl font-semibold uppercase tracking-wide text-white sm:text-2xl md:text-3xl lg:text-[40px]">
+        <h2 className="text-center text-xl font-semibold uppercase tracking-wide text-black sm:text-2xl md:text-3xl lg:text-[40px]">
           {parts.isPast ? 'WE ARE MARRIED!' : 'LIVE COUNTDOWN'}
         </h2>
 
         {!parts.isPast && (
           <div className="grid w-full max-w-5xl grid-cols-3 justify-items-center gap-x-2 gap-y-4 sm:grid-cols-6 sm:gap-x-4">
-            {UNITS.map(({ key, label, smallScreen }, index) => (
+            {UNITS.map(({ key, label }, index) => (
               <div
                 key={key}
                 style={{ transitionDelay: `${120 + index * 90}ms` }}
-                className={`flex-col items-center justify-center py-2 transition-[transform,opacity] duration-700 ease-out sm:flex sm:py-5 ${
-                  smallScreen ? 'flex' : 'hidden'
-                } ${revealed ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                className={`flex flex-col items-center justify-center py-2 transition-[transform,opacity] duration-700 ease-out sm:py-5 ${
+                  revealed ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+                }`}
               >
-                <div className="text-center text-3xl font-semibold leading-tight text-white sm:text-4xl md:text-5xl lg:text-[48px]">
+                <div className="text-center text-3xl font-semibold leading-tight text-black sm:text-4xl md:text-5xl lg:text-[48px]">
                   {String(parts[key]).padStart(2, '0')}
                 </div>
-                <div className="text-center text-xs font-semibold text-white sm:text-sm lg:text-base">{label}</div>
+                <div className="text-center text-xs font-semibold text-black/60 sm:text-sm lg:text-base">{label}</div>
               </div>
             ))}
           </div>

@@ -17,7 +17,7 @@ function FrameLayer({ name, className }: { name: string; className?: string }) {
         height={790}
         fetchPriority="high"
         // scale-110 hides the transparent halo blur leaves at the frame's edge
-        className={`absolute inset-0 h-full w-full scale-110 object-cover object-center blur-md sm:blur-lg ${className ?? ''}`}
+        className={`absolute inset-0 h-full w-full scale-110 object-cover object-center blur sm:blur-md ${className ?? ''}`}
       />
     </picture>
   );
@@ -51,7 +51,7 @@ export function Hero({ settings }: { settings: Settings }) {
               width={1280}
               height={790}
               fetchPriority="high"
-              className="absolute inset-0 h-full w-full scale-110 object-cover blur-md sm:blur-lg"
+              className="absolute inset-0 h-full w-full scale-110 object-cover blur sm:blur-md"
             />
           )}
 
@@ -62,11 +62,12 @@ export function Hero({ settings }: { settings: Settings }) {
           {/* Layer 0 — couple frame, blurred behind the centred text like the rest */}
           <FrameLayer name="couple" />
 
-          {/* Transition — dissolves the foot of the hero into the black countdown */}
+          {/* Transition — dissolves the foot of the hero into the light countdown panel */}
           <div
             className="absolute bottom-0 left-0 h-32 w-full sm:h-40 lg:h-48"
             style={{
-              background: 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.55) 57%, #000000 100%)',
+              background:
+                'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.35) 55%, var(--color-secondary) 100%)',
             }}
           />
 
