@@ -73,7 +73,10 @@ export function Hero({ settings }: { settings: Settings }) {
 
         </div>
 
-        <div className="absolute inset-0 flex w-full flex-col items-center justify-center gap-4 px-[5%] text-center sm:max-w-md lg:max-w-4xl">
+        {/* Centred within the artwork's empty lower band, not the whole
+            frame — the top half is the temple/couple photo, so centring
+            across the full height would push the text up into that art. */}
+        <div className="absolute inset-x-0 bottom-0 top-1/2 flex w-full flex-col items-center justify-center gap-4 px-[5%] text-center sm:max-w-md lg:max-w-4xl">
           {/* Date & time — script font, sitting above the title */}
           <p
             className="text-[18px] text-white sm:text-[23px] md:text-[27px]"
