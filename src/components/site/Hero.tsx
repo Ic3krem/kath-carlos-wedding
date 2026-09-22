@@ -16,7 +16,8 @@ function FrameLayer({ name, className }: { name: string; className?: string }) {
         width={1280}
         height={790}
         fetchPriority="high"
-        className={`absolute inset-0 h-full w-full object-cover object-center ${className ?? ''}`}
+        // scale-110 hides the transparent halo blur leaves at the frame's edge
+        className={`absolute inset-0 h-full w-full scale-110 object-cover object-center blur-md sm:blur-lg ${className ?? ''}`}
       />
     </picture>
   );
@@ -50,7 +51,7 @@ export function Hero({ settings }: { settings: Settings }) {
               width={1280}
               height={790}
               fetchPriority="high"
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full scale-110 object-cover blur-md sm:blur-lg"
             />
           )}
 
@@ -58,17 +59,7 @@ export function Hero({ settings }: { settings: Settings }) {
           <FrameLayer name="bg2" />
           <FrameLayer name="bg3" />
 
-          {/* Date & time — script font, sitting a little lower and larger than before */}
-          <div className="absolute left-0 w-full px-3 text-center" style={{ top: '14%' }}>
-            <p
-              className="text-[18px] text-white sm:text-[23px] md:text-[27px]"
-              style={{ fontFamily: marckScript.style.fontFamily, textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
-            >
-              {formatHeroDate(settings.wedding_date)}
-            </p>
-          </div>
-
-          {/* Layer 0 — couple frame, in front of the title */}
+          {/* Layer 0 — couple frame, blurred behind the centred text like the rest */}
           <FrameLayer name="couple" />
 
           {/* Transition — dissolves the foot of the hero into the black countdown */}
@@ -81,11 +72,16 @@ export function Hero({ settings }: { settings: Settings }) {
 
         </div>
 
-        <div
-          className="absolute left-1/2 flex w-full max-w-[90%] -translate-x-1/2 flex-col items-center gap-4 text-center sm:max-w-md lg:max-w-4xl"
-          style={{ top: '52%' }}
-        >
-          {/* Title — moved down to where the note used to sit */}
+        <div className="absolute inset-0 flex w-full flex-col items-center justify-center gap-4 px-[5%] text-center sm:max-w-md lg:max-w-4xl">
+          {/* Date & time — script font, sitting above the title */}
+          <p
+            className="text-[18px] text-white sm:text-[23px] md:text-[27px]"
+            style={{ fontFamily: marckScript.style.fontFamily, textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
+          >
+            {formatHeroDate(settings.wedding_date)}
+          </p>
+
+          {/* Title */}
           <h1
             className="mb-2 text-[40px] leading-none text-white sm:text-[56px] md:mb-4 md:text-[88px] lg:mb-6 lg:text-[100px]"
             style={{ fontFamily: marckScript.style.fontFamily, textShadow: '-2px 5px 5px rgba(0, 0, 0, 0.55)' }}
@@ -102,7 +98,7 @@ export function Hero({ settings }: { settings: Settings }) {
 
           {settings.hero_message && (
             <p
-              className="mt-10 text-[11px] leading-relaxed text-white opacity-80 sm:mt-16 sm:text-sm md:text-base lg:mt-20"
+              className="mt-2 max-w-md text-[11px] leading-relaxed text-white opacity-80 sm:text-sm md:text-base"
               style={{ fontFamily: poppins.style.fontFamily, textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
             >
               {settings.hero_message}

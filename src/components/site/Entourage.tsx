@@ -97,19 +97,25 @@ export function Entourage({ members }: { members: Member[] }) {
       <SectionIntro title="The Entourage" blurb="The family and friends standing with us on the day." />
 
       <div className="flex w-full max-w-4xl flex-col gap-14">
-        {/* Principal sponsors — a single combined list, no Ninong/Ninang subheadings. */}
+        {/* Principal sponsors — Ninongs (Mr.) on the left, Ninangs on the right. */}
         {(ninongs.length > 0 || ninangs.length > 0) && (
           <div className="space-y-6">
             <Reveal className="text-center">
               <h3 className={GROUP_TITLE}>Life Godparents</h3>
             </Reveal>
-            <ul className="grid grid-cols-1 gap-3 text-center sm:grid-cols-2 sm:gap-x-10">
-              {[...ninongs, ...ninangs].map((person) => (
-                <li key={person.name} className="text-lg text-black">
-                  {person.name}
-                </li>
-              ))}
-            </ul>
+            <div className="grid grid-cols-1 gap-x-10 gap-y-6 sm:grid-cols-2">
+              {[ninongs, ninangs]
+                .filter((column) => column.length > 0)
+                .map((column, index) => (
+                  <ul key={index} className="space-y-3 text-center">
+                    {column.map((person) => (
+                      <li key={person.name} className="text-lg text-black">
+                        {person.name}
+                      </li>
+                    ))}
+                  </ul>
+                ))}
+            </div>
           </div>
         )}
 
@@ -153,8 +159,8 @@ export function Entourage({ members }: { members: Member[] }) {
         {(maidOfHonor.length > 0 || bestMan.length > 0) && (
           <div className="grid grid-cols-1 gap-8 border-t border-black/10 pt-10 md:grid-cols-2">
             {[
-              { label: "Bride's Best", people: maidOfHonor },
               { label: "Groom's Bests", people: bestMan },
+              { label: "Bride's Best", people: maidOfHonor },
             ]
               .filter((role) => role.people.length > 0)
               .map((role) => (
@@ -174,8 +180,8 @@ export function Entourage({ members }: { members: Member[] }) {
         {(bridesmaids.length > 0 || groomsmen.length > 0) && (
           <div className="grid grid-cols-1 gap-12 border-t border-black/10 pt-10 md:grid-cols-2 md:gap-16">
             {[
-              { heading: 'The Bridesmaids', people: bridesmaids },
               { heading: 'The Groomsmen', people: groomsmen },
+              { heading: 'The Bridesmaids', people: bridesmaids },
             ]
               .filter((column) => column.people.length > 0)
               .map((column, index) => (
