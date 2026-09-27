@@ -240,3 +240,94 @@ select:focus-visible,
   from { transform: scale(1); opacity: 0.9; }
   to { transform: scale(1.7); opacity: 0; }
 }
+
+/* ---------------------------------------------------------------------------
+   Watercolour florals on the page edges (see Florals.tsx).
+   ------------------------------------------------------------------------- */
+.florals {
+  --flora-w: clamp(104px, 15vw, 250px);
+}
+.flora-col {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--flora-w);
+  /* Half a column's width bleeds off-screen on phones so the text stays clear. */
+  transform: translateX(-8%);
+}
+.flora-mirror {
+  transform: translateX(8%) scaleX(-1);
+}
+@media (min-width: 1024px) {
+  .flora-col { transform: none; }
+  .flora-mirror { transform: scaleX(-1); }
+}
+@media (max-width: 767px) {
+  .flora-desktop { display: none; }
+  .florals { opacity: 0.85; }
+}
+.flora-pos {
+  position: absolute;
+  aspect-ratio: 1;
+}
+.flora-lean {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 85%;
+  transform: rotate(calc(var(--lean, 0) * var(--k, 1) * 1deg));
+  transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.flora-bloom {
+  width: 100%;
+  height: 100%;
+  scale: 0;
+  opacity: 0;
+  animation: flora-bloom 1.8s cubic-bezier(0.2, 0.9, 0.25, 1.15) forwards;
+}
+@keyframes flora-bloom {
+  from { scale: 0; opacity: 0; rotate: -35deg; }
+  to { scale: 1; opacity: 1; rotate: 0deg; }
+}
+.flora-sway {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 85%;
+  transform: rotate(var(--rot, 0deg));
+  animation: flora-sway 6s ease-in-out infinite alternate;
+  will-change: rotate;
+}
+@keyframes flora-sway {
+  from { rotate: calc(var(--amp, 3deg) * -1); }
+  to { rotate: var(--amp, 3deg); }
+}
+.flora-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: flora-breathe 4.5s ease-in-out infinite alternate;
+  filter: drop-shadow(0 4px 6px rgba(44, 62, 80, 0.12));
+}
+@keyframes flora-breathe {
+  from { scale: 0.97; }
+  to { scale: 1.04; }
+}
+.flora-petal {
+  position: absolute;
+  top: 12vh;
+  width: var(--size, 14px);
+  height: calc(var(--size, 14px) * 1.4);
+  margin-left: calc(var(--flora-w) * var(--px) / 100);
+  margin-right: calc(var(--flora-w) * var(--px) / 100);
+  opacity: 0;
+  animation: petal-fall 17s linear infinite;
+}
+@keyframes petal-fall {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  8% { opacity: 0.9; }
+  25% { transform: translate(calc(var(--drift) * 0.6), 22vh) rotate(90deg); }
+  50% { transform: translate(calc(var(--drift) * -0.2), 45vh) rotate(200deg); }
+  75% { transform: translate(var(--drift), 66vh) rotate(290deg); }
+  90% { opacity: 0.8; }
+  100% { transform: translate(calc(var(--drift) * 0.3), 90vh) rotate(380deg); opacity: 0; }
+}
