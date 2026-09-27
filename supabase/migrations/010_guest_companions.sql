@@ -30,3 +30,16 @@ drop trigger if exists invite_allocations_sync_max on invite_allocations;
 create trigger invite_allocations_sync_max
   before insert or update on invite_allocations
   for each row execute function invite_allocations_sync_max();
+
+-- Entourage: give the groomsman/bridesmaid pairs their ceremony subtitles
+-- (shown in italics above each pair). Only rows whose role is still the
+-- generic "Groomsman"/"Bridesmaid" (or empty) are touched.
+update entourage_members set role_label = 'To Remove the Veil'
+where category in ('groomsmen', 'bridesmaids')
+  and (name ilike '%Rhobert%Medilo%' or name ilike '%Cynthia%Toledo%')
+  and (role_label = '' or role_label ~* '^(groomsm[ae]n|bridesmaids?)$');
+
+update entourage_members set role_label = 'To Remain the Cord'
+where category in ('groomsmen', 'bridesmaids')
+  and (name ilike '%Angelo%Salayog%' or name ilike '%Recelyn%Licaroz%')
+  and (role_label = '' or role_label ~* '^(groomsm[ae]n|bridesmaids?)$');
