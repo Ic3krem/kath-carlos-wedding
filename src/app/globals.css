@@ -288,3 +288,47 @@ select:focus-visible,
   90% { opacity: 0.8; }
   100% { transform: translate(calc(var(--drift) * 0.3), 90vh) rotate(380deg); opacity: 0; }
 }
+
+/* A flower near the cursor opens up and brightens (--near: 0..1, Florals.tsx). */
+.flora-near {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 60%;
+  transform: scale(calc(1 + var(--near, 0) * 0.16)) rotate(calc(var(--near, 0) * 6deg));
+  filter: brightness(calc(1 + var(--near, 0) * 0.14)) saturate(calc(1 + var(--near, 0) * 0.25));
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1.2), filter 0.5s ease;
+}
+
+/* Soft drifting light orbs over the page. */
+.light-orb {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(220, 231, 240, 0.35) 40%, transparent 70%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: orb-drift var(--dur, 26s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes orb-drift {
+  0% { transform: translate(0, 0) scale(0.8); opacity: 0; }
+  15% { opacity: var(--peak, 0.5); }
+  50% { transform: translate(var(--dx, 60px), var(--dy, -120px)) scale(1.1); opacity: var(--peak, 0.5); }
+  85% { opacity: calc(var(--peak, 0.5) * 0.6); }
+  100% { transform: translate(calc(var(--dx, 60px) * -0.5), calc(var(--dy, -120px) * 1.8)) scale(0.9); opacity: 0; }
+}
+
+/* Script section titles get a slow light sweep, like ink catching the sun. */
+.title-shimmer {
+  background-image: linear-gradient(100deg, #2c3e50 0%, #2c3e50 42%, #8aa4bb 50%, #2c3e50 58%, #2c3e50 100%);
+  background-size: 260% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: title-shimmer 7s ease-in-out infinite;
+  padding: 0 0.12em;
+}
+@keyframes title-shimmer {
+  0%, 55% { background-position: 100% 0; }
+  100% { background-position: 0% 0; }
+}

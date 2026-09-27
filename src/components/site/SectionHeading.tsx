@@ -11,7 +11,7 @@ export function SectionHeading({ eyebrow, title, large = false }: SectionHeading
     <div className="mx-auto flex max-w-[960px] flex-col items-center gap-2 text-center">
       {eyebrow && <div className="font-sans text-[11px] uppercase tracking-[0.35em] text-label">{eyebrow}</div>}
       <h2
-        className={`m-0 font-script font-normal leading-[1.1] text-ink ${
+        className={`title-shimmer m-0 font-script font-normal leading-[1.1] text-ink ${
           large ? 'text-[clamp(48px,7vw,80px)]' : 'text-[clamp(44px,6vw,64px)]'
         }`}
       >

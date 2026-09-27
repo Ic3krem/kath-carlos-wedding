@@ -149,6 +149,7 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'We could not save your RSVP. Please try again.');
       setDone({ name: data.name, attending: data.attending, companions: data.companions, total: data.total });
+      window.dispatchEvent(new CustomEvent('petal-burst', { detail: { mode: 'sides', count: data.attending ? 160 : 60 } }));
     } catch (err) {
       setMessage(err instanceof Error ? err.message : String(err));
     } finally {

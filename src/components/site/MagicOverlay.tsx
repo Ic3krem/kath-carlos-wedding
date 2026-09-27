@@ -62,6 +62,20 @@ interface Glitter {
   maxLife: number;
   spin: number;
   color: string;
+  /** Petals flutter and fall slowly instead of sparkling. */
+  petal?: boolean;
+  flutter?: number;
+}
+
+const PETAL_COLORS = ['#FFFFFF', '#EEF4F9', '#C6D6E4', '#A9BDD0', '#8AA4BB', '#DCE7F0'];
+
+/** Fire `window.dispatchEvent(new CustomEvent('petal-burst', { detail }))` from anywhere. */
+export interface PetalBurst {
+  /** 'shower' rains from the top; 'sides' blows in from both edges; 'point' bursts at x/y. */
+  mode: 'shower' | 'sides' | 'point';
+  count?: number;
+  x?: number;
+  y?: number;
 }
 
 const GLITTER_COLORS = ['#FFFFFF', '#DCE7F0', '#8AA4BB', '#F3E3B5', '#C9D8E6'];
@@ -164,7 +178,42 @@ export function MagicOverlay() {
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     const pointer = { x: -9999, y: -9999, active: false, lastX: -9999, lastY: -9999 };
     const glitter: Glitter[] = [];
-    const MAX_GLITTER = 220;
+    const MAX_GLITTER = 420;
+
+    function spawnPetal(x: number, y: number, vx: number, vy: number) {
+      if (glitter.length >= MAX_GLITTER) return;
+      const maxLife = random(5, 9);
+      glitter.push({
+        x,
+        y,
+        vx,
+        vy,
+        size: random(3.5, 7),
+        life: maxLife,
+        maxLife,
+        spin: random(0, Math.PI * 2),
+        color: PETAL_COLORS[Math.floor(Math.random() * PETAL_COLORS.length)],
+        petal: true,
+        flutter: random(0, Math.PI * 2),
+      });
+    }
+
+    function onBurst(e: Event) {
+      const d = (e as CustomEvent<PetalBurst>).detail ?? { mode: 'shower' };
+      const count = Math.min(d.count ?? 80, 200);
+      for (let i = 0; i < count; i++) {
+        if (d.mode === 'shower') {
+          spawnPetal(random(0, width), random(-120, -10), random(-20, 20), random(20, 70));
+        } else if (d.mode === 'sides') {
+          const fromLeft = i % 2 === 0;
+          spawnPetal(fromLeft ? random(-30, 0) : width + random(0, 30), random(height * 0.1, height * 0.7), (fromLeft ? 1 : -1) * random(120, 320), random(-80, 20));
+        } else {
+          const a = random(0, Math.PI * 2);
+          const sp = random(60, 260);
+          spawnPetal(d.x ?? width / 2, d.y ?? height / 2, Math.cos(a) * sp, Math.sin(a) * sp - 80);
+        }
+      }
+    }
     // One butterfly that follows the mouse around, lagging behind like it's curious.
     const companion = { x: -100, y: -100, flap: 0, angle: 0, visible: false };
 
@@ -208,6 +257,10 @@ export function MagicOverlay() {
 
     function onPointerDown(e: PointerEvent) {
       spawnGlitter(e.clientX, e.clientY, e.pointerType === 'mouse' ? 18 : 14, 160);
+      for (let i = 0; i < 5; i++) {
+        const a = random(0, Math.PI * 2);
+        spawnPetal(e.clientX, e.clientY, Math.cos(a) * random(40, 140), Math.sin(a) * random(40, 140) - 60);
+      }
     }
 
     function onPointerLeave() {
@@ -344,12 +397,48 @@ export function MagicOverlay() {
           glitter.splice(i, 1);
           continue;
         }
+        const t = g.life / g.maxLife;
+        if (g.petal) {
+          // Petals: light, with air resistance and a side-to-side flutter.
+          g.flutter! += 3.2 * delta;
+          g.vy += 40 * delta;
+          g.vy = Math.min(g.vy, 70);
+          g.vx *= 1 - 1.4 * delta;
+          g.x += (g.vx + Math.sin(g.flutter!) * 30) * delta;
+          g.y += g.vy * delta;
+          g.spin += Math.cos(g.flutter!) * 1.6 * delta;
+          if (g.y > height + 30) {
+            glitter.splice(i, 1);
+            continue;
+          }
+          ctx.save();
+          ctx.translate(g.x, g.y);
+          ctx.rotate(g.spin);
+          // Squash on one axis as it tumbles, which reads as a 3D flip.
+          ctx.scale(1, 0.35 + Math.abs(Math.sin(g.flutter!)) * 0.65);
+          ctx.globalAlpha = Math.min(1, t * 3) * 0.92;
+          ctx.fillStyle = g.color;
+          ctx.shadowColor = 'rgba(44,62,80,0.18)';
+          ctx.shadowBlur = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, g.size * 1.4);
+          ctx.bezierCurveTo(-g.size * 1.2, g.size * 0.5, -g.size, -g.size, 0, -g.size * 1.5);
+          ctx.bezierCurveTo(g.size, -g.size, g.size * 1.2, g.size * 0.5, 0, g.size * 1.4);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.globalAlpha *= 0.5;
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.ellipse(-g.size * 0.25, -g.size * 0.3, g.size * 0.3, g.size * 0.7, 0.3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+          continue;
+        }
         g.vy += 60 * delta; // a little gravity
         g.vx *= 1 - 2.2 * delta;
         g.x += g.vx * delta;
         g.y += g.vy * delta;
         g.spin += 3 * delta;
-        const t = g.life / g.maxLife;
         ctx.save();
         ctx.translate(g.x, g.y);
         ctx.rotate(g.spin);
@@ -412,6 +501,9 @@ export function MagicOverlay() {
     document.addEventListener('visibilitychange', onVisibility);
     window.addEventListener('pointermove', onPointerMove, { passive: true });
     window.addEventListener('pointerdown', onPointerDown, { passive: true });
+    window.addEventListener('petal-burst', onBurst);
+    // A gentle shower of petals to welcome each guest.
+    const welcome = window.setTimeout(() => onBurst(new CustomEvent('petal-burst', { detail: { mode: 'shower', count: width < 640 ? 40 : 70 } })), 700);
     document.documentElement.addEventListener('pointerleave', onPointerLeave);
 
     return () => {
@@ -420,6 +512,8 @@ export function MagicOverlay() {
       document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('petal-burst', onBurst);
+      window.clearTimeout(welcome);
       document.documentElement.removeEventListener('pointerleave', onPointerLeave);
     };
   }, []);
