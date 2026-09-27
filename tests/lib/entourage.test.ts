@@ -29,6 +29,16 @@ describe('layoutEntourage', () => {
     ]);
   });
 
+  it('uses a groomsman or bridesmaid role as the pair subtitle unless it is generic', () => {
+    const layout = layoutEntourage([
+      { category: 'groomsmen', role_label: 'To Remove the Veil', name: 'A', side: 'groom', sort_order: 0 },
+      { category: 'bridesmaids', role_label: 'Bridesmaid', name: 'B', side: 'bride', sort_order: 1 },
+      { category: 'groomsmen', role_label: 'Groomsman', name: 'C', side: 'groom', sort_order: 2 },
+      { category: 'bridesmaids', role_label: 'To Remain the Cord', name: 'D', side: 'bride', sort_order: 3 },
+    ]);
+    expect(layout.pairs.map((p) => p.role)).toEqual(['To Remove the Veil', 'To Remain the Cord']);
+  });
+
   it('keeps the bearers in order with their role', () => {
     expect(e.bearers.map((b) => b.role)).toEqual(['Ring Bearer', 'Coin Bearer', 'Bible Bearer']);
     expect(e.officiants).toEqual(['Ptr. Rodel Reyes']);

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
 const GUESTS = [
-  { id: 'a', name: 'Maria Santos', max_guests: 3, sort_order: 0 },
+  { id: 'a', name: 'Maria Santos', max_guests: 3, companions_allowed: 2, sort_order: 0 },
   { id: 'b', name: 'John Reyes', max_guests: 1, sort_order: 1 },
 ];
 

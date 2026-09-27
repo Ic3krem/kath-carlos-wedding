@@ -16,6 +16,9 @@ export interface FieldSpec {
   hint?: string;
   /** Choices for a 'select' field. */
   options?: readonly string[];
+  /** Bounds for a 'number' field. */
+  min?: number;
+  max?: number;
 }
 
 export interface CollectionSpec {
@@ -125,13 +128,20 @@ export const COLLECTIONS = {
     table: 'invite_allocations',
     title: 'Guest list',
     description:
-      'Only people on this list can RSVP. Guests start typing their name on the RSVP form and pick it from the suggestions; the seats here cap how many companions they can bring.',
+      'Only people on this list can RSVP. Guests start typing their name on the RSVP form, pick it from the suggestions, then choose how many companions they are bringing — never more than the number set here. You can also edit this list in Supabase (table invite_allocations, column companions_allowed).',
     addLabel: 'Add invitee',
     titleKey: 'name',
-    subtitleKey: 'max_guests',
+    subtitleKey: 'companions_allowed',
     fields: [
       { key: 'name', label: 'Full name', type: 'text', hint: 'As printed on the invitation.' },
-      { key: 'max_guests', label: 'Seats (including the guest)', type: 'number', hint: '1 = just them, 3 = them plus two companions.' },
+      {
+        key: 'companions_allowed',
+        label: 'Guests they can bring',
+        type: 'number',
+        min: 0,
+        max: 20,
+        hint: '0 = just them. 2 = they can bring up to 2 companions (they choose 0, 1 or 2 on the RSVP form).',
+      },
       SORT_FIELD,
     ],
   },
@@ -178,7 +188,8 @@ function coerce(field: FieldSpec, value: unknown): unknown {
   switch (field.type) {
     case 'number': {
       const parsed = Number(value);
-      return Number.isFinite(parsed) ? parsed : 0;
+      const n = Number.isFinite(parsed) ? parsed : 0;
+      return Math.min(field.max ?? Infinity, Math.max(field.min ?? -Infinity, n));
     }
     case 'checkbox':
       return value === true || value === 'true';
@@ -207,7 +218,6 @@ export function emptyRow(fields: FieldSpec[], sortOrder = 0): Row {
   for (const field of fields) {
     if (field.key === 'sort_order') row[field.key] = sortOrder;
     else if (field.type === 'checkbox') row[field.key] = false;
-    else if (field.key === 'max_guests') row[field.key] = 1;
     else if (field.type === 'number') row[field.key] = 0;
     else if (field.type === 'image') row[field.key] = null;
     else if (field.type === 'color') row[field.key] = '#8AA2B8';

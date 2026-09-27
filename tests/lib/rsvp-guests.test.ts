@@ -34,3 +34,14 @@ describe('rsvp guest matching', () => {
     expect(likeLiteral('100%_ok')).toBe('100\\%\\_ok');
   });
 });
+
+describe('companions_allowed', () => {
+  it('prefers the companions_allowed column when present', () => {
+    expect(companionsAllowed({ companions_allowed: 2, max_guests: 1 })).toBe(2);
+    expect(companionsAllowed({ companions_allowed: 0, max_guests: 5 })).toBe(0);
+  });
+  it('clamps bad values', () => {
+    expect(companionsAllowed({ companions_allowed: -3 })).toBe(0);
+    expect(companionsAllowed({ companions_allowed: 99 })).toBe(20);
+  });
+});

@@ -39,8 +39,13 @@ export function findGuest<T extends Pick<InviteAllocation, 'name'>>(list: T[], n
   return list.find((g) => normName(g.name) === key) ?? null;
 }
 
-/** `max_guests` counts the invitee, so companions are the seats beyond them. */
-export function companionsAllowed(guest: Pick<InviteAllocation, 'max_guests'>): number {
+/**
+ * How many companions an invitee may bring. Reads `companions_allowed`
+ * (migration 010); before that migration, `max_guests` counted the invitee.
+ */
+export function companionsAllowed(guest: Partial<Pick<InviteAllocation, 'max_guests' | 'companions_allowed'>>): number {
+  const direct = Number(guest.companions_allowed);
+  if (guest.companions_allowed != null && Number.isFinite(direct)) return Math.min(20, Math.max(0, Math.floor(direct)));
   return Math.max(0, (Number(guest.max_guests) || 1) - 1);
 }
 

@@ -23,6 +23,14 @@ export interface EntourageLayout {
   others: { role: string; name: string }[];
 }
 
+const GENERIC_ROLE = /^(the\s+)?(groomsm[ae]n|bridesmaids?|brides\s*maids?|best\s*man|maid\s+of\s+honou?r)$/i;
+
+/** A role label worth showing as a subtitle, or '' for a generic title. */
+function subtitle(label: string | undefined): string {
+  const text = (label ?? '').trim();
+  return text && !GENERIC_ROLE.test(text) ? text : '';
+}
+
 /**
  * Sorts the flat member list into the blocks the Entourage section draws.
  * Ceremony sponsors are grouped by their role title into groomsman/bridesmaid
@@ -50,10 +58,13 @@ export function layoutEntourage(members: Member[]): EntourageLayout {
     const slot = m.side === 'bride' ? 'brideSide' : 'groomSide';
     pair[slot] = pair[slot] ? `${pair[slot]}, ${m.name}` : m.name;
   }
+  // Plain groomsmen and bridesmaids pair up by order. A role that is more than
+  // the generic title (e.g. "To Remove the Veil") becomes the pair's subtitle.
   const groomsmen = of('groomsmen');
   const bridesmaids = of('bridesmaids');
   for (let i = 0; i < Math.max(groomsmen.length, bridesmaids.length); i++) {
-    pairs.push({ role: '', groomSide: groomsmen[i]?.name ?? '', brideSide: bridesmaids[i]?.name ?? '' });
+    const role = [groomsmen[i]?.role_label, bridesmaids[i]?.role_label].map(subtitle).find(Boolean) ?? '';
+    pairs.push({ role, groomSide: groomsmen[i]?.name ?? '', brideSide: bridesmaids[i]?.name ?? '' });
   }
 
   const bearers = sorted

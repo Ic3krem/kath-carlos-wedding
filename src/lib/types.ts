@@ -198,7 +198,10 @@ export interface Contact {
 export interface InviteAllocation {
   id: string;
   name: string;
+  /** Party size including the invitee; kept in sync by a trigger (migration 010). */
   max_guests: number;
+  /** How many companions the invitee may bring (migration 010). */
+  companions_allowed?: number;
   sort_order: number;
 }
 
