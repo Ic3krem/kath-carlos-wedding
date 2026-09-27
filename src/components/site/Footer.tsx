@@ -16,6 +16,9 @@ export function Footer({ settings }: { settings: Settings }) {
         <div className="mt-2 font-sans text-[11px] uppercase tracking-[0.25em] opacity-85">
           {plainNames} — {formatYear(settings.wedding_date)}
         </div>
+        <a href="/florals/credits.txt" className="font-sans text-[10px] tracking-[0.1em] text-white/60 no-underline hover:text-white">
+          Floral photo credits
+        </a>
       </div>
     </footer>
   );

@@ -199,7 +199,7 @@ select:focus-visible,
    Watercolour florals on the page edges (see Florals.tsx).
    ------------------------------------------------------------------------- */
 .florals {
-  --flora-w: clamp(104px, 15vw, 250px);
+  --flora-w: clamp(104px, 15vw, 260px);
 }
 .flora-col {
   position: absolute;
@@ -218,7 +218,9 @@ select:focus-visible,
 }
 @media (max-width: 767px) {
   .flora-desktop { display: none; }
-  .florals { opacity: 0.85; }
+  .florals { --flora-w: 86px; opacity: 0.9; }
+  .flora-col { transform: translateX(-26%); }
+  .flora-mirror { transform: translateX(26%) scaleX(-1); }
 }
 .flora-pos {
   position: absolute;
@@ -254,13 +256,14 @@ select:focus-visible,
   from { rotate: calc(var(--amp, 3deg) * -1); }
   to { rotate: var(--amp, 3deg); }
 }
-.flora-svg {
+.flora-img {
   display: block;
   width: 100%;
   height: 100%;
-  overflow: visible;
+  object-fit: contain;
+  user-select: none;
   animation: flora-breathe 4.5s ease-in-out infinite alternate;
-  filter: drop-shadow(0 4px 6px rgba(44, 62, 80, 0.12));
+  filter: drop-shadow(0 6px 10px rgba(44, 62, 80, 0.22));
 }
 @keyframes flora-breathe {
   from { scale: 0.97; }
