@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GalleryImage } from '@/lib/types';
 import { CloseButton, Modal } from './Modal';
+import { Decor } from './Decor';
 import { Reveal } from './Reveal';
 import { SectionHeading } from './SectionHeading';
 
@@ -42,7 +43,7 @@ function Tile({ photo, index, onOpen, animate }: { photo: Photo; index: number; 
       aria-label={alt}
       data-reveal={animate ? '' : undefined}
       style={animate ? { transitionDelay: `${(index % 3) * 90}ms` } : undefined}
-      className={`group block h-full w-full cursor-zoom-in overflow-hidden rounded-[10px] border-0 bg-line p-0 ${SPANS[index % 6]} ${
+      className={`group relative block h-full w-full cursor-zoom-in overflow-hidden rounded-[10px] border-0 bg-line p-0 ${SPANS[index % 6]} ${
         animate
           ? `shadow-[0_6px_18px_rgba(44,62,80,0.15)] transition-[opacity,transform] duration-700 ease-out ${
               shown ? 'translate-y-0 opacity-100' : 'translate-y-[18px] opacity-0'
@@ -56,8 +57,16 @@ function Tile({ photo, index, onOpen, animate }: { photo: Photo; index: number; 
         alt={alt}
         loading="lazy"
         decoding="async"
-        className="block h-full w-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.06]"
+        className="block h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
       />
+      <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[linear-gradient(to_top,rgba(28,45,64,0.55),rgba(28,45,64,0.05))] opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+        <span className="flex h-11 w-11 scale-50 items-center justify-center rounded-full bg-white/90 text-steel transition-transform duration-500 group-hover:scale-100">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5M11 8v6M8 11h6" />
+          </svg>
+        </span>
+      </span>
     </button>
   );
 }
@@ -86,7 +95,8 @@ export function Gallery({ images }: { images: Photo[] }) {
   const current = lightbox >= 0 ? images[lightbox] : null;
 
   return (
-    <section id="gallery" className="bg-mist px-6 py-[88px]">
+    <section id="gallery" className="relative isolate overflow-hidden bg-mist px-6 py-[88px]">
+      <Decor tone="mist" />
       <Reveal>
         <SectionHeading eyebrow="Gallery" title="View more of us" />
       </Reveal>
@@ -100,7 +110,7 @@ export function Gallery({ images }: { images: Photo[] }) {
           <button
             type="button"
             onClick={() => setShowAll(true)}
-            className="cursor-pointer rounded-full border-0 bg-steel px-9 py-3.5 font-sans text-xs font-semibold uppercase tracking-[0.25em] text-white shadow-[0_4px_14px_rgba(79,111,143,0.25)] hover:bg-steel-dark"
+            className="btn-shine cursor-pointer rounded-full border-0 bg-steel px-9 py-3.5 font-sans text-xs font-semibold uppercase tracking-[0.25em] text-white shadow-[0_4px_14px_rgba(79,111,143,0.25)] hover:bg-steel-dark"
           >
             View more photos
           </button>

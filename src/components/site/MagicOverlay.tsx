@@ -51,6 +51,21 @@ interface Dust {
   sparkle: boolean;
 }
 
+/** A speck of glitter shed by the cursor or thrown by a click. */
+interface Glitter {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  life: number;
+  maxLife: number;
+  spin: number;
+  color: string;
+}
+
+const GLITTER_COLORS = ['#FFFFFF', '#DCE7F0', '#8AA4BB', '#F3E3B5', '#C9D8E6'];
+
 function random(min: number, max: number) {
   return min + Math.random() * (max - min);
 }
@@ -144,6 +159,62 @@ export function MagicOverlay() {
     let frame = 0;
     let last = performance.now();
 
+    // Pointer state. Touch screens only get the tap burst; the trail and the
+    // companion butterfly need a hovering mouse to make sense.
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const pointer = { x: -9999, y: -9999, active: false, lastX: -9999, lastY: -9999 };
+    const glitter: Glitter[] = [];
+    const MAX_GLITTER = 220;
+    // One butterfly that follows the mouse around, lagging behind like it's curious.
+    const companion = { x: -100, y: -100, flap: 0, angle: 0, visible: false };
+
+    function spawnGlitter(x: number, y: number, count: number, force: number) {
+      for (let i = 0; i < count && glitter.length < MAX_GLITTER; i++) {
+        const angle = random(0, Math.PI * 2);
+        const speed = random(0.2, 1) * force;
+        const maxLife = random(0.6, 1.3);
+        glitter.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - force * 0.3,
+          size: random(0.8, 2.6),
+          life: maxLife,
+          maxLife,
+          spin: random(0, Math.PI),
+          color: GLITTER_COLORS[Math.floor(Math.random() * GLITTER_COLORS.length)],
+        });
+      }
+    }
+
+    function onPointerMove(e: PointerEvent) {
+      if (e.pointerType !== 'mouse') return;
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+      if (!pointer.active) {
+        pointer.active = true;
+        companion.x = e.clientX - 60;
+        companion.y = e.clientY + 40;
+        companion.visible = true;
+      }
+      const dx = pointer.x - pointer.lastX;
+      const dy = pointer.y - pointer.lastY;
+      if (dx * dx + dy * dy > 140) {
+        spawnGlitter(pointer.x, pointer.y, 2, 30);
+        pointer.lastX = pointer.x;
+        pointer.lastY = pointer.y;
+      }
+    }
+
+    function onPointerDown(e: PointerEvent) {
+      spawnGlitter(e.clientX, e.clientY, e.pointerType === 'mouse' ? 18 : 14, 160);
+    }
+
+    function onPointerLeave() {
+      pointer.active = false;
+      pointer.x = pointer.y = -9999;
+    }
+
     function resize() {
       if (!canvas || !ctx) return;
       width = window.innerWidth;
@@ -212,7 +283,23 @@ export function MagicOverlay() {
         butterfly.wavePhase += butterfly.waveSpeed * delta;
         butterfly.flapPhase += butterfly.flapSpeed * delta;
 
-        const y = butterfly.y + Math.sin(butterfly.wavePhase) * butterfly.waveHeight;
+        let y = butterfly.y + Math.sin(butterfly.wavePhase) * butterfly.waveHeight;
+
+        // Shy of the cursor: butterflies that come close flutter out of the way.
+        if (pointer.active) {
+          const dx = butterfly.x - pointer.x;
+          const dy = y - pointer.y;
+          const d2 = dx * dx + dy * dy;
+          const radius = 130;
+          if (d2 < radius * radius) {
+            const d = Math.sqrt(d2) || 1;
+            const push = ((radius - d) / radius) * 260 * delta;
+            butterfly.x += (dx / d) * push;
+            butterfly.y += (dy / d) * push;
+            y += (dy / d) * push;
+            butterfly.flapPhase += 10 * delta;
+          }
+        }
 
         // Wings squash horizontally as they beat, which reads as perspective.
         const flap = Math.abs(Math.sin(butterfly.flapPhase));
@@ -249,6 +336,64 @@ export function MagicOverlay() {
         }
       }
 
+      // Glitter shed by the cursor and thrown by clicks.
+      for (let i = glitter.length - 1; i >= 0; i--) {
+        const g = glitter[i];
+        g.life -= delta;
+        if (g.life <= 0) {
+          glitter.splice(i, 1);
+          continue;
+        }
+        g.vy += 60 * delta; // a little gravity
+        g.vx *= 1 - 2.2 * delta;
+        g.x += g.vx * delta;
+        g.y += g.vy * delta;
+        g.spin += 3 * delta;
+        const t = g.life / g.maxLife;
+        ctx.save();
+        ctx.translate(g.x, g.y);
+        ctx.rotate(g.spin);
+        ctx.globalAlpha = Math.min(1, t * 1.6) * 0.9;
+        ctx.fillStyle = g.color;
+        ctx.shadowColor = g.color;
+        ctx.shadowBlur = 6;
+        drawSparkle(ctx, g.size * (0.6 + t * 0.4));
+        ctx.restore();
+      }
+
+      // The companion butterfly eases toward a spot just off the cursor.
+      if (finePointer && companion.visible) {
+        const tx = pointer.active ? pointer.x + 26 : companion.x;
+        const ty = pointer.active ? pointer.y - 22 : companion.y - 8;
+        const dx = tx - companion.x;
+        const dy = ty - companion.y;
+        companion.x += dx * Math.min(1, 2.6 * delta);
+        companion.y += dy * Math.min(1, 2.6 * delta) + Math.sin(now / 380) * 0.35;
+        const moving = Math.min(1, Math.hypot(dx, dy) / 80);
+        companion.flap += (7 + moving * 10) * delta;
+        companion.angle += (Math.max(-0.5, Math.min(0.5, dx / 160)) - companion.angle) * Math.min(1, 4 * delta);
+
+        const spread = 0.25 + Math.abs(Math.sin(companion.flap)) * 0.75;
+        ctx.save();
+        ctx.translate(companion.x, companion.y);
+        ctx.rotate(companion.angle);
+        ctx.globalAlpha = 0.85;
+        ctx.fillStyle = '#5E7D9A';
+        ctx.shadowColor = 'rgba(255,255,255,0.9)';
+        ctx.shadowBlur = 8;
+        ctx.save();
+        ctx.scale(spread, 1);
+        drawWings(ctx, 13);
+        ctx.scale(-1, 1);
+        drawWings(ctx, 13);
+        ctx.restore();
+        ctx.fillStyle = '#2F4358';
+        ctx.beginPath();
+        ctx.ellipse(0, 13 * 0.15, 13 * 0.08, 13 * 0.45, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
       frame = requestAnimationFrame(draw);
     }
 
@@ -265,11 +410,17 @@ export function MagicOverlay() {
     frame = requestAnimationFrame(draw);
     window.addEventListener('resize', resize);
     document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    window.addEventListener('pointerdown', onPointerDown, { passive: true });
+    document.documentElement.addEventListener('pointerleave', onPointerLeave);
 
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerdown', onPointerDown);
+      document.documentElement.removeEventListener('pointerleave', onPointerLeave);
     };
   }, []);
 

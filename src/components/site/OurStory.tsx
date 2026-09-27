@@ -1,32 +1,43 @@
 import type { StoryMilestone } from '@/lib/types';
+import { Decor } from './Decor';
 import { Reveal } from './Reveal';
+import { Tilt } from './Tilt';
 import { SectionHeading } from './SectionHeading';
 
 export function OurStory({ milestones }: { milestones: Omit<StoryMilestone, 'id'>[] }) {
   return (
-    <section id="story" className="bg-paper px-6 py-[88px]">
+    <section id="story" className="relative isolate overflow-hidden bg-paper px-6 py-[88px]">
+      <Decor />
       <Reveal>
         <SectionHeading eyebrow="Our Story" title="How Our Journey Began" />
       </Reveal>
       <div className="mx-auto mt-12 flex max-w-[1000px] flex-col gap-[72px]">
         {milestones.map((m, i) => (
-          <Reveal
+          <div
             key={`${m.title}-${i}`}
-            as="div"
             className={`flex flex-wrap items-center gap-12 ${i % 2 === 1 ? 'flex-row-reverse' : 'flex-row'}`}
           >
             {m.image_url && (
-              <figure className="m-0 flex flex-[1_1_340px] flex-col items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={m.image_url}
-                  alt={m.caption || m.title}
-                  loading="lazy"
-                  className="block aspect-[4/3] w-full rounded-xl object-cover shadow-photo"
-                />
-              </figure>
+              <Reveal from={i % 2 === 1 ? 'right' : 'left'} className="flex-[1_1_340px]">
+                <figure className="m-0 flex flex-col items-center gap-3">
+                  <Tilt className="w-full rounded-xl" max={6}>
+                    <div className="overflow-hidden rounded-xl shadow-photo">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={m.image_url}
+                        alt={m.caption || m.title}
+                        loading="lazy"
+                        className="block aspect-[4/3] w-full object-cover transition-transform duration-700 ease-out hover:scale-105"
+                      />
+                    </div>
+                  </Tilt>
+                </figure>
+              </Reveal>
             )}
-            <div className="flex flex-[1_1_340px] flex-col gap-3.5">
+            <Reveal from={i % 2 === 1 ? 'left' : 'right'} delay={150} className="flex flex-[1_1_340px] flex-col gap-3.5">
+              <span className="font-sans text-[11px] uppercase tracking-[0.3em] text-label">
+                Chapter {String(i + 1).padStart(2, '0')}
+              </span>
               <h3 className="m-0 text-[clamp(26px,3vw,32px)] font-medium leading-[1.15]">{m.title}</h3>
               <p className="m-0 text-[19px] leading-relaxed text-body">{m.body}</p>
               {m.quote && (
@@ -34,8 +45,8 @@ export function OurStory({ milestones }: { milestones: Omit<StoryMilestone, 'id'
                   “{m.quote.replace(/^[“"]|[”"]$/g, '')}”
                 </blockquote>
               )}
-            </div>
-          </Reveal>
+            </Reveal>
+          </div>
         ))}
       </div>
     </section>
