@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase.from('settings').select('*').eq('id', 1).single();
@@ -15,10 +17,18 @@ export async function PUT(request: NextRequest) {
   if (!body) {
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
   }
+  // Columns added by migration 009 are only written when the row already has
+  // them, so saving still works on a database that hasn't been migrated yet.
+  const optional: Record<string, unknown> = {};
+  for (const key of ['ceremony_directions', 'reception_directions', 'timeline_note']) {
+    if (key in body) optional[key] = body[key] ?? '';
+  }
+
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
     .from('settings')
     .update({
+      ...optional,
       couple_names: body.couple_names,
       wedding_date: body.wedding_date,
       hero_image_url: body.hero_image_url,

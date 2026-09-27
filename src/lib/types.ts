@@ -15,6 +15,10 @@ export interface Settings {
   reception_embed_url: string | null;
   rsvp_due_date: string | null;
   hero_message: string;
+  /** Added in migration 009 — one direction step per line. */
+  ceremony_directions?: string;
+  reception_directions?: string;
+  timeline_note?: string;
 }
 
 export interface OurStory {
@@ -30,6 +34,7 @@ export interface OurStory {
 
 export type EntourageCategory =
   | 'parents'
+  | 'officiant'
   | 'godparents'
   | 'best_man'
   | 'maid_of_honor'
@@ -44,6 +49,7 @@ export type EntourageCategory =
 
 export const ENTOURAGE_CATEGORIES: EntourageCategory[] = [
   'parents',
+  'officiant',
   'godparents',
   'best_man',
   'maid_of_honor',
@@ -60,6 +66,7 @@ export const ENTOURAGE_CATEGORIES: EntourageCategory[] = [
 /** Heading shown above each group on the public page. */
 export const ENTOURAGE_CATEGORY_LABELS: Record<EntourageCategory, string> = {
   parents: 'Parents',
+  officiant: 'Officiant Pastor',
   godparents: 'Life Godparents',
   best_man: "Groom's Bests",
   maid_of_honor: "Bride's Best",
@@ -69,20 +76,10 @@ export const ENTOURAGE_CATEGORY_LABELS: Record<EntourageCategory, string> = {
   ring_bearer: 'Ring Bearer',
   coin_bearer: 'Coin Bearer',
   bible_bearer: 'Bible Bearer',
-  ceremony_sponsors: 'Ceremony Sponsors',
+  ceremony_sponsors: 'Groomsmen & Bridesmaid pairs',
   other: 'Entourage',
 };
 
-/**
- * The three candle/veil/cord roles, added per the client's revision. Each is
- * shown as a Mr.-and-Ms. pair ("magkasama"); `role_label` on the member row
- * holds one of these titles so the public page can group pairs under it.
- */
-export const CEREMONY_SPONSOR_TITLES = [
-  'To Light Our Path',
-  'To Clothe Us as One',
-  'To Bind Us Together',
-] as const;
 export type EntourageSide = 'bride' | 'groom' | null;
 
 export interface EntourageMember {
@@ -120,6 +117,18 @@ export interface ScheduleEvent {
   sort_order: number;
 }
 
+export type TimelineIcon = 'people' | 'church' | 'camera' | 'dining' | 'heart' | 'music' | 'car' | 'ring';
+
+export const TIMELINE_ICONS: TimelineIcon[] = ['people', 'church', 'camera', 'dining', 'heart', 'music', 'car', 'ring'];
+
+export interface TimelineItem {
+  id: string;
+  time_label: string;
+  label: string;
+  icon: TimelineIcon;
+  sort_order: number;
+}
+
 export interface Logistics {
   id: number;
   dress_note: string;
@@ -152,6 +161,8 @@ export interface ThemeDetails {
   guest_note: string;
   avoid_note: string;
   comfort_note: string;
+  /** Added in migration 009. */
+  life_godparents_detail?: string;
 }
 
 export interface ThemeColor {

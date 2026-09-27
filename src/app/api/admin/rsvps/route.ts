@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase.from('rsvps').select('*').order('created_at', { ascending: false });

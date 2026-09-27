@@ -62,13 +62,20 @@ describe('/api/admin/collections/[table]', () => {
     expect(insertMock).toHaveBeenCalledWith({ name: 'Sage', hex: '#7C8C6B', sort_order: 2 });
   });
 
-  it('POST coerces checkbox and number columns', async () => {
-    await POST(post('schedule_events', { title: 'Ceremony', is_highlight: 'true', sort_order: '3' }), {
-      params: { table: 'schedule_events' },
+  it('POST coerces number and select columns', async () => {
+    await POST(post('timeline_items', { time_label: '3:00 PM', label: 'Ceremony', icon: 'church', sort_order: '3' }), {
+      params: { table: 'timeline_items' },
     });
     const written = insertMock.mock.calls[0][0];
-    expect(written.is_highlight).toBe(true);
+    expect(written.icon).toBe('church');
     expect(written.sort_order).toBe(3);
+  });
+
+  it('POST replaces an unknown select value with the first option', async () => {
+    await POST(post('timeline_items', { time_label: '3:00 PM', label: 'Ceremony', icon: 'rocket' }), {
+      params: { table: 'timeline_items' },
+    });
+    expect(insertMock.mock.calls[0][0].icon).toBe('people');
   });
 
   it('PUT updates a row by id', async () => {

@@ -2,37 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --color-primary: #33506b;
-  --color-secondary: #eef3f8;
-  --color-accent: #4f7091;
-}
-
 html {
-  /* Anchor jumps (the hero's "Get Started") glide instead of teleporting.
-     The reduced-motion block below turns this back off. */
   scroll-behavior: smooth;
-
-  /* Several effects deliberately park content outside the viewport before
-     they animate it in — the gallery scatters its cards a full column wide,
-     and every Reveal starts offset — which on a phone left the page swipeable
-     sideways onto the black body behind it. Clipping here rather than on an
-     inner wrapper keeps html the scroll container, so the pinned countdown
-     goes on sticking. overscroll-behavior stops the rubber-band tug with it. */
   overflow-x: hidden;
-  overscroll-behavior-x: none;
 }
 
-/* The page sits on black: the countdown pins against it and the pale content
-   sheet stacks over the top. Sections paint their own background. */
-html, body {
-  @apply bg-black text-black;
-  /* Belt and braces: nothing may make the page itself wider than the screen. */
-  max-width: 100%;
+body {
+  margin: 0;
+  background: #f5f9fc;
+  color: #2c3e50;
 }
 
 h1, h2, h3, h4, h5, h6 {
   text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 a,
@@ -50,14 +36,8 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 [tabindex]:focus-visible {
-  /* Double ring so a focus indicator is always visible regardless of
-     background: a white inner ring reads against the black hero/countdown/
-     footer bands, and a black outer ring reads against the pale content
-     sections. At least one ring clears 3:1 in every section of the page. */
-  outline: 2px solid #fff;
+  outline: 2px solid #8aa4bb;
   outline-offset: 2px;
-  box-shadow: 0 0 0 6px #000;
-  border-radius: 2px;
 }
 
 /* Reveal-on-scroll starts hidden in the SSR markup, so restore it when the
@@ -69,100 +49,13 @@ select:focus-visible,
   }
 }
 
-/* Section headings underline themselves as they arrive. */
-.heading-flourish::after {
-  content: '';
-  display: block;
-  height: 1px;
-  width: 0;
-  margin: 0.35rem auto 0;
-  background: var(--color-accent);
-  transition: width 900ms ease-out 250ms;
-}
-[data-reveal].opacity-100 .heading-flourish::after,
-.heading-flourish.is-shown::after {
-  width: 4.5rem;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-[data-theme='dusty-blue'] {
-  --color-primary: #33506b;
-  --color-secondary: #eef3f8;
-  --color-accent: #4f7091;
-}
-[data-theme='classic-green'] {
-  --color-primary: #2f4f3a;
-  --color-secondary: #f5f1e6;
-  --color-accent: #c9a24b;
-}
-[data-theme='blush'] {
-  --color-primary: #b76e79;
-  --color-secondary: #fff5f5;
-  --color-accent: #d4af37;
-}
-[data-theme='ivory-gold'] {
-  --color-primary: #8a6d3b;
-  --color-secondary: #faf6ef;
-  --color-accent: #c9a24b;
-}
-
-/* Equaliser bars on the music toggle. The reduced-motion block above stops
-   the animation, so the bars simply hold their height. */
-.music-bar {
-  height: 40%;
-  animation: music-bar 900ms ease-in-out infinite alternate;
-}
-@keyframes music-bar {
-  from {
-    height: 25%;
-  }
-  to {
-    height: 100%;
-  }
-}
-
-/* Postcard gallery — cards start scattered and settle into the grid once,
-   when the gallery is scrolled into view. */
-.postcard {
-  transform-style: preserve-3d;
-  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048),
-    0 12.5px 10px rgba(0, 0, 0, 0.06), 0 2.3px 70.9px rgba(0, 0, 0, 0.072),
-    0 6.8px 15.4px rgba(0, 0, 0, 0.01);
-  overflow: hidden;
-  margin: auto;
-  transition: transform 0.6s;
-  position: relative;
-  border-radius: 4px;
-  cursor: pointer;
-  padding: 0;
-  border: none;
-  display: block;
-}
-
-.postcard__front {
-  background-color: floralwhite;
-  box-sizing: border-box;
-  padding: 14px;
-  height: 100%;
-  width: 100%;
-}
-
-/* Scoped to real postcards so the modal and lightbox, which reuse the mat
-   styling as a frame, can size their own images. */
-.postcard .postcard__front img {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-  display: block;
 }

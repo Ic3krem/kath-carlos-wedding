@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type { Rsvp } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+
 const HEADERS: (keyof Rsvp)[] = ['name', 'email', 'phone', 'attending', 'guest_count', 'guest_names', 'meal_preference', 'allergies', 'song_request', 'message', 'created_at'];
 
 function csvEscape(value: unknown): string {

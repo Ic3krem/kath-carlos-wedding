@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import { getCollectionSpec, pickFields } from '@/lib/admin/schema';
 
+export const dynamic = 'force-dynamic';
+
 interface RouteParams {
   params: { table: string };
 }
