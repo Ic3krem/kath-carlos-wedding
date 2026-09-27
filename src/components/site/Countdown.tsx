@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getCountdownParts, type CountdownParts } from '@/lib/countdown';
+import { Decor } from './Decor';
 import { Reveal } from './Reveal';
 
 const UNITS: { key: keyof Omit<CountdownParts, 'isPast'>; label: string }[] = [
@@ -26,19 +27,31 @@ export function Countdown({ weddingDate, message }: { weddingDate: string; messa
   }, [weddingDate]);
 
   return (
-    <section className="bg-mist px-6 py-[72px]">
+    <section className="relative isolate overflow-hidden bg-mist px-6 py-[72px]">
+      <Decor tone="mist" />
       <Reveal className="mx-auto flex max-w-[880px] flex-col items-center gap-[22px] text-center">
         {message && <p className="m-0 max-w-[700px] text-[15px] leading-relaxed text-body">{message}</p>}
         <h2 className="m-0 text-[clamp(28px,3.4vw,38px)] font-normal italic text-ink">Days before we say I do</h2>
         <div className="grid w-full max-w-[720px] grid-cols-[repeat(auto-fit,minmax(92px,1fr))] gap-3.5">
-          {UNITS.map((unit) => (
-            <div key={unit.key} className="rounded-[10px] border border-line bg-white px-2 pb-3 pt-4 shadow-soft">
-              <div className="text-[clamp(30px,4vw,42px)] font-medium leading-none tabular-nums text-ink">
-                {String(parts?.[unit.key] ?? 0).padStart(2, '0')}
+          {UNITS.map((unit, i) => {
+            const value = String(parts?.[unit.key] ?? 0).padStart(2, '0');
+            return (
+            <Reveal
+              key={unit.key}
+              from="scale"
+              delay={200 + i * 90}
+            >
+              <div className="lift rounded-[10px] border border-line bg-white px-2 pb-3 pt-4 shadow-soft">
+              <div className="text-[clamp(30px,4vw,42px)] font-medium leading-none tabular-nums text-ink [perspective:400px]">
+                <span key={value} className="tick">
+                  {value}
+                </span>
               </div>
               <div className="mt-2 font-sans text-[10px] uppercase tracking-[0.2em] text-muted">{unit.label}</div>
-            </div>
-          ))}
+              </div>
+            </Reveal>
+            );
+          })}
         </div>
       </Reveal>
     </section>

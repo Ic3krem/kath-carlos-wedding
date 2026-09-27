@@ -73,6 +73,8 @@ export function FieldInput({ field, value, onChange }: FieldInputProps) {
       ) : field.type === 'number' ? (
         <input
           type="number"
+          min={field.min}
+          max={field.max}
           className={INPUT_CLASS}
           value={Number(value ?? 0)}
           onChange={(e) => onChange(Number(e.target.value))}

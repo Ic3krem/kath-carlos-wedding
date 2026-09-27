@@ -5,6 +5,7 @@ import type { TimelineItem } from '@/lib/types';
 import { Icon } from './Icons';
 import { CloseButton, Modal } from './Modal';
 import { Reveal } from './Reveal';
+import { Tilt } from './Tilt';
 import { SectionHeading } from './SectionHeading';
 
 export interface Venue {
@@ -45,10 +46,14 @@ export function Details({ dateLabel, weekday, time, venues, timeline, timelineNo
         </div>
       </Reveal>
 
-      <Reveal className="mx-auto mt-10 grid max-w-[680px] grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-5 text-center">
-        {venues.map((venue) => (
-          <div key={venue.kind} className="flex flex-col items-center gap-2 rounded-xl bg-white px-[22px] py-[30px] shadow-card">
+      <div className="mx-auto mt-10 grid max-w-[680px] grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-5 text-center">
+        {venues.map((venue, vi) => (
+          <Reveal key={venue.kind} from={vi === 0 ? 'left' : 'right'} delay={vi * 120}>
+          <Tilt className="h-full rounded-xl" max={7}>
+          <div className="lift flex h-full flex-col items-center gap-2 rounded-xl bg-white px-[22px] py-[30px] shadow-card">
+            <span className="bob inline-block" style={{ animationDelay: `${vi * 600}ms` }}>
             <Icon name={venue.kind === 'Ceremony' ? 'church' : 'reception'} size={26} color="#4f6f8f" />
+            </span>
             <h3 className="mb-0.5 mt-1 text-[22px] font-medium">{venue.kind}</h3>
             <div className="text-lg leading-normal text-body">
               {venue.name}
@@ -58,28 +63,36 @@ export function Details({ dateLabel, weekday, time, venues, timeline, timelineNo
             <button
               type="button"
               onClick={() => setOpen(venue)}
-              className="mt-2.5 cursor-pointer rounded-full border-0 bg-steel px-6 py-2.5 font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-white hover:bg-steel-dark"
+              className="btn-shine mt-2.5 cursor-pointer rounded-full border-0 bg-steel px-6 py-2.5 font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-white transition-colors hover:bg-steel-dark"
             >
               Open Guide
             </button>
           </div>
+          </Tilt>
+          </Reveal>
         ))}
-      </Reveal>
+      </div>
 
       <Reveal className="mx-auto mt-14 flex max-w-[960px] flex-col items-center gap-7 text-center">
         <h3 className="m-0 text-[28px] font-medium">Wedding Timeline</h3>
         <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(min(100%,160px),1fr))] gap-4">
           {timeline.map((item, i) => (
-            <div
+            <Reveal
               key={`${item.time_label}-${i}`}
-              className="relative mt-6 flex flex-col gap-1 rounded-xl bg-white px-3 pb-[18px] pt-[38px] shadow-card"
+              from="up"
+              delay={i * 130}
+              className="mt-6 h-[calc(100%-1.5rem)]"
             >
-              <div className="absolute -top-6 left-1/2 flex h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full bg-steel shadow-[0_4px_12px_rgba(79,111,143,0.3)]">
+              <div className="lift group relative flex h-full flex-col gap-1 rounded-xl bg-white px-3 pb-[18px] pt-[38px] shadow-card">
+              <div
+                className="pulse-ring absolute -top-6 left-1/2 flex h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full bg-steel shadow-[0_4px_12px_rgba(79,111,143,0.3)] transition-transform duration-500 group-hover:rotate-[360deg] group-hover:scale-110"
+              >
                 <Icon name={item.icon} color="#fff" strokeWidth={1.6} />
               </div>
               <div className="text-[22px] font-semibold">{item.time_label}</div>
               <div className="text-base text-body">{item.label}</div>
-            </div>
+              </div>
+            </Reveal>
           ))}
         </div>
         {timelineNote && <p className="m-0 max-w-[680px] text-[17px] italic leading-relaxed text-body">{timelineNote}</p>}

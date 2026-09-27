@@ -1,5 +1,6 @@
 import type { ThemeColor, ThemeDetails } from '@/lib/types';
 import { Reveal } from './Reveal';
+import { Tilt } from './Tilt';
 import { SectionHeading } from './SectionHeading';
 
 interface AttireGuideProps {
@@ -14,14 +15,16 @@ export function AttireGuide({ details, colors }: AttireGuideProps) {
       <Reveal>
         <SectionHeading title="Attire Guide" large />
       </Reveal>
-      <Reveal className="mx-auto mt-8 flex max-w-[576px] flex-col gap-6 rounded-[18px] border border-[#d3dde6] bg-[#e6ecf1] p-[clamp(16px,4vw,36px)]">
+      <Reveal from="scale" className="mx-auto mt-8 max-w-[576px]">
+      <Tilt max={4} className="rounded-[18px]">
+      <div className="flex flex-col gap-6 rounded-[18px] border border-[#d3dde6] bg-[#e6ecf1] p-[clamp(16px,4vw,36px)]">
         <div className="flex flex-col gap-3.5 rounded-[14px] border border-[#e1e9f0] bg-white px-6 py-[26px] shadow-soft">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/attire/attire-illustration.webp"
             alt="Two couples dressed in the wedding colours"
             loading="lazy"
-            className="block w-full"
+            className="bob block w-full"
           />
           <div className="mt-2.5 grid grid-cols-1 gap-5 text-center sm:grid-cols-2 sm:gap-3">
             <div className="flex flex-col items-center gap-2">
@@ -58,9 +61,9 @@ export function AttireGuide({ details, colors }: AttireGuideProps) {
           {details.note && <p className="m-0 text-center text-[13px] italic text-[#8a9aa8]">{details.note}</p>}
           <div className="flex flex-wrap justify-center gap-x-[18px] gap-y-2.5 text-center font-sans text-[9px] font-medium uppercase tracking-[0.08em] text-muted">
             {colors.map((c) => (
-              <div key={c.name + c.hex} className="flex items-center gap-2">
+              <div key={c.name + c.hex} className="group flex cursor-default items-center gap-2">
                 <span
-                  className="h-5 w-5 rounded-full shadow-[inset_0_0_0_1px_rgba(0,0,0,0.08)]"
+                  className="h-5 w-5 rounded-full shadow-[inset_0_0_0_1px_rgba(0,0,0,0.08)] transition-transform duration-300 group-hover:scale-150"
                   style={{ background: c.hex }}
                 />
                 {c.name}
@@ -68,6 +71,8 @@ export function AttireGuide({ details, colors }: AttireGuideProps) {
             ))}
           </div>
         </div>
+      </div>
+      </Tilt>
       </Reveal>
     </section>
   );

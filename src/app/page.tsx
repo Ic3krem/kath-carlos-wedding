@@ -9,6 +9,7 @@ import { GiftGuide } from '@/components/site/GiftGuide';
 import { Rsvp } from '@/components/site/Rsvp';
 import { Footer } from '@/components/site/Footer';
 import { MusicPlayer } from '@/components/site/MusicPlayer';
+import { ScrollEffects } from '@/components/site/ScrollEffects';
 import nextDynamic from 'next/dynamic';
 import {
   DIRECTIONS_FALLBACK,
@@ -68,6 +69,7 @@ export default async function HomePage() {
     <main className="bg-paper font-serif text-ink">
       <MagicOverlay />
       <MusicPlayer />
+      <ScrollEffects />
       <Hero settings={settings} />
       <Countdown weddingDate={settings.wedding_date} message={settings.hero_message} />
       <OurStory milestones={milestones} />

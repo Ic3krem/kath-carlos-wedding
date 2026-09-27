@@ -17,7 +17,7 @@ export function SectionHeading({ eyebrow, title, large = false }: SectionHeading
       >
         {title}
       </h2>
-      <div className="mt-1.5 h-px w-[54px] bg-steel" />
+      <div className="heading-rule mt-1.5 h-px w-[54px] bg-steel" />
     </div>
   );
 }

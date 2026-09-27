@@ -172,7 +172,7 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
         </p>
       </Reveal>
 
-      <div className="mt-9">
+      <Reveal from="scale" delay={150} className="mt-9">
         <div className="relative mx-auto box-border w-full max-w-[520px] rounded-md border border-mist bg-steel px-[clamp(20px,5vw,36px)] py-11 font-lato font-light text-white shadow-[0_14px_44px_rgba(28,45,64,0.35)] outline outline-1 -outline-offset-[10px] outline-[rgba(220,231,240,0.45)]">
           {!done ? (
             <div>
@@ -313,7 +313,7 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
                     <button
                       type="submit"
                       disabled={cantSubmit}
-                      className={`w-full rounded border-0 bg-mist p-[15px] font-lato text-sm font-bold uppercase tracking-[0.2em] text-ink ${
+                      className={`btn-shine w-full rounded border-0 bg-mist p-[15px] font-lato text-sm font-bold uppercase tracking-[0.2em] text-ink ${
                         cantSubmit ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
                       }`}
                     >
@@ -402,7 +402,7 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
             </div>
           )}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }
