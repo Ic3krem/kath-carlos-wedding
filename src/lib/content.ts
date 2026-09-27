@@ -1,16 +1,15 @@
-import { cache } from 'react';
+import * as React from 'react';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type {
-  Contact,
   EntourageMember,
+  GalleryImage,
   GiftOption,
   InviteAllocation,
-  Logistics,
-  ScheduleEvent,
   Settings,
   StoryMilestone,
   ThemeColor,
   ThemeDetails,
+  TimelineItem,
 } from '@/lib/types';
 
 /**
@@ -19,6 +18,8 @@ import type {
  * dedup does not apply — React.cache() dedups it within a single request
  * instead, turning two round trips into one.
  */
+const cache: typeof React.cache = React.cache ?? ((fn) => fn); // plain function outside a React server (tests)
+
 export const getSettings = cache(async (): Promise<Settings | null> => {
   try {
     const { data, error } = await getSupabaseServerClient()
@@ -32,46 +33,9 @@ export const getSettings = cache(async (): Promise<Settings | null> => {
   }
 });
 
-// These sections became database-driven in migration 002. Until that migration
-// is applied the tables don't exist, so every read falls back to the design's
-// original placeholder copy rather than breaking the page.
-
-export const THEME_FALLBACK: Omit<ThemeDetails, 'id'> = {
-  headline: 'Formal / Filipiniana-inspired',
-  note: 'We would love to see you in our colours. Kindly reserve white and ivory for the bride.',
-  ladies_detail: 'Beige or brown formal attire',
-  gentlemen_detail: 'Polo or long sleeves',
-  godparents_ladies_detail: 'Formal gown in the wedding colours',
-  godparents_gentlemen_detail: 'Black suit and pants, tie',
-  guest_note: 'We encourage everyone to dress according to our wedding colors and the overall style of the event.',
-  avoid_note: 'Please refrain from wearing white, denim, and slippers.',
-  comfort_note:
-    'Most importantly, wear something you feel comfortable and confident in, while complementing on our wedding theme.',
-};
-
-export const THEME_COLORS_FALLBACK: Pick<ThemeColor, 'name' | 'hex'>[] = [
-  { name: 'Mist', hex: '#D7E1EA' },
-  { name: 'Dusty Blue', hex: '#8AA2B8' },
-  { name: 'Steel Blue', hex: '#5E7D9A' },
-  { name: 'Deep Navy', hex: '#2F4358' },
-];
-
-export const GIFT_INTRO_FALLBACK =
-  'With all that we have, we are truly blessed. Your presence and prayers are what we request.\n\nBut if you desire to give nonetheless, a monetary gift is the one we suggest.';
-
-export const GIFT_OPTIONS_FALLBACK: Pick<GiftOption, 'title' | 'detail' | 'lines'>[] = [
-  {
-    title: 'Monetary Gift',
-    detail: 'A gift envelope may be dropped in the wishing well at the reception.',
-    lines: 'BPI • 1234-5678-90\nAccount name: Kath Santos',
-  },
-];
-
-export const CONTACTS_FALLBACK: Pick<Contact, 'role' | 'name' | 'phone' | 'email'>[] = [
-  { role: 'Bride', name: 'Kath Santos', phone: '+63 917 000 0001', email: 'kath@example.com' },
-  { role: 'Groom', name: 'Carlos Reyes', phone: '+63 917 000 0002', email: 'carlos@example.com' },
-  { role: 'Wedding Coordinator', name: 'Andrea Lim', phone: '+63 917 000 0003', email: 'coordinator@example.com' },
-];
+// Every section reads its table defensively: until a migration is applied (or
+// before the couple has entered anything in /admin) the page falls back to
+// the design's own copy rather than breaking.
 
 async function safeSingle<T>(table: string): Promise<T | null> {
   try {
@@ -91,200 +55,239 @@ async function safeList<T>(table: string): Promise<T[] | null> {
   }
 }
 
-export async function getThemeContent() {
-  const [details, colors] = await Promise.all([
-    safeSingle<ThemeDetails>('theme_details'),
-    safeList<ThemeColor>('theme_colors'),
-  ]);
-  return {
-    details: details ?? THEME_FALLBACK,
-    colors: colors && colors.length > 0 ? colors : THEME_COLORS_FALLBACK,
-  };
-}
+// --- Settings -------------------------------------------------------------
 
-export async function getGiftContent() {
-  const [intro, options] = await Promise.all([
-    safeSingle<{ id: number; intro: string }>('gift_guide'),
-    safeList<GiftOption>('gift_options'),
-  ]);
-  return {
-    intro: intro?.intro || GIFT_INTRO_FALLBACK,
-    options: options && options.length > 0 ? options : GIFT_OPTIONS_FALLBACK,
-  };
-}
+export const SETTINGS_FALLBACK: Settings = {
+  id: 1,
+  couple_names: 'Carlos & Kath',
+  wedding_date: '2026-11-28T07:00:00.000Z', // 3:00 PM in Manila
+  hero_image_url: null,
+  theme: 'dusty-blue',
+  maps_address: null,
+  maps_embed_url: null,
+  ceremony_name: 'Alasasin Church of Christ',
+  ceremony_address: 'Alasasin, Mariveles, Bataan',
+  ceremony_embed_url: null,
+  reception_name: 'Mt. Tarak Guest House and Restaurant',
+  reception_address: 'Alasasin, Mariveles, Bataan',
+  reception_embed_url: null,
+  rsvp_due_date: '2026-10-30T15:59:00.000Z',
+  hero_message:
+    "By God's grace, and surrounded by your love, we, together with our families, invite you to celebrate our marriage.",
+  ceremony_directions: '',
+  reception_directions: '',
+  timeline_note:
+    'We will start the program promptly on the scheduled timeline, so we kindly ask that we arrive on time at each part of the celebration — your punctuality is greatly appreciated.',
+};
 
-/**
- * Sample entourage used until real members are added in /admin/entourage. It
- * mirrors migration 004's seed rows so the section looks the same whether or
- * not the migration has been applied. `side` picks the column: groom = left,
- * bride = right.
- */
-export const ENTOURAGE_FALLBACK: Omit<EntourageMember, 'id'>[] = [
-  { category: 'parents', role_label: 'Father of the Groom', name: 'Mr. Ramon A. Reyes', side: 'groom', sort_order: 0 },
-  { category: 'parents', role_label: 'Mother of the Groom', name: 'Mrs. Lourdes A. Reyes', side: 'groom', sort_order: 1 },
-  { category: 'parents', role_label: 'Father of the Bride', name: 'Mr. Eduardo P. Santos', side: 'bride', sort_order: 2 },
-  { category: 'parents', role_label: 'Mother of the Bride', name: 'Mrs. Teresita P. Santos', side: 'bride', sort_order: 3 },
-
-  { category: 'godparents', role_label: 'Ninong', name: 'Mr. Roberto Dela Cruz', side: 'groom', sort_order: 10 },
-  { category: 'godparents', role_label: 'Ninong', name: 'Mr. Manuel Aguilar', side: 'groom', sort_order: 11 },
-  { category: 'godparents', role_label: 'Ninong', name: 'Mr. Rodrigo Villanueva', side: 'groom', sort_order: 12 },
-  { category: 'godparents', role_label: 'Ninong', name: 'Mr. Mario Bautista', side: 'groom', sort_order: 13 },
-  { category: 'godparents', role_label: 'Ninong', name: 'Mr. Wilfredo Navarro', side: 'groom', sort_order: 14 },
-  { category: 'godparents', role_label: 'Ninong', name: 'Mr. Joel Marquez', side: 'groom', sort_order: 15 },
-  { category: 'godparents', role_label: 'Ninong', name: 'Mr. Aries Salvador', side: 'groom', sort_order: 16 },
-  { category: 'godparents', role_label: 'Ninang', name: 'Mrs. Rochelle Dela Cruz', side: 'bride', sort_order: 17 },
-  { category: 'godparents', role_label: 'Ninang', name: 'Mrs. Joana Aguilar', side: 'bride', sort_order: 18 },
-  { category: 'godparents', role_label: 'Ninang', name: 'Mrs. Maria Teresa Villanueva', side: 'bride', sort_order: 19 },
-  { category: 'godparents', role_label: 'Ninang', name: 'Mrs. Evangeline Bautista', side: 'bride', sort_order: 20 },
-  { category: 'godparents', role_label: 'Ninang', name: 'Mrs. Regina Navarro', side: 'bride', sort_order: 21 },
-  { category: 'godparents', role_label: 'Ninang', name: 'Mrs. Guia Marquez', side: 'bride', sort_order: 22 },
-  { category: 'godparents', role_label: 'Ninang', name: 'Mrs. Vina Salvador', side: 'bride', sort_order: 23 },
-
-  { category: 'best_man', role_label: 'Best Man', name: 'Mr. Miguel A. Reyes', side: null, sort_order: 30 },
-  { category: 'maid_of_honor', role_label: 'Maid of Honor', name: 'Ms. Patricia S. Santos', side: null, sort_order: 31 },
-
-  { category: 'groomsmen', role_label: 'Groomsman', name: 'Mr. Julian Cruz', side: 'groom', sort_order: 40 },
-  { category: 'groomsmen', role_label: 'Groomsman', name: 'Mr. Francis Dizon', side: 'groom', sort_order: 41 },
-  { category: 'groomsmen', role_label: 'Groomsman', name: 'Mr. Christian Ilagan', side: 'groom', sort_order: 42 },
-  { category: 'bridesmaids', role_label: 'Bridesmaid', name: 'Ms. Rhea Calma', side: 'bride', sort_order: 43 },
-  { category: 'bridesmaids', role_label: 'Bridesmaid', name: 'Ms. Denise Fajardo', side: 'bride', sort_order: 44 },
-  { category: 'bridesmaids', role_label: 'Bridesmaid', name: 'Ms. Abigail Manalo', side: 'bride', sort_order: 45 },
-
-  { category: 'ring_bearer', role_label: 'Ring Bearer', name: 'Stephen Miguel Lopez', side: 'groom', sort_order: 50 },
-  { category: 'bible_bearer', role_label: 'Bible Bearer', name: 'Nathan Brielle Lim', side: 'groom', sort_order: 51 },
-  { category: 'coin_bearer', role_label: 'Coin Bearer', name: 'Jacob Reyes', side: 'groom', sort_order: 52 },
-  { category: 'coin_bearer', role_label: 'Coin Bearer', name: 'Caleb Christopher Reyes', side: 'groom', sort_order: 53 },
-
-  { category: 'flower_girls', role_label: 'Flower Girl', name: 'Sofia Reyes', side: 'bride', sort_order: 60 },
-  { category: 'flower_girls', role_label: 'Flower Girl', name: 'Faith Santos', side: 'bride', sort_order: 61 },
-  { category: 'flower_girls', role_label: 'Flower Girl', name: 'Ayah Cruz', side: 'bride', sort_order: 62 },
-  { category: 'flower_girls', role_label: 'Flower Girl', name: 'Daniella Lim', side: 'bride', sort_order: 63 },
-  { category: 'flower_girls', role_label: 'Flower Girl', name: 'Jasmine Tolentino', side: 'bride', sort_order: 64 },
-
-  { category: 'ceremony_sponsors', role_label: 'To Light Our Path', name: 'Mr. Antonio Guanzon', side: null, sort_order: 70 },
-  { category: 'ceremony_sponsors', role_label: 'To Light Our Path', name: 'Mrs. Angelica Guanzon', side: null, sort_order: 71 },
-  { category: 'ceremony_sponsors', role_label: 'To Clothe Us as One', name: 'Mr. Rudolf Interno', side: null, sort_order: 72 },
-  { category: 'ceremony_sponsors', role_label: 'To Clothe Us as One', name: 'Mrs. Gia Amor Interno', side: null, sort_order: 73 },
-  { category: 'ceremony_sponsors', role_label: 'To Bind Us Together', name: 'Mr. Sonny Gotladera', side: null, sort_order: 74 },
-  { category: 'ceremony_sponsors', role_label: 'To Bind Us Together', name: 'Mrs. Hazel Joy Gotladera', side: null, sort_order: 75 },
+export const DIRECTIONS_FALLBACK = [
+  'Mariveles is roughly three hours from Manila via NLEX and the Roman Highway, or by ferry from Manila to Orion and a short drive down.',
+  'Shuttles will run between the guest house and the church before and after the ceremony.',
 ];
 
-export async function getEntourage(): Promise<Omit<EntourageMember, 'id'>[]> {
-  const members = await safeList<EntourageMember>('entourage_members');
-  return members && members.length > 0 ? members : ENTOURAGE_FALLBACK;
+/** The stored settings with every empty field filled from the fallback. */
+export function withSettingsDefaults(settings: Settings | null): Settings {
+  if (!settings) return SETTINGS_FALLBACK;
+  const merged = { ...SETTINGS_FALLBACK } as Record<string, unknown>;
+  for (const [key, value] of Object.entries(settings)) {
+    if (value !== null && value !== undefined && value !== '') merged[key] = value;
+  }
+  return merged as unknown as Settings;
 }
 
-/** Mirrors migration 006's seed rows, for before the migration is applied. */
+// --- Our Story ------------------------------------------------------------
+
 export const MILESTONES_FALLBACK: Omit<StoryMilestone, 'id'>[] = [
   {
-    era: 'Autumn 2019',
-    place: 'Angeles City, Pampanga',
-    title: 'A Rainy Afternoon on Fields Avenue',
+    era: '2019',
+    place: 'Mariveles, Bataan',
+    title: 'From NearGroup to Forever',
     body: 'We took shelter under the same awning during a sudden October downpour. One shared table, two cups of barako, and three hours of talking about old films and older songs — and the compass was set.',
     quote: 'We knew within minutes that we had met the person we had been looking for all along.',
-    image_url: null,
-    caption: 'Where it started — Autumn 2019',
+    image_url: '/story/story1.webp',
+    caption: 'Where it started — Alasasin 2019',
     sort_order: 0,
   },
   {
     era: 'Summer 2021',
-    place: 'Mariveles, Bataan',
-    title: 'Sunrise at the Foot of Mt. Tarak',
+    place: 'Romalaines, Mariveles',
+    title: 'March 10, 2021: Our Official Beginning',
     body: 'We climbed before dawn and watched the bay turn gold from the ridge. Somewhere between the coffee and the long walk down, we promised each other that whatever came next, we would take it together.',
     quote: 'The mountain gave us our first real quiet — and we have been chasing it ever since.',
-    image_url: null,
-    caption: 'Mt. Tarak ridge — Summer 2021',
+    image_url: '/story/story2.webp',
+    caption: 'Romalaines — Summer 2021',
     sort_order: 1,
   },
   {
-    era: 'Winter 2024',
-    place: 'Alasasin, Bataan',
-    title: 'A Question by the Water',
+    era: 'December 2025',
+    place: 'Balanga, Bataan',
+    title: 'The Day She Said Yes to Forever',
     body: 'On the shore below the church where we will marry, with family hiding badly behind the trees, the question was asked. It was answered before it was finished.',
     quote: 'A quiet promise by the water, and the beginning of everything after.',
-    image_url: null,
-    caption: 'Alasasin shore — December 2024',
+    image_url: '/story/story3.webp',
+    caption: 'One Question, One Answer, Forever — December 2025',
     sort_order: 2,
   },
 ];
-
-export const SCHEDULE_FALLBACK: Omit<ScheduleEvent, 'id'>[] = [
-  {
-    day_label: 'Day I',
-    date_label: 'Friday',
-    title: 'Welcome Merienda',
-    time_label: '4:00 PM - 8:00 PM',
-    body: 'Join us at Mt. Tarak Guest House for pancit, lechon kawali and cold drinks as everyone arrives. No programme, no seating chart — just the first hellos.',
-    attire: 'Smart casual',
-    agenda: '',
-    is_highlight: false,
-    sort_order: 0,
-  },
-  {
-    day_label: 'Day II',
-    date_label: 'Saturday',
-    title: 'The Wedding Day',
-    time_label: '',
-    body: '',
-    attire: 'Formal / Filipiniana-inspired',
-    agenda: [
-      '2:00 PM|Guests seated - Alasasin Church of Christ',
-      '3:00 PM|Ceremony',
-      '5:00 PM|Cocktails and photos - Mt. Tarak garden',
-      '6:30 PM|Dinner and programme',
-      '9:00 PM|Dancing until the lights go out',
-    ].join('\n'),
-    is_highlight: true,
-    sort_order: 1,
-  },
-  {
-    day_label: 'Day III',
-    date_label: 'Sunday',
-    title: 'Send-off Breakfast',
-    time_label: '8:00 AM - 11:00 AM',
-    body: 'Silog, fresh pandesal and coffee by the garden before everyone heads home. Come as late as you like.',
-    attire: 'However you woke up',
-    agenda: '',
-    is_highlight: false,
-    sort_order: 2,
-  },
-];
-
-export const LOGISTICS_FALLBACK: Omit<Logistics, 'id'> = {
-  dress_note:
-    'We are keeping it formal with a Filipiniana heart. Barong or a dark suit for the gentlemen; a long dress or a modern terno for the ladies. Kindly leave white and ivory to the bride.',
-  stay_title: 'Where to Stay',
-  stay_body:
-    'Rooms are held at Mt. Tarak Guest House and at the inns along Alasasin Road under the name CAYANAN-LIM. Please book before the 1st of the month prior — the town fills up on weekends.',
-  travel_title: 'Getting There',
-  travel_body:
-    'Mariveles is roughly three hours from Manila via NLEX and the Roman Highway, or by ferry from Manila to Orion and a short drive down. Shuttles will run between the guest house and the church before and after the ceremony.',
-};
 
 export async function getStoryMilestones(): Promise<Omit<StoryMilestone, 'id'>[]> {
   const rows = await safeList<StoryMilestone>('story_milestones');
   return rows && rows.length > 0 ? rows : MILESTONES_FALLBACK;
 }
 
-export async function getSchedule(): Promise<Omit<ScheduleEvent, 'id'>[]> {
-  const rows = await safeList<ScheduleEvent>('schedule_events');
-  return rows && rows.length > 0 ? rows : SCHEDULE_FALLBACK;
+// --- Entourage ------------------------------------------------------------
+
+type Seed = [EntourageMember['category'], string, string, EntourageMember['side']];
+
+const ENTOURAGE_SEED: Seed[] = [
+  ['parents', 'Father of the Groom', 'Mr. Nestor Diaz', 'groom'],
+  ['parents', 'Mother of the Groom', 'Mrs. Ma. Criste Diaz', 'groom'],
+  ['parents', 'Father of the Bride', 'Mr. Orlando Gloria', 'bride'],
+  ['parents', 'Mother of the Bride', 'Mrs. Laura Gloria', 'bride'],
+  ['officiant', 'Officiant Pastor', 'Ptr. Rodel Reyes', null],
+  ...[
+    'Mr. Dennis Velasco',
+    'Mr. Crisanto Salvador',
+    'Hon. Florante Malimban',
+    'Mr. Larry Gloria',
+    'Mr. Rene Torres',
+    'Mr. Alvin Cervantes',
+    'Mr. Sherwin Punzalan',
+    'Mr. Joven Gloria',
+  ].map((name): Seed => ['godparents', 'Ninong', name, 'groom']),
+  ...[
+    'Mrs. Marites Velches',
+    'Mrs. Gina Zalavaria',
+    'Mrs. Josa Diwata',
+    'Mrs. Vilma Cioco',
+    'Mrs. Michelle Binajbaj',
+    'Mrs. Guada Buena',
+    'Mrs. Carolyn Reyes',
+    'Mrs. Cherry Ann Inocencio',
+  ].map((name): Seed => ['godparents', 'Ninang', name, 'bride']),
+  ['maid_of_honor', 'Maid of Honor', 'Ms. Demi Francheska Gloria', null],
+  ['best_man', 'Best Man', 'Mr. John Cedrik Diaz', null],
+  ['best_man', 'Best Man', 'Mr. John Christopher Diaz', null],
+  ...(
+    [
+      ['To clothe us as One', 'Karlo Macagba', 'Kesia Jamel Corton'],
+      ['To bind us together', 'Jhontrix Catorce', 'Casielyn Marquez'],
+      ['To light our path', 'Kristian Abines', 'Aira Mariz Delfinado'],
+      ['To Remove the Veil', 'Rhobert Medilo', 'Cynthialyn Toledo'],
+      ['To Remain the Cord', 'Angelo Salayog', 'Recelyn Licaroz'],
+    ] as const
+  ).flatMap(([role, m, f]): Seed[] => [
+    ['ceremony_sponsors', role, m, 'groom'],
+    ['ceremony_sponsors', role, f, 'bride'],
+  ]),
+  ['ring_bearer', 'Ring Bearer', 'Zane Ekon Delfinado', null],
+  ['coin_bearer', 'Coin Bearer', 'Gavin Rhylle O. Medilo', null],
+  ['bible_bearer', 'Bible Bearer', 'David Asher Malabanan', null],
+  ...[
+    'Christine Abines',
+    'Ariella Reyes',
+    'Fiona Reyes',
+    'Sofia Mac Escario',
+    'Desiree Ann Abines',
+    'Ilya Nikolai Gloria',
+    'Avianna Maxine Toledo',
+  ].map((name): Seed => ['flower_girls', 'Flower Girl', name, 'bride']),
+];
+
+/** Used until real members are added in /admin/entourage. */
+export const ENTOURAGE_FALLBACK: Omit<EntourageMember, 'id'>[] = ENTOURAGE_SEED.map(
+  ([category, role_label, name, side], i) => ({ category, role_label, name, side, sort_order: i }),
+);
+
+export async function getEntourage(): Promise<Omit<EntourageMember, 'id'>[]> {
+  const members = await safeList<EntourageMember>('entourage_members');
+  return members && members.length > 0 ? members : ENTOURAGE_FALLBACK;
 }
 
-export async function getLogistics(): Promise<Omit<Logistics, 'id'>> {
-  return (await safeSingle<Logistics>('logistics')) ?? LOGISTICS_FALLBACK;
+// --- Timeline -------------------------------------------------------------
+
+export const TIMELINE_FALLBACK: Omit<TimelineItem, 'id'>[] = [
+  { time_label: '2:00 PM', label: 'Assembly', icon: 'people', sort_order: 0 },
+  { time_label: '3:00 PM', label: 'Wedding Ceremony', icon: 'church', sort_order: 1 },
+  { time_label: '5:00 PM', label: 'Pica-Pica and Photoshoot', icon: 'camera', sort_order: 2 },
+  { time_label: '6:00 PM', label: 'Reception', icon: 'dining', sort_order: 3 },
+  { time_label: '9:00 PM', label: 'End of Program and Send-Off', icon: 'heart', sort_order: 4 },
+];
+
+export async function getTimeline(): Promise<Omit<TimelineItem, 'id'>[]> {
+  const rows = await safeList<TimelineItem>('timeline_items');
+  return rows && rows.length > 0 ? rows : TIMELINE_FALLBACK;
 }
 
-export async function getContacts() {
-  const contacts = await safeList<Contact>('contacts');
-  return contacts && contacts.length > 0 ? contacts : CONTACTS_FALLBACK;
+// --- Gallery --------------------------------------------------------------
+
+export const GALLERY_FALLBACK: Omit<GalleryImage, 'id'>[] = Array.from({ length: 12 }, (_, i) => ({
+  image_url: `/gallery/gallery${i + 1}.webp`,
+  caption: null,
+  sort_order: i,
+}));
+
+export async function getGallery(): Promise<Omit<GalleryImage, 'id'>[]> {
+  const rows = await safeList<GalleryImage>('gallery_images');
+  return rows && rows.length > 0 ? rows : GALLERY_FALLBACK;
 }
+
+// --- Attire guide ---------------------------------------------------------
+
+export const THEME_FALLBACK: Omit<ThemeDetails, 'id'> = {
+  headline: '',
+  note: 'A guide, not a uniform — anything in these colours is perfect.',
+  ladies_detail: '',
+  gentlemen_detail: '',
+  life_godparents_detail: 'Wedding colours',
+  godparents_gentlemen_detail: 'Black suit, pants, tie',
+  godparents_ladies_detail: 'Formal gown in the wedding colours',
+  guest_note: '',
+  avoid_note: 'Please refrain from wearing white, denim, and slippers.',
+  comfort_note:
+    'Most importantly, wear something you feel comfortable and confident in while complementing on our wedding theme.',
+};
+
+export const THEME_COLORS_FALLBACK: Pick<ThemeColor, 'name' | 'hex'>[] = [
+  { name: 'Mist', hex: '#d7e0e8' },
+  { name: 'Dusty Blue', hex: '#8aa4bb' },
+  { name: 'Steel Blue', hex: '#5b7c9c' },
+  { name: 'Deep Navy', hex: '#2a3f5c' },
+];
+
+export async function getThemeContent() {
+  const [details, colors] = await Promise.all([
+    safeSingle<ThemeDetails>('theme_details'),
+    safeList<ThemeColor>('theme_colors'),
+  ]);
+  const merged = { ...THEME_FALLBACK } as Record<string, unknown>;
+  for (const [key, value] of Object.entries(details ?? {})) {
+    if (value !== null && value !== undefined && value !== '') merged[key] = value;
+  }
+  return {
+    details: merged as unknown as Omit<ThemeDetails, 'id'>,
+    colors: colors && colors.length > 0 ? colors : THEME_COLORS_FALLBACK,
+  };
+}
+
+// --- Gift guide -----------------------------------------------------------
+
+export const GIFT_INTRO_FALLBACK =
+  'Your presence at our wedding is the greatest gift of all. However, if you wish to honor us with a gift, a monetary contribution toward our future together would be sincerely appreciated. To assist you, money envelopes will be provided at the reception.';
+
+export async function getGiftContent() {
+  const [intro, options] = await Promise.all([
+    safeSingle<{ id: number; intro: string }>('gift_guide'),
+    safeList<GiftOption>('gift_options'),
+  ]);
+  return { intro: intro?.intro || GIFT_INTRO_FALLBACK, options: options ?? [] };
+}
+
+// --- RSVP -----------------------------------------------------------------
 
 /**
- * The seat allocation matched against the name a guest types on the RSVP
- * form. Empty until the couple fills it in via /admin/invites — the RSVP
- * route treats an empty list (or no match) as "no cap" so the form still
- * works before the guest list is entered.
+ * The guest list the RSVP form matches names against. Filled in via
+ * /admin/invites — only names on it can RSVP.
  */
 export async function getInviteAllocations(): Promise<InviteAllocation[]> {
   return (await safeList<InviteAllocation>('invite_allocations')) ?? [];

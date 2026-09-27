@@ -14,3 +14,28 @@ export function toLocalDatetimeInputValue(isoString: string): string {
   const localTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
   return localTime.toISOString().slice(0, 16);
 }
+
+/** The wedding happens in the Philippines, so every public date reads in Manila time. */
+const TZ = 'Asia/Manila';
+
+/** e.g. "November 28, 2026" */
+export function formatLongDate(iso: string): string {
+  return new Intl.DateTimeFormat('en-US', { timeZone: TZ, month: 'long', day: 'numeric', year: 'numeric' }).format(
+    new Date(iso),
+  );
+}
+
+/** e.g. "Saturday" */
+export function formatWeekday(iso: string): string {
+  return new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'long' }).format(new Date(iso));
+}
+
+/** e.g. "3:00 PM" */
+export function formatTime(iso: string): string {
+  return new Intl.DateTimeFormat('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' }).format(new Date(iso));
+}
+
+/** e.g. "2026" */
+export function formatYear(iso: string): string {
+  return new Intl.DateTimeFormat('en-US', { timeZone: TZ, year: 'numeric' }).format(new Date(iso));
+}

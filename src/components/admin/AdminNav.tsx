@@ -9,11 +9,10 @@ const LINKS = [
   { href: '/admin/our-story', label: 'Our Story' },
   { href: '/admin/entourage', label: 'Entourage' },
   { href: '/admin/gallery', label: 'Gallery' },
-  { href: '/admin/schedule', label: 'Schedule' },
-  { href: '/admin/logistics', label: 'Guest notes' },
+  { href: '/admin/schedule', label: 'Timeline' },
+  { href: '/admin/logistics', label: 'Attire' },
   { href: '/admin/gifts', label: 'Gifts' },
-  { href: '/admin/contacts', label: 'Contacts' },
-  { href: '/admin/invites', label: 'Invite allocations' },
+  { href: '/admin/invites', label: 'Guest list' },
   { href: '/admin/rsvps', label: 'RSVPs' },
 ];
 
@@ -38,7 +37,10 @@ export function AdminNav() {
           {link.label}
         </Link>
       ))}
-      <button onClick={handleLogout} className="ml-auto text-sm text-red-600">
+      <a href="/" target="_blank" rel="noreferrer" className="ml-auto text-sm text-black/70">
+        View site ↗
+      </a>
+      <button onClick={handleLogout} className="text-sm text-red-600">
         Log out
       </button>
     </nav>

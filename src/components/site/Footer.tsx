@@ -1,29 +1,21 @@
+import { formatYear } from '@/lib/date-utils';
 import type { Settings } from '@/lib/types';
-import { buildVenues } from './VenueSchedule';
-import { Reveal } from './Reveal';
 
-interface FooterProps {
-  settings: Settings;
-}
-
-export function Footer({ settings }: FooterProps) {
-  const year = new Date(settings.wedding_date).getUTCFullYear();
-
+export function Footer({ settings }: { settings: Settings }) {
+  const plainNames = settings.couple_names.replace('&', 'and');
   return (
-    <footer className="w-full bg-black px-4 py-12 text-white sm:px-6 lg:px-10">
-      <div className="mx-auto flex w-full max-w-[1550px] flex-col gap-10">
-        <Reveal className="flex flex-col items-center gap-2 text-center">
-          <h2 className="font-script text-4xl sm:text-5xl">{settings.couple_names}</h2>
-          {buildVenues(settings).map((venue) => (
-            <p key={venue.label} className="max-w-xl text-sm text-white/60">
-              {[venue.label, venue.name, venue.address].filter(Boolean).join(' · ')}
-            </p>
-          ))}
-        </Reveal>
-
-        <p className="border-t border-white/10 pt-6 text-center text-xs text-white/55">
-          {settings.couple_names} — {year}
-        </p>
+    <footer className="bg-footer px-6 py-12 text-center text-white">
+      <div className="mx-auto flex max-w-[720px] flex-col items-center gap-3">
+        <div className="text-[30px] font-medium">{settings.couple_names}</div>
+        <div className="text-base leading-relaxed">
+          Ceremony · {settings.ceremony_name} · {settings.ceremony_address}
+        </div>
+        <div className="text-base leading-relaxed">
+          Reception · {settings.reception_name} · {settings.reception_address}
+        </div>
+        <div className="mt-2 font-sans text-[11px] uppercase tracking-[0.25em] opacity-85">
+          {plainNames} — {formatYear(settings.wedding_date)}
+        </div>
       </div>
     </footer>
   );

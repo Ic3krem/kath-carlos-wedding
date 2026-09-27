@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase.from('our_story').select('*').eq('id', 1).single();

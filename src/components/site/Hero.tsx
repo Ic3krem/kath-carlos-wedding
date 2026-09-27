@@ -1,116 +1,29 @@
+import { formatLongDate, formatTime, formatWeekday } from '@/lib/date-utils';
 import type { Settings } from '@/lib/types';
-import { marckScript, poppins } from '@/lib/fonts';
-
-// The design ships every layer at three frame sizes:
-//   mobile 375x568, tablet 800x661, desktop 1280x790
-// Each layer fills the frame, so they all crop identically and stay aligned.
-function FrameLayer({ name, className }: { name: string; className?: string }) {
-  return (
-    <picture>
-      <source media="(min-width: 1024px)" srcSet={`/hero/${name}-desktop.png`} />
-      <source media="(min-width: 768px)" srcSet={`/hero/${name}-tablet.png`} />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={`/hero/${name}-mobile.png`}
-        alt=""
-        width={1280}
-        height={790}
-        fetchPriority="high"
-        // scale-110 hides the transparent halo blur leaves at the frame's edge
-        className={`absolute inset-0 h-full w-full scale-110 object-cover object-center blur sm:blur-md ${className ?? ''}`}
-      />
-    </picture>
-  );
-}
-
-function formatHeroDate(iso: string) {
-  const date = new Date(iso);
-  const weekday = date.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
-  const day = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
-  const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' });
-  return `${day} · ${weekday} · ${time}`;
-}
 
 export function Hero({ settings }: { settings: Settings }) {
+  const image = settings.hero_image_url || '/hero/hero.webp';
   return (
-    <div className="w-full overflow-hidden bg-black">
-      {/* One full viewport, on every device: the art is the whole first screen
-          and the black countdown only appears once the guest scrolls. svh
-          rather than vh so a phone's collapsing browser chrome cannot leave a
-          strip of black under the photo. The layers are object-cover, so a
-          tall phone crops the sides of the frame — the couple sits centred and
-          survives that crop. */}
-      <div className="relative h-[100svh] min-h-[470px] w-full overflow-hidden">
-        {/* Layer frame — every design layer lives in this one container */}
-        <div className="absolute inset-0">
-          {settings.hero_image_url && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={settings.hero_image_url}
-              alt=""
-              width={1280}
-              height={790}
-              fetchPriority="high"
-              className="absolute inset-0 h-full w-full scale-110 object-cover blur sm:blur-md"
-            />
-          )}
-
-          {/* Layers 2 + 3 — grouped background */}
-          <FrameLayer name="bg2" />
-          <FrameLayer name="bg3" />
-
-          {/* Layer 0 — couple frame, blurred behind the centred text like the rest */}
-          <FrameLayer name="couple" />
-
-          {/* Transition — dissolves the foot of the hero into the light countdown panel */}
-          <div
-            className="absolute bottom-0 left-0 h-32 w-full sm:h-40 lg:h-48"
-            style={{
-              background:
-                'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.35) 55%, var(--color-secondary) 100%)',
-            }}
-          />
-
+    <section id="top" className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-[#3a4a58]">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={image} alt={settings.couple_names} className="absolute inset-0 h-full w-full object-cover" fetchPriority="high" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(20,30,40,0.35),rgba(20,30,40,0.5))]" />
+      <div className="relative flex flex-col items-center gap-3.5 p-6 text-center text-white">
+        <div className="font-sans text-xs font-medium uppercase tracking-[0.4em]">We are getting married</div>
+        <h1 className="m-0 text-[clamp(62px,10.5vw,124px)] font-normal leading-[1.05] [word-spacing:0.18em]">
+          {settings.couple_names}
+        </h1>
+        <div className="font-script text-[clamp(34px,4.4vw,50px)] leading-[1.2]">{formatLongDate(settings.wedding_date)}</div>
+        <div className="font-sans text-[clamp(13px,1.6vw,17px)] font-medium uppercase tracking-[0.35em]">
+          {formatWeekday(settings.wedding_date)} · {formatTime(settings.wedding_date)}
         </div>
-
-        {/* Dead-centred on both axes: top-1/2 + left-1/2 with a matching
-            double-translate, rather than a full-height flex box, so the
-            block sits at the true middle regardless of its own height. */}
-        <div className="absolute left-1/2 top-1/2 flex w-full max-w-[90%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-4 text-center sm:max-w-md lg:max-w-4xl">
-          {/* Date & time — script font, sitting above the title */}
-          <p
-            className="text-[18px] text-white sm:text-[23px] md:text-[27px]"
-            style={{ fontFamily: marckScript.style.fontFamily, textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
-          >
-            {formatHeroDate(settings.wedding_date)}
-          </p>
-
-          {/* Title */}
-          <h1
-            className="mb-2 text-[40px] leading-none text-white sm:text-[56px] md:mb-4 md:text-[88px] lg:mb-6 lg:text-[100px]"
-            style={{ fontFamily: marckScript.style.fontFamily, textShadow: '-2px 5px 5px rgba(0, 0, 0, 0.55)' }}
-          >
-            {settings.couple_names}
-          </h1>
-
-          <a
-            href="#rsvp"
-            className="relative flex h-[26px] w-[116px] items-center justify-center whitespace-nowrap rounded-[8.78px] bg-white text-[9.4px] font-semibold uppercase text-[#170E01] before:absolute before:-inset-y-[9px] before:inset-x-0 before:content-[''] md:h-[32px] md:w-[143px] md:text-[11.6px] md:before:-inset-y-[6px] lg:h-[51.87px] lg:w-[237px] lg:text-[19.15px] lg:before:inset-0"
-          >
-            RSVP
-          </a>
-
-          {settings.hero_message && (
-            <p
-              className="mt-2 max-w-md text-[11px] leading-relaxed text-white opacity-80 sm:text-sm md:text-base"
-              style={{ fontFamily: poppins.style.fontFamily, textShadow: '0 2px 6px rgba(0, 0, 0, 0.5)' }}
-            >
-              {settings.hero_message}
-            </p>
-          )}
-        </div>
+        <a
+          href="#rsvp"
+          className="mt-[18px] rounded-full bg-white px-9 py-3 font-sans text-xs font-semibold uppercase tracking-[0.25em] text-ink no-underline shadow-[0_4px_16px_rgba(0,0,0,0.2)] transition-colors hover:bg-haze"
+        >
+          RSVP
+        </a>
       </div>
-
-    </div>
+    </section>
   );
 }

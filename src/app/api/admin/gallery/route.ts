@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase.from('gallery_images').select('*').order('sort_order');

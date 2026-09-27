@@ -1,49 +1,37 @@
 import type { GiftOption } from '@/lib/types';
+import { Icon } from './Icons';
 import { Reveal } from './Reveal';
 
-interface GiftGuideProps {
-  intro: string;
-  options: Pick<GiftOption, 'title' | 'detail' | 'lines'>[];
-}
-
-export function GiftGuide({ intro, options }: GiftGuideProps) {
-  if (options.length === 0 && !intro) return null;
-
+export function GiftGuide({ intro, options }: { intro: string; options: GiftOption[] }) {
   return (
-    <section id="gift-guide" className="flex w-full flex-col items-center gap-6 px-4 py-12 sm:px-6 sm:py-16 lg:px-10 lg:py-20">
-      <Reveal className="w-full text-center">
-        <h2 className="heading-flourish font-script text-5xl text-black sm:text-6xl lg:text-7xl">Gift Guide</h2>
-      </Reveal>
-      {intro && (
-        <Reveal delay={80}>
-          <p className="max-w-2xl whitespace-pre-line text-center text-black/55">{intro}</p>
-        </Reveal>
-      )}
-
-      <div className="grid w-full max-w-[1550px] grid-cols-1 gap-6 sm:grid-cols-3">
-        {options.map((option, index) => (
-          <Reveal
-            key={option.title}
-            delay={index * 120}
-            className="flex flex-col items-center gap-2 rounded-lg border border-black/10 p-6 text-center hover:-translate-y-1 hover:border-accent/40 hover:shadow-lg motion-reduce:hover:translate-y-0"
-          >
-            <h3 className="text-lg font-semibold text-black">{option.title}</h3>
-            {option.detail && <p className="text-sm text-black/55">{option.detail}</p>}
-            {option.lines && (
-              <div className="mt-2 flex flex-col gap-0.5">
-                {option.lines
+    <section className="bg-mist px-6 py-[88px]">
+      <Reveal className="mx-auto flex max-w-[720px] flex-col items-center gap-3.5 text-center">
+        <Icon name="gift" size={28} color="#4f6f8f" />
+        <h2 className="m-0 font-script text-[clamp(44px,6vw,64px)] font-normal leading-[1.1]">Gift Guide</h2>
+        {intro.split(/\n{2,}/).map((para, i) => (
+          <p key={i} className="m-0 text-[19px] leading-relaxed text-body">
+            {para}
+          </p>
+        ))}
+        {options.length > 0 && (
+          <div className="mt-4 grid w-full grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-4">
+            {options.map((o) => (
+              <div key={o.id} className="flex flex-col gap-1.5 rounded-xl bg-white px-5 py-6 shadow-card">
+                <h3 className="m-0 text-[22px] font-medium">{o.title}</h3>
+                {o.detail && <p className="m-0 text-base text-body">{o.detail}</p>}
+                {o.lines
                   .split('\n')
                   .filter(Boolean)
-                  .map((line) => (
-                    <span key={line} className="text-sm text-black/70">
+                  .map((line, i) => (
+                    <span key={i} className="font-sans text-sm text-steel">
                       {line}
                     </span>
                   ))}
               </div>
-            )}
-          </Reveal>
-        ))}
-      </div>
+            ))}
+          </div>
+        )}
+      </Reveal>
     </section>
   );
 }

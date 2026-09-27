@@ -1,38 +1,31 @@
 import type { Metadata, Viewport } from 'next';
 import { getSettings } from '@/lib/content';
-import { marckScript, poppins } from '@/lib/fonts';
+import { cormorant, greatVibes, lato, marckScript, montserrat } from '@/lib/fonts';
 import './globals.css';
 
-/**
- * The layout is built against the device's own width, so pinch-zooming out
- * only breaks the framing the design depends on. Note that iOS Safari has
- * ignored user-scalable since iOS 10 and will still allow a pinch — nothing
- * here can prevent that, by design on Apple's part.
- */
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: 'cover',
-  themeColor: '#000000',
+  themeColor: '#4f6f8f',
 };
 
 export async function generateMetadata(): Promise<Metadata> {
   // Shared with the page body via React.cache(), so this costs no extra query.
   const settings = await getSettings();
-  const coupleNames = settings?.couple_names || 'Our Wedding';
+  const coupleNames = settings?.couple_names || 'Carlos & Kath';
 
   return {
-    title: coupleNames,
-    description: `${coupleNames} wedding website`,
+    title: `${coupleNames} — Wedding`,
+    description: `Join ${coupleNames} as they celebrate their wedding.`,
   };
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const fonts = [cormorant, marckScript, greatVibes, montserrat, lato].map((f) => f.variable).join(' ');
   return (
-    <html lang="en" className={`${marckScript.variable} ${poppins.variable}`}>
-      <body>{children}</body>
+    <html lang="en" className={fonts}>
+      <body className="font-serif">{children}</body>
     </html>
   );
 }

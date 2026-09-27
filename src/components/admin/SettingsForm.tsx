@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import type { Settings } from '@/lib/types';
-import { THEMES } from '@/lib/theme';
 import { toLocalDatetimeInputValue } from '@/lib/date-utils';
 import { ImageUploader } from './ImageUploader';
 
@@ -44,7 +43,14 @@ export function SettingsForm({ initial }: { initial: Settings }) {
         label="Hero background image"
         value={form.hero_image_url}
         onUploaded={(url) => setForm((curr) => ({ ...curr, hero_image_url: url }))}
+        maxDimension={2400}
+        folder="hero"
       />
+      {form.hero_image_url && (
+        <button type="button" onClick={() => setForm({ ...form, hero_image_url: null })} className="-mt-4 w-fit text-xs text-red-600">
+          Use the default hero photo
+        </button>
+      )}
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium">Hero message</label>
         <textarea
@@ -53,7 +59,7 @@ export function SettingsForm({ initial }: { initial: Settings }) {
           value={form.hero_message}
           onChange={(e) => setForm({ ...form, hero_message: e.target.value })}
         />
-        <p className="text-xs text-black/50">Shown above the RSVP button on the hero.</p>
+        <p className="text-xs text-black/50">Shown above the countdown.</p>
       </div>
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium">RSVP due date</label>
@@ -67,16 +73,13 @@ export function SettingsForm({ initial }: { initial: Settings }) {
         />
       </div>
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">Theme</label>
-        <select
+        <label className="text-sm font-medium">Note under the wedding timeline</label>
+        <textarea
           className="rounded-md border border-black/20 px-3 py-2"
-          value={form.theme}
-          onChange={(e) => setForm({ ...form, theme: e.target.value })}
-        >
-          {Object.entries(THEMES).map(([key, def]) => (
-            <option key={key} value={key}>{def.label}</option>
-          ))}
-        </select>
+          rows={3}
+          value={form.timeline_note ?? ''}
+          onChange={(e) => setForm({ ...form, timeline_note: e.target.value })}
+        />
       </div>
       <fieldset className="flex flex-col gap-4 rounded-md border border-black/10 p-4">
         <legend className="px-1 text-sm font-semibold">Ceremony venue</legend>
@@ -103,6 +106,17 @@ export function SettingsForm({ initial }: { initial: Settings }) {
             value={form.ceremony_embed_url ?? ''}
             onChange={(e) => setForm({ ...form, ceremony_embed_url: e.target.value })}
           />
+          <p className="text-xs text-black/50">Optional — leave empty to build it from the name and address.</p>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Directions</label>
+          <textarea
+            className="rounded-md border border-black/20 px-3 py-2"
+            rows={4}
+            value={form.ceremony_directions ?? ''}
+            onChange={(e) => setForm({ ...form, ceremony_directions: e.target.value })}
+          />
+          <p className="text-xs text-black/50">One step per line, shown in the venue&apos;s “Open Guide” window.</p>
         </div>
       </fieldset>
 
@@ -131,6 +145,17 @@ export function SettingsForm({ initial }: { initial: Settings }) {
             value={form.reception_embed_url ?? ''}
             onChange={(e) => setForm({ ...form, reception_embed_url: e.target.value })}
           />
+          <p className="text-xs text-black/50">Optional — leave empty to build it from the name and address.</p>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Directions</label>
+          <textarea
+            className="rounded-md border border-black/20 px-3 py-2"
+            rows={4}
+            value={form.reception_directions ?? ''}
+            onChange={(e) => setForm({ ...form, reception_directions: e.target.value })}
+          />
+          <p className="text-xs text-black/50">One step per line, shown in the venue&apos;s “Open Guide” window.</p>
         </div>
       </fieldset>
       <button type="submit" className="w-full rounded-md bg-black px-4 py-2 text-white sm:w-fit">

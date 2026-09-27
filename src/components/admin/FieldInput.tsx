@@ -42,7 +42,15 @@ export function FieldInput({ field, value, onChange }: FieldInputProps) {
   return (
     <div className="flex flex-col gap-1">
       <label className="text-sm font-medium">{field.label}</label>
-      {field.type === 'textarea' || field.type === 'lines' ? (
+      {field.type === 'select' ? (
+        <select className={INPUT_CLASS} value={(value as string) ?? ''} onChange={(e) => onChange(e.target.value)}>
+          {(field.options ?? []).map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      ) : field.type === 'textarea' || field.type === 'lines' ? (
         <textarea
           className={`min-h-24 ${INPUT_CLASS}`}
           value={(value as string) ?? ''}

@@ -1,20 +1,15 @@
 import Link from 'next/link';
 
 const SECTIONS = [
-  { href: '/admin/settings', label: 'Site Settings', description: 'Couple names, wedding date, hero image, theme, maps.' },
-  { href: '/admin/our-story', label: 'Our Story', description: 'Story blocks, full story, and the dated milestones.' },
-  { href: '/admin/entourage', label: 'Entourage', description: 'Parents, godparents, and other roles.' },
-  { href: '/admin/gallery', label: 'Gallery', description: 'Photo gallery images.' },
-  { href: '/admin/schedule', label: 'Schedule', description: 'The weekend itinerary cards.' },
-  { href: '/admin/logistics', label: 'Guest Notes', description: 'Dress code, palette, where to stay, getting there.' },
-  { href: '/admin/gifts', label: 'Gifts', description: 'Gift guide intro and the gift options.' },
-  { href: '/admin/contacts', label: 'Contacts', description: 'Who guests can reach, shown in the footer.' },
-  {
-    href: '/admin/invites',
-    label: 'Invite allocations',
-    description: 'The max party size allowed for each invitee, matched by name on the RSVP form.',
-  },
+  { href: '/admin/gallery', label: 'Gallery', description: 'Upload photos (compressed automatically), caption and reorder them.' },
+  { href: '/admin/invites', label: 'Guest list', description: 'Who can RSVP, and how many seats each invitee has.' },
   { href: '/admin/rsvps', label: 'RSVPs', description: 'View and export guest responses.' },
+  { href: '/admin/settings', label: 'Site Settings', description: 'Names, date, hero photo, venues and directions.' },
+  { href: '/admin/our-story', label: 'Our Story', description: 'The photo-and-text story blocks.' },
+  { href: '/admin/entourage', label: 'Entourage', description: 'Parents, officiant, godparents, pairs, bearers, flower girls.' },
+  { href: '/admin/schedule', label: 'Timeline', description: 'The wedding-day timeline cards.' },
+  { href: '/admin/logistics', label: 'Attire Guide', description: 'Attire text and the colour palette.' },
+  { href: '/admin/gifts', label: 'Gift Guide', description: 'The gift guide text.' },
 ];
 
 export default function AdminDashboardPage() {
