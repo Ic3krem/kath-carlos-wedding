@@ -8,6 +8,8 @@ import { AttireGuide } from '@/components/site/AttireGuide';
 import { GiftGuide } from '@/components/site/GiftGuide';
 import { Rsvp } from '@/components/site/Rsvp';
 import { Footer } from '@/components/site/Footer';
+import { MusicPlayer } from '@/components/site/MusicPlayer';
+import nextDynamic from 'next/dynamic';
 import {
   DIRECTIONS_FALLBACK,
   getEntourage,
@@ -22,6 +24,11 @@ import {
 import { formatLongDate, formatTime, formatWeekday } from '@/lib/date-utils';
 
 export const dynamic = 'force-dynamic';
+
+// Canvas-only effect, so it never needs server rendering.
+const MagicOverlay = nextDynamic(() => import('@/components/site/MagicOverlay').then((m) => m.MagicOverlay), {
+  ssr: false,
+});
 
 function venue(kind: Venue['kind'], name: string | null, address: string | null, embed: string | null, directions?: string): Venue {
   const query = [name, address].filter(Boolean).join(', ');
@@ -59,6 +66,8 @@ export default async function HomePage() {
 
   return (
     <main className="bg-paper font-serif text-ink">
+      <MagicOverlay />
+      <MusicPlayer />
       <Hero settings={settings} />
       <Countdown weddingDate={settings.wedding_date} message={settings.hero_message} />
       <OurStory milestones={milestones} />
