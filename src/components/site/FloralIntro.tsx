@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
- * Opening curtain: the screen starts covered in flowers, then they part from
- * the centre outward and fly off the edges to reveal the cover photo.
+ * Opening curtain: once the flower photos have loaded, the bouquet blooms in
+ * slowly; when the guest taps, the flowers part from the centre outward and
+ * fly off the edges to reveal the cover photo. It never opens on its own.
  *
  * Rendered on the server so the cover never flashes first. It plays once per
  * browser session: an inline script in the layout marks <html> with
@@ -76,7 +77,8 @@ function layout(): Piece[] {
         size: 20 + rand() * 14,
         rot: (rand() - 0.5) * 70,
         z: Math.floor(rand() * 10),
-        delay: Math.round(rand() * 650),
+        // Centre first, spreading outward, so the bouquet builds up slowly.
+        delay: Math.round(dist * 1700 + rand() * 500),
         // Fly straight out from the centre, well past the edge.
         fx: (dx / len) * 95,
         fy: (dy / len) * 95,
@@ -98,7 +100,7 @@ function layout(): Piece[] {
       size: 16 + rand() * 8,
       rot: (rand() - 0.5) * 60,
       z: 11,
-      delay: 300 + i * 70,
+      delay: 900 + i * 160,
       fx: Math.cos(a) * 95,
       fy: Math.sin(a) * 95,
       fr: (rand() - 0.5) * 160,
@@ -112,6 +114,7 @@ const PIECES = layout();
 
 export function FloralIntro({ coupleNames }: { coupleNames: string }) {
   const [phase, setPhase] = useState<'cover' | 'opening' | 'done'>('cover');
+  const [ready, setReady] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
   const open = useCallback(() => {
@@ -135,22 +138,19 @@ export function FloralIntro({ coupleNames }: { coupleNames: string }) {
     document.body.style.overflow = 'hidden';
     window.scrollTo(0, 0);
 
-    // Hold the full bouquet for a moment once the flowers have loaded.
-    const images = Array.from(root.querySelectorAll('img'));
-    const loaded = Promise.race([
+    // Start blooming only once the photos are in, so none pop in late.
+    const images = Array.from(root.querySelectorAll('img')).filter((img) => img.offsetParent !== null);
+    let alive = true;
+    Promise.race([
       Promise.all(images.map((img) => img.decode().catch(() => undefined))),
-      new Promise((r) => setTimeout(r, 2500)),
-    ]);
-    let timer = 0;
-    loaded.then(() => {
-      timer = window.setTimeout(open, 1500);
-    });
+      new Promise((r) => setTimeout(r, 4000)),
+    ]).then(() => alive && setReady(true));
 
     return () => {
-      window.clearTimeout(timer);
+      alive = false;
       document.body.style.overflow = previous;
     };
-  }, [open]);
+  }, []);
 
   useEffect(() => {
     if (phase !== 'opening') return;
@@ -170,7 +170,7 @@ export function FloralIntro({ coupleNames }: { coupleNames: string }) {
   return (
     <div
       ref={rootRef}
-      className={`floral-intro ${phase === 'opening' ? 'is-opening' : ''}`}
+      className={`floral-intro ${ready ? 'is-ready' : ''} ${phase === 'opening' ? 'is-opening' : ''}`}
       onClick={open}
       role="button"
       tabIndex={0}
@@ -198,7 +198,9 @@ export function FloralIntro({ coupleNames }: { coupleNames: string }) {
             }
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/florals/${p.src}.webp?v=2`} alt="" draggable={false} loading="lazy" decoding="async" />
+            <div className="intro-inner">
+              <img src={`/florals/${p.src}.webp?v=2`} alt="" draggable={false} loading="lazy" decoding="async" />
+            </div>
           </div>
         ))}
       </div>
