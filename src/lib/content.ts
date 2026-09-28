@@ -1,7 +1,5 @@
 import * as React from 'react';
-import { unstable_cache } from 'next/cache';
-import { getSupabaseServerClient } from '@/lib/supabase/server';
-import { CONTENT_TAG, CONTENT_TTL } from '@/lib/cache';
+import { getSupabasePublicClient, getSupabaseServerClient } from '@/lib/supabase/server';
 import type {
   EntourageMember,
   GalleryImage,
@@ -23,36 +21,22 @@ import type {
 const cache: typeof React.cache = React.cache ?? ((fn) => fn); // plain function outside a React server (tests)
 
 /*
- * Public content is cached (Next Data Cache, tag CONTENT_TAG) so a page view
- * costs no database round trips. Every admin save calls invalidateSite(),
- * which drops the cache immediately; CONTENT_TTL is only the backstop for
- * edits made directly in Supabase.
- *
- * Failed queries throw inside the cached function, and unstable_cache never
- * stores a throw — so a database hiccup or a missing table falls back to the
- * design copy for that one request without being cached.
+ * Public content reads go through getSupabasePublicClient(), whose requests
+ * sit in Next's Data Cache under CONTENT_TAG. Every admin save calls
+ * invalidateSite() to drop it at once; CONTENT_TTL is only the backstop for
+ * edits made directly in Supabase. Failed responses are not cached.
  */
-const cachedRow = (table: string) =>
-  unstable_cache(
-    async () => {
-      const { data, error } = await getSupabaseServerClient().from(table).select('*').eq('id', 1).single();
-      if (error) throw error;
-      return data;
-    },
-    ['row', table],
-    { tags: [CONTENT_TAG], revalidate: CONTENT_TTL },
-  );
+const cachedRow = (table: string) => async () => {
+  const { data, error } = await getSupabasePublicClient().from(table).select('*').eq('id', 1).single();
+  if (error) throw error;
+  return data;
+};
 
-const cachedList = (table: string) =>
-  unstable_cache(
-    async () => {
-      const { data, error } = await getSupabaseServerClient().from(table).select('*').order('sort_order');
-      if (error) throw error;
-      return data ?? [];
-    },
-    ['list', table],
-    { tags: [CONTENT_TAG], revalidate: CONTENT_TTL },
-  );
+const cachedList = (table: string) => async () => {
+  const { data, error } = await getSupabasePublicClient().from(table).select('*').order('sort_order');
+  if (error) throw error;
+  return data ?? [];
+};
 
 export const getSettings = cache(async (): Promise<Settings | null> => {
   try {
