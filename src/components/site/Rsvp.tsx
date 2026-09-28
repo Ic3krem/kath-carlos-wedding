@@ -2,21 +2,23 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { MIN_QUERY, normName } from '@/lib/rsvp/guests';
+import type { RsvpResponse, RsvpSummary } from '@/lib/rsvp/summary';
 import { Reveal } from './Reveal';
 import { SectionHeading } from './SectionHeading';
 
 interface Guest {
   name: string;
   companions: number;
-  alreadyResponded: boolean;
 }
 
-interface Done {
-  name: string;
-  attending: boolean;
-  companions: string[];
-  total: number;
-}
+/** A saved RSVP; `previous` when it was already on file before this visit. */
+type Done = RsvpSummary & { previous: boolean };
+
+const RESPONSE_LABEL: Record<RsvpResponse, string> = {
+  yes: 'Joyfully Accepts',
+  no: 'Regretfully Declines',
+  proxy: 'Sending a proxy',
+};
 
 type Hint = { tone: '' | 'ok' | 'err' | 'wait'; text: string };
 
@@ -38,7 +40,8 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
   const [active, setActive] = useState(-1);
   const [hint, setHint] = useState<Hint>({ tone: '', text: '' });
   const [guest, setGuest] = useState<Guest | null>(null);
-  const [attending, setAttending] = useState<boolean | null>(null);
+  const [response, setResponse] = useState<RsvpResponse | null>(null);
+  const [proxyName, setProxyName] = useState('');
   const [companions, setCompanions] = useState<string[]>([]);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState('');
@@ -60,10 +63,17 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
       const data = await res.json();
       if (my !== requestId.current) return;
       if (!data.found) return setHint({ tone: 'err', text: NOT_FOUND });
-      setGuest({ name: data.name, companions: data.companions, alreadyResponded: data.alreadyResponded });
       setQuery(data.name);
-      setAttending(null);
+      setResponse(null);
+      setProxyName('');
       setCompanions([]);
+      if (data.rsvp) {
+        setGuest(null);
+        setHint({ tone: '', text: '' });
+        setDone({ ...(data.rsvp as RsvpSummary), previous: true });
+        return;
+      }
+      setGuest({ name: data.name, companions: data.companions });
       setHint({ tone: 'ok', text: `Welcome, ${data.name}!` });
     } catch {
       if (my === requestId.current) setHint({ tone: 'err', text: 'Something went wrong. Please try again.' });
@@ -98,7 +108,8 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
     requestId.current++;
     setQuery(value);
     setGuest(null);
-    setAttending(null);
+    setResponse(null);
+    setProxyName('');
     setCompanions([]);
     setMessage('');
     if (normName(value).replace(/ /g, '').length < MIN_QUERY) {
@@ -134,22 +145,29 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!guest || attending === null) return;
-    const names = attending ? companions.map((c) => c.trim()) : [];
+    if (!guest || response === null) return;
+    const names = response !== 'no' ? companions.map((c) => c.trim()) : [];
     const missing = names.findIndex((c) => !c);
     if (missing >= 0) return setMessage(`Please enter the name of companion ${missing + 1}.`);
+    if (response === 'proxy' && !proxyName.trim()) {
+      return setMessage('Please enter the name of the person attending on your behalf.');
+    }
     setSending(true);
     setMessage('');
     try {
       const res = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: guest.name, attending, companions: names }),
+        body: JSON.stringify({ name: guest.name, response, companions: names, proxyName: proxyName.trim() || undefined }),
       });
       const data = await res.json().catch(() => ({}));
+      if (res.status === 409 && data.rsvp) {
+        setDone({ ...(data.rsvp as RsvpSummary), previous: true });
+        return;
+      }
       if (!res.ok) throw new Error(data.error || 'We could not save your RSVP. Please try again.');
-      setDone({ name: data.name, attending: data.attending, companions: data.companions, total: data.total });
-      window.dispatchEvent(new CustomEvent('petal-burst', { detail: { mode: 'sides', count: data.attending ? 160 : 60 } }));
+      setDone({ ...(data as RsvpSummary), previous: false });
+      window.dispatchEvent(new CustomEvent('petal-burst', { detail: { mode: 'sides', count: data.response === 'no' ? 60 : 160 } }));
     } catch (err) {
       setMessage(err instanceof Error ? err.message : String(err));
     } finally {
@@ -161,8 +179,18 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
     `block w-full cursor-pointer rounded px-2.5 py-4 text-center font-serif text-[19px] text-white ${
       on ? 'border border-mist bg-[rgba(28,45,64,0.28)] shadow-[inset_0_0_0_1px_#dce7f0]' : 'border border-white/35 bg-transparent'
     }`;
-  const cantSubmit = attending === null || sending;
+  const cantSubmit = response === null || sending;
   const first = done?.name.split(' ')[0] ?? '';
+  const pick_ = (r: RsvpResponse) => {
+    setResponse(r);
+    setMessage('');
+  };
+  const resetSearch = () => {
+    setDone(null);
+    setGuest(null);
+    setQuery('');
+    setHint({ tone: '', text: '' });
+  };
 
   return (
     <section id="rsvp" className="bg-paper px-6 py-[88px]">
@@ -253,22 +281,47 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
                     <div className="mb-[26px]">
                       <span className={FIELD_LABEL}>Will you be attending?</span>
                       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,180px),1fr))] gap-3">
-                        <button type="button" onClick={() => { setAttending(true); setMessage(''); }} className={choice(attending === true)} aria-pressed={attending === true}>
+                        <button type="button" onClick={() => pick_('yes')} className={choice(response === 'yes')} aria-pressed={response === 'yes'}>
                           Joyfully Accepts
                           <small className="mt-1 block font-lato text-[11px] uppercase tracking-[0.1em] text-white/80">Can&apos;t wait to celebrate</small>
                         </button>
-                        <button type="button" onClick={() => { setAttending(false); setMessage(''); }} className={choice(attending === false)} aria-pressed={attending === false}>
+                        <button type="button" onClick={() => pick_('no')} className={choice(response === 'no')} aria-pressed={response === 'no'}>
                           Regretfully Declines
                           <small className="mt-1 block font-lato text-[11px] uppercase tracking-[0.1em] text-white/80">Celebrating in spirit</small>
                         </button>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => pick_('proxy')}
+                        className={`${choice(response === 'proxy')} mt-3 !py-3 !text-[17px]`}
+                        aria-pressed={response === 'proxy'}
+                      >
+                        I can&apos;t attend, but I&apos;m sending a proxy
+                        <small className="mt-1 block font-lato text-[11px] uppercase tracking-[0.1em] text-white/80">Someone will take my seat</small>
+                      </button>
                     </div>
 
-                    {attending && guest.companions > 0 && (
+                    {response === 'proxy' && (
+                      <div className="mb-[26px]">
+                        <label htmlFor="rsvp-proxy" className={FIELD_LABEL}>
+                          Name of the person attending on your behalf
+                        </label>
+                        <input
+                          id="rsvp-proxy"
+                          type="text"
+                          value={proxyName}
+                          onChange={(e) => setProxyName(e.target.value)}
+                          placeholder="Full name"
+                          className={FIELD}
+                        />
+                      </div>
+                    )}
+
+                    {response !== null && response !== 'no' && guest.companions > 0 && (
                       <div>
                         <div className="mb-[26px]">
                           <label htmlFor="rsvp-count" className={FIELD_LABEL}>
-                            How many companions will you bring?
+                            {response === 'proxy' ? 'How many companions will your proxy bring?' : 'How many companions will you bring?'}
                           </label>
                           <select
                             id="rsvp-count"
@@ -281,7 +334,7 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
                           >
                             {Array.from({ length: guest.companions + 1 }, (_, i) => (
                               <option key={i} value={i}>
-                                {i === 0 ? 'Just me' : `${i} companion${i > 1 ? 's' : ''}`}
+                                {i === 0 ? (response === 'proxy' ? 'Just the proxy' : 'Just me') : `${i} companion${i > 1 ? 's' : ''}`}
                               </option>
                             ))}
                           </select>
@@ -321,11 +374,7 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
                       {sending ? 'Sending…' : 'Send RSVP'}
                     </button>
                     {message && <div className="mt-2.5 text-center text-sm text-[#ffe1db]">{message}</div>}
-                    {guest.alreadyResponded && (
-                      <div className="mt-2.5 text-center text-[13px] text-white/80">
-                        We already have an RSVP for you. Submitting again will update it.
-                      </div>
-                    )}
+                    <div className="mt-2.5 text-center text-[12px] text-white/70">Each invitation can RSVP once, so please check before sending.</div>
                   </div>
                 )}
               </form>
@@ -352,21 +401,30 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
                   <path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-              <div className="text-center text-[11px] uppercase tracking-[0.3em] text-mist">Your RSVP has been received</div>
+              <div className="text-center text-[11px] uppercase tracking-[0.3em] text-mist">
+                {done.previous ? 'We already have your RSVP' : 'Your RSVP has been received'}
+              </div>
               <h3 className="my-3 font-serif text-[34px] font-normal text-white">
-                {done.attending ? `See you there, ${first}!` : `You will be missed, ${first}`}
+                {done.response === 'yes'
+                  ? `See you there, ${first}!`
+                  : done.response === 'proxy'
+                    ? `Thank you, ${first}`
+                    : `You will be missed, ${first}`}
               </h3>
               <div className="mx-auto mb-[30px] mt-[22px] h-px w-[60px] bg-mist" />
               <p className="m-0 text-base leading-relaxed">
-                {done.attending
-                  ? `Thank you for your response. We're overjoyed you'll celebrate with us, and your seat${done.total > 1 ? 's have' : ' has'} been reserved.`
-                  : "Thank you for letting us know. We'll be thinking of you on our special day."}
+                {done.response === 'yes'
+                  ? `We're overjoyed you'll celebrate with us, and your seat${done.total > 1 ? 's have' : ' has'} been reserved.`
+                  : done.response === 'proxy'
+                    ? `We'll miss you, and we look forward to welcoming ${done.proxyName} in your place.`
+                    : "Thank you for letting us know. We'll be thinking of you on our special day."}
               </p>
               <div className="mb-2 mt-[26px] rounded border border-[rgba(220,231,240,0.6)] bg-[rgba(28,45,64,0.15)] px-[18px] py-1.5 text-left">
                 {[
                   ['Guest', done.name],
-                  ['Response', done.attending ? 'Joyfully Accepts' : 'Regretfully Declines'],
-                  ...(done.attending
+                  ['Response', RESPONSE_LABEL[done.response]],
+                  ...(done.response === 'proxy' ? [['Attending for you', done.proxyName ?? '']] : []),
+                  ...(done.response !== 'no'
                     ? [
                         ['Companions', done.companions.length ? done.companions.join(', ') : 'None'],
                         ['Seats confirmed', String(done.total)],
@@ -379,7 +437,7 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
                   </div>
                 ))}
               </div>
-              {done.attending && (
+              {done.response === 'yes' && (
                 <p className="mb-0 mt-[26px] font-serif text-[21px] italic leading-normal">
                   We look forward to celebrating with you on
                   <br />
@@ -387,17 +445,11 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
                 </p>
               )}
               <div className="mt-[22px] font-vibes text-[46px] leading-[1.1] text-mist">{coupleNames}</div>
-              <p className="mt-[26px] text-[13px] text-white/80">
-                Need to change something?{' '}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDone(null);
-                    if (guest) setGuest({ ...guest, alreadyResponded: true });
-                  }}
-                  className="cursor-pointer border-0 bg-transparent p-0 text-mist underline"
-                >
-                  Update your RSVP
+              <p className="mt-[26px] text-[13px] leading-relaxed text-white/80">
+                Need to change something? Please message {coupleNames} directly.
+                <br />
+                <button type="button" onClick={resetSearch} className="mt-2 cursor-pointer border-0 bg-transparent p-0 text-mist underline">
+                  RSVP for another guest
                 </button>
               </p>
             </div>

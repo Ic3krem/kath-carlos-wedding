@@ -2,7 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const orderMock = vi.fn();
 const selectMock = vi.fn(() => ({ order: orderMock }));
-const fromMock = vi.fn(() => ({ select: selectMock }));
+const deleteEqMock = vi.fn(async () => ({ error: null }));
+const deleteMock = vi.fn(() => ({ eq: deleteEqMock }));
+const fromMock = vi.fn(() => ({ select: selectMock, delete: deleteMock }));
 
 vi.mock('@/lib/supabase/server', () => ({
   getSupabaseServerClient: () => ({ from: fromMock }),
@@ -10,6 +12,8 @@ vi.mock('@/lib/supabase/server', () => ({
 
 import { GET as listRsvps } from '@/app/api/admin/rsvps/route';
 import { GET as exportRsvps } from '@/app/api/admin/rsvps/export/route';
+import { DELETE as deleteRsvp } from '@/app/api/admin/rsvps/[id]/route';
+import { NextRequest } from 'next/server';
 
 const sampleRsvp = {
   id: '1',
@@ -42,8 +46,15 @@ describe('/api/admin/rsvps', () => {
     const text = await response.text();
     expect(response.headers.get('content-type')).toContain('text/csv');
     expect(text.split('\n')[0]).toBe(
-      'name,email,phone,attending,guest_count,guest_names,meal_preference,allergies,song_request,message,created_at'
+      'name,attending,proxy_name,guest_count,guest_names,created_at'
     );
     expect(text).toContain('Juan Dela Cruz');
+  });
+
+  it('DELETE removes one RSVP by id', async () => {
+    const response = await deleteRsvp(new NextRequest('http://localhost/api/admin/rsvps/7', { method: 'DELETE' }), { params: { id: '7' } });
+    expect(response.status).toBe(200);
+    expect(fromMock).toHaveBeenCalledWith('rsvps');
+    expect(deleteEqMock).toHaveBeenCalledWith('id', '7');
   });
 });

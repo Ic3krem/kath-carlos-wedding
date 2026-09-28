@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import { getInviteAllocations } from '@/lib/content';
 import { companionsAllowed, findGuest, likeLiteral, suggestGuests } from '@/lib/rsvp/guests';
+import { summarize } from '@/lib/rsvp/summary';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,23 +25,26 @@ export async function GET(request: NextRequest) {
     const guest = findGuest(list, name);
     if (!guest) return NextResponse.json({ found: false });
 
-    let alreadyResponded = false;
+    // A saved RSVP is shown instead of the form (one RSVP per invitee).
+    let rsvp = null;
     try {
       const { data } = await getSupabaseServerClient()
         .from('rsvps')
-        .select('id')
+        .select('*')
         .ilike('name', likeLiteral(guest.name))
+        .order('created_at', { ascending: false })
         .limit(1);
-      alreadyResponded = Boolean(data && data.length > 0);
+      if (data && data.length > 0) rsvp = summarize(data[0]);
     } catch {
-      // Not knowing only hides the "we already have your RSVP" note.
+      // Not knowing only means the form shows; the POST still refuses a repeat.
     }
 
     return NextResponse.json({
       found: true,
       name: guest.name,
       companions: companionsAllowed(guest),
-      alreadyResponded,
+      alreadyResponded: Boolean(rsvp),
+      rsvp,
     });
   }
 

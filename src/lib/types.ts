@@ -218,4 +218,6 @@ export interface Rsvp {
   song_request: string | null;
   message: string | null;
   created_at: string;
+  /** Someone attending in the invitee's place (migration 013). */
+  proxy_name?: string | null;
 }
