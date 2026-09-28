@@ -13,6 +13,13 @@ export function ScrollEffects() {
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const layers = reduced
+      ? []
+      : Array.from(document.querySelectorAll<HTMLElement>('[data-parallax]')).map((el) => ({
+          el,
+          speed: Number(el.dataset.parallax) || 0.2,
+          box: el.parentElement ?? el,
+        }));
     let frame = 0;
 
     function update() {
@@ -24,13 +31,14 @@ export function ScrollEffects() {
       if (reduced) return;
 
       const vh = window.innerHeight;
-      document.querySelectorAll<HTMLElement>('[data-parallax]').forEach((el) => {
-        const speed = Number(el.dataset.parallax) || 0.2;
-        const rect = el.parentElement?.getBoundingClientRect() ?? el.getBoundingClientRect();
+      // Read every rect first, then write, so the browser lays out once.
+      const rects = layers.map((l) => l.box.getBoundingClientRect());
+      layers.forEach((l, i) => {
+        const rect = rects[i];
         if (rect.bottom < -200 || rect.top > vh + 200) return;
         // 0 when the section's centre is at the viewport's centre.
         const offset = rect.top + rect.height / 2 - vh / 2;
-        el.style.setProperty('--parallax-y', `${(-offset * speed).toFixed(1)}px`);
+        l.el.style.transform = `translate3d(0, ${(-offset * l.speed).toFixed(1)}px, 0)`;
       });
     }
 

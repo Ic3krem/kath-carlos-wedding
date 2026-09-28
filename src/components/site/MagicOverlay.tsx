@@ -178,7 +178,7 @@ export function MagicOverlay() {
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     const pointer = { x: -9999, y: -9999, active: false, lastX: -9999, lastY: -9999 };
     const glitter: Glitter[] = [];
-    const MAX_GLITTER = 420;
+    const MAX_GLITTER = window.innerWidth < 640 ? 140 : 260;
 
     function spawnPetal(x: number, y: number, vx: number, vy: number) {
       if (glitter.length >= MAX_GLITTER) return;
@@ -249,7 +249,7 @@ export function MagicOverlay() {
       const dx = pointer.x - pointer.lastX;
       const dy = pointer.y - pointer.lastY;
       if (dx * dx + dy * dy > 140) {
-        spawnGlitter(pointer.x, pointer.y, 2, 30);
+        spawnGlitter(pointer.x, pointer.y, 1, 30);
         pointer.lastX = pointer.x;
         pointer.lastY = pointer.y;
       }
@@ -273,7 +273,7 @@ export function MagicOverlay() {
       width = window.innerWidth;
       height = window.innerHeight;
       // Cap the pixel ratio: past 2x the extra pixels cost more than they show.
-      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
       canvas.width = Math.floor(width * ratio);
       canvas.height = Math.floor(height * ratio);
       canvas.style.width = `${width}px`;
@@ -281,22 +281,30 @@ export function MagicOverlay() {
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
       // Fewer on a phone, where there is less room and less battery to spare.
-      const count = width < 640 ? 7 : width < 1024 ? 11 : 15;
+      const count = width < 640 ? 4 : width < 1024 ? 6 : 9;
       if (butterflies.length !== count) {
         butterflies = Array.from({ length: count }, () => makeButterfly(width, height, false));
       }
 
-      const dustCount = width < 640 ? 45 : width < 1024 ? 75 : 110;
+      const dustCount = width < 640 ? 18 : width < 1024 ? 35 : 55;
       if (dust.length !== dustCount) {
         dust = Array.from({ length: dustCount }, () => makeDust(width, height, false));
       }
     }
 
+    // Phones and low-core devices draw at ~30fps: the drift is slow enough
+    // that it looks the same, and it frees the main thread for scrolling.
+    const lowPower = window.innerWidth < 768 || (navigator.hardwareConcurrency || 8) <= 4;
+
     function draw(now: number) {
       if (!ctx) return;
+      if (lowPower && now - last < 30) {
+        frame = requestAnimationFrame(draw);
+        return;
+      }
       // Seconds since the last frame, clamped so a backgrounded tab does not
       // teleport everything across the screen when it wakes up.
-      const delta = Math.min((now - last) / 1000, 0.05);
+      const delta = Math.min((now - last) / 1000, 0.066);
       last = now;
 
       ctx.clearRect(0, 0, width, height);
@@ -418,14 +426,11 @@ export function MagicOverlay() {
           ctx.scale(1, 0.35 + Math.abs(Math.sin(g.flutter!)) * 0.65);
           ctx.globalAlpha = Math.min(1, t * 3) * 0.92;
           ctx.fillStyle = g.color;
-          ctx.shadowColor = 'rgba(44,62,80,0.18)';
-          ctx.shadowBlur = 3;
           ctx.beginPath();
           ctx.moveTo(0, g.size * 1.4);
           ctx.bezierCurveTo(-g.size * 1.2, g.size * 0.5, -g.size, -g.size, 0, -g.size * 1.5);
           ctx.bezierCurveTo(g.size, -g.size, g.size * 1.2, g.size * 0.5, 0, g.size * 1.4);
           ctx.fill();
-          ctx.shadowBlur = 0;
           ctx.globalAlpha *= 0.5;
           ctx.fillStyle = '#FFFFFF';
           ctx.beginPath();
@@ -444,8 +449,6 @@ export function MagicOverlay() {
         ctx.rotate(g.spin);
         ctx.globalAlpha = Math.min(1, t * 1.6) * 0.9;
         ctx.fillStyle = g.color;
-        ctx.shadowColor = g.color;
-        ctx.shadowBlur = 6;
         drawSparkle(ctx, g.size * (0.6 + t * 0.4));
         ctx.restore();
       }
@@ -468,8 +471,6 @@ export function MagicOverlay() {
         ctx.rotate(companion.angle);
         ctx.globalAlpha = 0.85;
         ctx.fillStyle = '#5E7D9A';
-        ctx.shadowColor = 'rgba(255,255,255,0.9)';
-        ctx.shadowBlur = 8;
         ctx.save();
         ctx.scale(spread, 1);
         drawWings(ctx, 13);

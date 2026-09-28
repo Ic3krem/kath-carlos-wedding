@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={fonts} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://lxzzcx7ubyxrkqsz.public.blob.vercel-storage.com" crossOrigin="" />
-        <link rel="preload" as="image" href="/florals/hydrangea1.webp" />
+        <link rel="preload" as="image" href="/florals/hydrangea1.webp?v=2" />
         <script
           dangerouslySetInnerHTML={{
             __html:

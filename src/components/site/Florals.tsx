@@ -169,6 +169,10 @@ export function Florals() {
       for (const b of blooms) {
         const v = Math.max(0, Math.min(1, (p - b.t) / ENTER_SPAN));
         if (Math.abs(v - b.v) > 0.01) {
+          if ((v === 0) !== (b.v === 0) || b.v < 0) {
+            if (v === 0) b.el.setAttribute('data-off', '');
+            else b.el.removeAttribute('data-off');
+          }
           b.v = v;
           b.el.style.setProperty('--enter', v.toFixed(3));
         }
@@ -309,7 +313,7 @@ function Column({ side, items }: { side: 'l' | 'r'; items: Item[] }) {
         >
           <div className="flora-lean" style={{ '--k': it.lean } as React.CSSProperties}>
             <div className="flora-near">
-              <div className="flora-bloom" data-t={it.delay}>
+              <div className="flora-bloom" data-t={it.delay} data-off="">
                 <div
                   className="flora-sway"
                   style={
@@ -323,12 +327,11 @@ function Column({ side, items }: { side: 'l' | 'r'; items: Item[] }) {
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={`/florals/${it.src}.webp`}
+                    src={`/florals/${it.src}.webp?v=2`}
                     alt=""
                     draggable={false}
                     decoding="async"
                     className="flora-img"
-                    style={{ animationDelay: `${-(i % 5)}s` }}
                   />
                 </div>
               </div>
