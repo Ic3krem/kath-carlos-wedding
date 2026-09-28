@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useFocusTrap } from '@/lib/use-focus-trap';
 
 interface ModalProps {
@@ -13,8 +14,19 @@ interface ModalProps {
   zIndex?: string;
 }
 
+/**
+ * Portals its children to <body>. Sections use `isolate`/transforms for their
+ * effects, which would otherwise trap a fixed pop-up inside the section so
+ * later sections paint over it.
+ */
+export function BodyPortal({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return mounted ? createPortal(children, document.body) : null;
+}
+
 /** Backdrop + panel with Escape to close, focus trap, and page scroll lock. */
-export function Modal({ open, onClose, label, children, className = '', zIndex = 'z-40' }: ModalProps) {
+export function Modal({ open, onClose, label, children, className = '', zIndex = 'z-[90]' }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   useFocusTrap(open, panelRef);
 
@@ -35,6 +47,7 @@ export function Modal({ open, onClose, label, children, className = '', zIndex =
   if (!open) return null;
 
   return (
+    <BodyPortal>
     <div
       onClick={onClose}
       className={`fixed inset-0 ${zIndex} flex items-center justify-center bg-[rgba(20,30,40,0.7)] p-[clamp(12px,3vw,40px)]`}
@@ -51,6 +64,7 @@ export function Modal({ open, onClose, label, children, className = '', zIndex =
         {children}
       </div>
     </div>
+    </BodyPortal>
   );
 }
 

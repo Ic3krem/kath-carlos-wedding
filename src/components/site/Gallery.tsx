@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GalleryImage } from '@/lib/types';
-import { CloseButton, Modal } from './Modal';
+import { BodyPortal, CloseButton, Modal } from './Modal';
 import { Decor } from './Decor';
 import { Reveal } from './Reveal';
 import { SectionHeading } from './SectionHeading';
@@ -136,6 +136,7 @@ export function Gallery({ images }: { images: Photo[] }) {
       </Modal>
 
       {current && (
+        <BodyPortal>
         <div
           role="dialog"
           aria-modal="true"
@@ -149,7 +150,7 @@ export function Gallery({ images }: { images: Photo[] }) {
               step(dx < 0 ? 1 : -1);
             }
           }}
-          className="fixed inset-0 z-50 flex flex-col bg-[rgba(20,30,40,0.92)]"
+          className="fixed inset-0 z-[95] flex flex-col bg-[rgba(20,30,40,0.92)]"
         >
           <LightboxEscape onClose={closeLightbox} />
           <div className="flex items-center justify-between px-6 py-4 font-sans text-xs tracking-[0.2em] text-white">
@@ -196,6 +197,7 @@ export function Gallery({ images }: { images: Photo[] }) {
             </button>
           </div>
         </div>
+        </BodyPortal>
       )}
     </section>
   );

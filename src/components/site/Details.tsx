@@ -98,7 +98,7 @@ export function Details({ dateLabel, weekday, time, venues, timeline, timelineNo
         {timelineNote && <p className="m-0 max-w-[680px] text-[17px] italic leading-relaxed text-body">{timelineNote}</p>}
       </Reveal>
 
-      <Modal open={!!open} onClose={close} label={open ? `${open.kind} guide` : 'Venue guide'} zIndex="z-[45]" className="overflow-auto">
+      <Modal open={!!open} onClose={close} label={open ? `${open.kind} guide` : 'Venue guide'} zIndex="z-[90]" className="overflow-auto">
         {open && (
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))]">
             <div className="flex flex-col gap-[18px] px-7 py-8">
