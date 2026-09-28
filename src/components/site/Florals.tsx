@@ -47,13 +47,16 @@ interface Item {
   z: number;
   /** Shown on phones too (most are desktop-only so text stays readable). */
   mobile: boolean;
+  /** Only on phones: extra blooms packed into the corners. */
+  phone: boolean;
   delay: number;
   amp: number;
   period: number;
   lean: number;
 }
 
-type Row = [Flower, number, number, number, number, number, 0 | 1];
+/** Last value: 0 desktop only, 1 everywhere, 2 phones only (corner fillers). */
+type Row = [Flower, number, number, number, number, number, 0 | 1 | 2];
 
 /**
  * [flower, x, y, size, rotation, stacking, show on phones]. Motion follows
@@ -68,7 +71,8 @@ function garland(rows: Row[]): Item[] {
     size,
     rot,
     z,
-    mobile: mobile === 1,
+    mobile: mobile >= 1,
+    phone: mobile === 2,
     // Scroll progress (0..1) at which this flower starts sliding in.
     delay: Math.min(0.78, 0.04 + ((y + 10) / 110) * 0.66 + ((i * 7) % 5) * 0.012),
     amp: size > 80 ? 1.5 : size > 55 ? 2.5 : 4,
@@ -99,6 +103,15 @@ const LEFT = garland([
   ['eucalyptus', -18, 84, 70, 150, 1, 0],
   ['rose-open', 30, 90, 40, 10, 4, 0],
   ['plumbago', -12, 91, 42, 24, 5, 1],
+  // Phone corners: a fuller bouquet tucked into the top-left and bottom-left.
+  ['babys-breath', 10, -6, 60, 35, 1, 2],
+  ['hydrangea-white', 20, 3, 56, 8, 5, 2],
+  ['anemone-navy', 32, -3, 50, -12, 6, 2],
+  ['cornflower', -20, 6, 44, 18, 6, 2],
+  ['eucalyptus', -10, 84, 66, 150, 1, 2],
+  ['rose-blue', 24, 89, 50, 14, 6, 2],
+  ['anemone-white', -30, 91, 56, -8, 6, 2],
+  ['lisianthus', 36, 95, 42, 10, 7, 2],
 ]);
 
 // The right edge, a different arrangement so it does not read as a mirror.
@@ -123,6 +136,15 @@ const RIGHT = garland([
   ['peony-cream', 18, 84, 54, -14, 4, 1],
   ['rose-blue', -14, 90, 50, 10, 5, 1],
   ['cornflower', 34, 92, 32, 20, 5, 0],
+  // Phone corners: a fuller bouquet tucked into the top-right and bottom-right.
+  ['eucalyptus', 6, -8, 64, 30, 1, 2],
+  ['peony-white', 28, -2, 54, 12, 6, 2],
+  ['plumbago', -18, 5, 44, -14, 6, 2],
+  ['anemone-white', 22, 6, 44, 20, 5, 2],
+  ['babys-breath', -10, 82, 58, -150, 1, 2],
+  ['dahlia', 24, 87, 52, -10, 6, 2],
+  ['anemone-navy', -26, 92, 50, 18, 7, 2],
+  ['cornflower', 36, 95, 38, -16, 7, 2],
 ]);
 
 /** Petals that come loose and drift down the page. */
@@ -310,7 +332,7 @@ function Column({ side, items }: { side: 'l' | 'r'; items: Item[] }) {
       {items.map((it, i) => (
         <div
           key={i}
-          className={`flora-pos ${it.mobile ? '' : 'flora-desktop'}`}
+          className={`flora-pos ${it.phone ? 'flora-phone' : it.mobile ? '' : 'flora-desktop'}`}
           style={{ left: `${it.x}%`, top: `${it.y}vh`, width: `${it.size}%`, zIndex: it.z }}
         >
           <div className="flora-lean" style={{ '--k': it.lean } as React.CSSProperties}>

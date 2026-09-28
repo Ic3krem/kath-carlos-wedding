@@ -24,7 +24,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = `You're invited! Celebrate with ${coupleNames} on ${when} · ${where}. Kindly RSVP online.`;
   // The link preview shown when the site is shared (Facebook, Messenger,
   // Viber, WhatsApp, X, iMessage…): the opening bouquet from the intro.
-  const image = { url: '/og.jpg', width: 1200, height: 630, alt: `The wedding of ${coupleNames}` };
+  const image = {
+    url: '/og.jpg',
+    secureUrl: `${siteUrl}/og.jpg`,
+    type: 'image/jpeg',
+    width: 1200,
+    height: 630,
+    alt: `The wedding of ${coupleNames}`,
+  };
 
   return {
     metadataBase: new URL(siteUrl),
@@ -50,6 +57,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={fonts} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://lxzzcx7ubyxrkqsz.public.blob.vercel-storage.com" crossOrigin="" />
+        {/* Facebook's debugger asks for an app id; set FB_APP_ID in Vercel to add it. */}
+        {process.env.FB_APP_ID && <meta property="fb:app_id" content={process.env.FB_APP_ID} />}
         <script dangerouslySetInnerHTML={{ __html: PERF_BOOT_SCRIPT }} />
       </head>
       <body className="font-serif">{children}</body>

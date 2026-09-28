@@ -217,9 +217,16 @@ select:focus-visible,
 }
 @media (max-width: 767px) {
   .flora-desktop { display: none; }
-  .florals { --flora-w: 86px; opacity: 0.9; }
-  .flora-col { transform: translateX(-26%); }
-  .flora-mirror { transform: translateX(26%) scaleX(-1); }
+  .florals { --flora-w: 128px; opacity: 0.95; }
+  .flora-col { transform: translateX(-34%); }
+  .flora-mirror { transform: translateX(34%) scaleX(-1); }
+}
+/* Corner fillers that only phones get (desktop already has a full garland). */
+.flora-phone {
+  display: none;
+}
+@media (max-width: 767px) {
+  .flora-phone { display: block; }
 }
 .flora-pos {
   position: absolute;
