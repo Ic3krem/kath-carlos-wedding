@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GalleryImage } from '@/lib/types';
 import { CloseButton, Modal } from './Modal';
@@ -51,13 +52,13 @@ function Tile({ photo, index, onOpen, animate }: { photo: Photo; index: number; 
           : ''
       }`}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={photo.image_url}
         alt={alt}
-        loading="lazy"
-        decoding="async"
-        className="block h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
+        fill
+        sizes={animate ? '(min-width: 960px) 320px, 33vw' : '(min-width: 1100px) 360px, 33vw'}
+        quality={75}
+        className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
       />
       <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[linear-gradient(to_top,rgba(28,45,64,0.55),rgba(28,45,64,0.05))] opacity-0 transition-opacity duration-500 group-hover:opacity-100">
         <span className="flex h-11 w-11 scale-50 items-center justify-center rounded-full bg-white/90 text-steel transition-transform duration-500 group-hover:scale-100">
@@ -171,13 +172,17 @@ export function Gallery({ images }: { images: Photo[] }) {
             >
               ‹
             </button>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={current.image_url}
-              alt={current.caption || `Carlos and Kath, photo ${lightbox + 1}`}
-              onClick={(e) => e.stopPropagation()}
-              className="max-h-[calc(100vh-100px)] max-w-full justify-self-center rounded-md object-contain"
-            />
+            <div className="relative h-[calc(100vh-100px)] w-full" onClick={(e) => e.stopPropagation()}>
+              <Image
+                key={current.image_url}
+                src={current.image_url}
+                alt={current.caption || `Carlos and Kath, photo ${lightbox + 1}`}
+                fill
+                sizes="100vw"
+                quality={85}
+                className="rounded-md object-contain"
+              />
+            </div>
             <button
               type="button"
               aria-label="Next"

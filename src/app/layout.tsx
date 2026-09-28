@@ -24,7 +24,17 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const fonts = [cormorant, marckScript, greatVibes, montserrat, lato].map((f) => f.variable).join(' ');
   return (
-    <html lang="en" className={fonts}>
+    <html lang="en" className={fonts} suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://lxzzcx7ubyxrkqsz.public.blob.vercel-storage.com" crossOrigin="" />
+        <link rel="preload" as="image" href="/florals/hydrangea1.webp" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(sessionStorage.getItem('intro-seen'))document.documentElement.classList.add('intro-seen')}catch(e){}",
+          }}
+        />
+      </head>
       <body className="font-serif">{children}</body>
     </html>
   );

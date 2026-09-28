@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { invalidateSite } from '@/lib/cache';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 
 interface RouteParams {
@@ -26,6 +27,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   if (error) {
     return NextResponse.json({ error: 'Failed to update member' }, { status: 500 });
   }
+  invalidateSite();
   return NextResponse.json(data);
 }
 
@@ -35,5 +37,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   if (error) {
     return NextResponse.json({ error: 'Failed to delete member' }, { status: 500 });
   }
+  invalidateSite();
   return NextResponse.json({ success: true });
 }

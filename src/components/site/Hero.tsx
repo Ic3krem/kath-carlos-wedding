@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { formatLongDate, formatTime, formatWeekday } from '@/lib/date-utils';
 import type { Settings } from '@/lib/types';
 
@@ -6,8 +7,7 @@ export function Hero({ settings }: { settings: Settings }) {
   const image = settings.hero_image_url || '/hero/hero.webp';
   return (
     <section id="top" className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-[#3a4a58]">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={image} alt={settings.couple_names} className="absolute inset-0 h-full w-full object-cover" fetchPriority="high" />
+      <Image src={image} alt={settings.couple_names} fill priority sizes="100vw" quality={78} className="object-cover" />
       <div className="absolute inset-0 bg-[linear-gradient(rgba(20,30,40,0.35),rgba(20,30,40,0.5))]" />
       <div className="relative flex flex-col items-center gap-3.5 p-6 text-center text-white">
         <div className="font-sans text-xs font-medium uppercase tracking-[0.4em]">We are getting married</div>

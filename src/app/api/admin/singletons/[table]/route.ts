@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { invalidateSite } from '@/lib/cache';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import { getSingletonSpec, pickFields } from '@/lib/admin/schema';
 
@@ -41,5 +42,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   if (error) {
     return NextResponse.json({ error: 'Failed to save' }, { status: 500 });
   }
+  invalidateSite();
   return NextResponse.json(data);
 }

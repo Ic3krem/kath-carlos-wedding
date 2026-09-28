@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { invalidateSite } from '@/lib/cache';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -50,5 +51,6 @@ export async function PUT(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: 'Failed to save settings' }, { status: 500 });
   }
+  invalidateSite();
   return NextResponse.json(data);
 }

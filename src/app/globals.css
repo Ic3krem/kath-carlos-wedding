@@ -233,16 +233,19 @@ select:focus-visible,
   transform: rotate(calc(var(--lean, 0) * var(--k, 1) * 1deg));
   transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
+/* Slides in from the screen edge as the page scrolls (--enter: 0..1). */
 .flora-bloom {
   width: 100%;
   height: 100%;
-  scale: 0;
-  opacity: 0;
-  animation: flora-bloom 1.8s cubic-bezier(0.2, 0.9, 0.25, 1.15) forwards;
+  transform-origin: 0% 50%;
+  transform: translateX(calc((1 - var(--enter, 0)) * -140%)) rotate(calc((1 - var(--enter, 0)) * -45deg))
+    scale(calc(0.55 + var(--enter, 0) * 0.45));
+  opacity: min(1, calc(var(--enter, 0) * 1.6));
+  transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.6s ease;
 }
-@keyframes flora-bloom {
-  from { scale: 0; opacity: 0; rotate: -35deg; }
-  to { scale: 1; opacity: 1; rotate: 0deg; }
+.flora-petals {
+  opacity: var(--garland, 0);
+  transition: opacity 0.8s ease;
 }
 .flora-sway {
   width: 100%;
@@ -331,4 +334,91 @@ select:focus-visible,
 @keyframes title-shimmer {
   0%, 55% { background-position: 100% 0; }
   100% { background-position: 0% 0; }
+}
+
+/* ---------------------------------------------------------------------------
+   Opening curtain of flowers (FloralIntro.tsx).
+   ------------------------------------------------------------------------- */
+.floral-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  overflow: hidden;
+  cursor: pointer;
+  background: radial-gradient(ellipse at center, #f5f9fc 0%, #e4edf4 70%, #d3e0eb 100%);
+  transition: background-color 1.2s ease, opacity 1s ease 0.6s;
+  /* Fail-safe if scripts never run: get out of the way on its own. */
+  animation: intro-failsafe 0.8s ease 9s forwards;
+}
+html.intro-seen .floral-intro {
+  display: none;
+}
+@keyframes intro-failsafe {
+  to { opacity: 0; visibility: hidden; }
+}
+.floral-intro.is-opening {
+  opacity: 0;
+  pointer-events: none;
+}
+.intro-flowers {
+  position: absolute;
+  inset: 0;
+}
+.intro-piece {
+  position: absolute;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%) rotate(var(--rot));
+  animation: intro-bloom 1.1s cubic-bezier(0.2, 0.9, 0.25, 1.2) backwards;
+  animation-delay: var(--in);
+  transition: transform 1.5s cubic-bezier(0.55, 0, 0.25, 1), opacity 1.1s ease;
+  transition-delay: var(--out);
+}
+.intro-piece img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(44, 62, 80, 0.25));
+  animation: flora-breathe 3.6s ease-in-out infinite alternate;
+}
+@keyframes intro-bloom {
+  from { transform: translate(-50%, -50%) rotate(calc(var(--rot) - 60deg)) scale(0); opacity: 0; }
+  to { transform: translate(-50%, -50%) rotate(var(--rot)) scale(1); opacity: 1; }
+}
+.is-opening .intro-piece {
+  transform: translate(calc(-50% + var(--fx)), calc(-50% + var(--fy))) rotate(calc(var(--rot) + var(--fr))) scale(1.15);
+  opacity: 0;
+}
+.intro-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 20;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: clamp(18px, 3vw, 30px) clamp(26px, 5vw, 56px);
+  text-align: center;
+  white-space: nowrap;
+  border-radius: 9999px;
+  background: radial-gradient(ellipse at center, rgba(245, 249, 252, 0.96) 0%, rgba(245, 249, 252, 0.85) 60%, rgba(245, 249, 252, 0) 100%);
+  animation: intro-card-in 1.2s ease 0.6s backwards;
+  transition: opacity 0.6s ease, transform 1s ease;
+}
+.is-opening .intro-card {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1.15);
+}
+@keyframes intro-card-in {
+  from { opacity: 0; transform: translate(-50%, -40%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+.intro-hint {
+  animation: intro-hint 1.8s ease-in-out infinite;
+}
+@keyframes intro-hint {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
 }

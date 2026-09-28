@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { invalidateSite } from '@/lib/cache';
 import { del } from '@vercel/blob';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import { isBlobUrl } from '@/lib/image/blob-url';
@@ -21,6 +22,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   if (error) {
     return NextResponse.json({ error: 'Failed to update image' }, { status: 500 });
   }
+  invalidateSite();
   return NextResponse.json(data);
 }
 
@@ -38,5 +40,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   if (row?.image_url && isBlobUrl(row.image_url)) {
     await del(row.image_url).catch(() => undefined);
   }
+  invalidateSite();
   return NextResponse.json({ success: true });
 }

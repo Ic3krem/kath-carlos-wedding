@@ -12,6 +12,7 @@ import { MusicPlayer } from '@/components/site/MusicPlayer';
 import { ScrollEffects } from '@/components/site/ScrollEffects';
 import { Florals } from '@/components/site/Florals';
 import { LightOrbs } from '@/components/site/LightOrbs';
+import { FloralIntro } from '@/components/site/FloralIntro';
 import nextDynamic from 'next/dynamic';
 import {
   DIRECTIONS_FALLBACK,
@@ -26,7 +27,8 @@ import {
 } from '@/lib/content';
 import { formatLongDate, formatTime, formatWeekday } from '@/lib/date-utils';
 
-export const dynamic = 'force-dynamic';
+// Served from cache; admin saves refresh it at once (lib/cache.ts).
+export const revalidate = 300;
 
 // Canvas-only effect, so it never needs server rendering.
 const MagicOverlay = nextDynamic(() => import('@/components/site/MagicOverlay').then((m) => m.MagicOverlay), {
@@ -72,6 +74,7 @@ export default async function HomePage() {
       <MagicOverlay />
       <MusicPlayer />
       <ScrollEffects />
+      <FloralIntro coupleNames={settings.couple_names} />
       <LightOrbs />
       <Florals />
       <Hero settings={settings} />

@@ -68,7 +68,8 @@ function garland(rows: Row[]): Item[] {
     rot,
     z,
     mobile: mobile === 1,
-    delay: Math.max(0, Math.round((y + 10) * 16 + (i % 3) * 60)),
+    // Scroll progress (0..1) at which this flower starts sliding in.
+    delay: Math.min(0.78, 0.04 + ((y + 10) / 110) * 0.66 + ((i * 7) % 5) * 0.012),
     amp: size > 80 ? 1.5 : size > 55 ? 2.5 : 4,
     period: (size > 80 ? 8 : size > 55 ? 6.4 : 5) + (i % 3) * 0.35,
     lean: size > 80 ? 0.7 : size > 55 ? 1 : 1.5,
@@ -144,7 +145,40 @@ export function Florals() {
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!root || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!root) return;
+    const blooms = Array.from(root.querySelectorAll<HTMLElement>('.flora-bloom')).map((el) => ({
+      el,
+      t: Number(el.dataset.t) || 0,
+      v: -1,
+    }));
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      blooms.forEach((b) => b.el.style.setProperty('--enter', '1'));
+      root.style.setProperty('--garland', '1');
+      return;
+    }
+
+    // Entrance: the sides start empty at the cover and fill in, top to
+    // bottom, over the first screen and a half of scrolling. Scrolling back
+    // up sends them away again.
+    const ENTER_SPAN = 0.2;
+    let enterFrame = 0;
+    const updateEnter = () => {
+      enterFrame = 0;
+      const p = Math.min(1, window.scrollY / (window.innerHeight * 1.5));
+      root.style.setProperty('--garland', Math.min(1, p * 2.5).toFixed(2));
+      for (const b of blooms) {
+        const v = Math.max(0, Math.min(1, (p - b.t) / ENTER_SPAN));
+        if (Math.abs(v - b.v) > 0.01) {
+          b.v = v;
+          b.el.style.setProperty('--enter', v.toFixed(3));
+        }
+      }
+    };
+    const queueEnter = () => {
+      if (!enterFrame) enterFrame = requestAnimationFrame(updateEnter);
+    };
+    updateEnter();
+
     const left = root.querySelector<HTMLElement>('[data-side="l"]');
     const right = root.querySelector<HTMLElement>('[data-side="r"]');
 
@@ -176,6 +210,7 @@ export function Florals() {
       }
     };
     const onScroll = () => {
+      queueEnter();
       const dy = window.scrollY - lastY;
       lastY = window.scrollY;
       gust = Math.max(-10, Math.min(10, gust + dy * 0.05));
@@ -228,6 +263,7 @@ export function Florals() {
     return () => {
       cancelAnimationFrame(frame);
       cancelAnimationFrame(nearFrame);
+      cancelAnimationFrame(enterFrame);
       window.removeEventListener('resize', measure);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('pointermove', onMove);
@@ -239,6 +275,7 @@ export function Florals() {
       <PetalDefs />
       <Column side="l" items={LEFT} />
       <Column side="r" items={RIGHT} />
+      <div className="flora-petals">
       {PETALS.map((p, i) => (
         <span
           key={i}
@@ -256,6 +293,7 @@ export function Florals() {
           <Petal tone={p.tone} />
         </span>
       ))}
+      </div>
     </div>
   );
 }
@@ -271,7 +309,7 @@ function Column({ side, items }: { side: 'l' | 'r'; items: Item[] }) {
         >
           <div className="flora-lean" style={{ '--k': it.lean } as React.CSSProperties}>
             <div className="flora-near">
-              <div className="flora-bloom" style={{ animationDelay: `${it.delay}ms` }}>
+              <div className="flora-bloom" data-t={it.delay}>
                 <div
                   className="flora-sway"
                   style={

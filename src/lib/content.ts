@@ -1,5 +1,7 @@
 import * as React from 'react';
+import { unstable_cache } from 'next/cache';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
+import { CONTENT_TAG, CONTENT_TTL } from '@/lib/cache';
 import type {
   EntourageMember,
   GalleryImage,
@@ -20,14 +22,41 @@ import type {
  */
 const cache: typeof React.cache = React.cache ?? ((fn) => fn); // plain function outside a React server (tests)
 
+/*
+ * Public content is cached (Next Data Cache, tag CONTENT_TAG) so a page view
+ * costs no database round trips. Every admin save calls invalidateSite(),
+ * which drops the cache immediately; CONTENT_TTL is only the backstop for
+ * edits made directly in Supabase.
+ *
+ * Failed queries throw inside the cached function, and unstable_cache never
+ * stores a throw — so a database hiccup or a missing table falls back to the
+ * design copy for that one request without being cached.
+ */
+const cachedRow = (table: string) =>
+  unstable_cache(
+    async () => {
+      const { data, error } = await getSupabaseServerClient().from(table).select('*').eq('id', 1).single();
+      if (error) throw error;
+      return data;
+    },
+    ['row', table],
+    { tags: [CONTENT_TAG], revalidate: CONTENT_TTL },
+  );
+
+const cachedList = (table: string) =>
+  unstable_cache(
+    async () => {
+      const { data, error } = await getSupabaseServerClient().from(table).select('*').order('sort_order');
+      if (error) throw error;
+      return data ?? [];
+    },
+    ['list', table],
+    { tags: [CONTENT_TAG], revalidate: CONTENT_TTL },
+  );
+
 export const getSettings = cache(async (): Promise<Settings | null> => {
   try {
-    const { data, error } = await getSupabaseServerClient()
-      .from('settings')
-      .select('*')
-      .eq('id', 1)
-      .single<Settings>();
-    return error ? null : data;
+    return (await cachedRow('settings')()) as Settings;
   } catch {
     return null;
   }
@@ -39,14 +68,22 @@ export const getSettings = cache(async (): Promise<Settings | null> => {
 
 async function safeSingle<T>(table: string): Promise<T | null> {
   try {
-    const { data, error } = await getSupabaseServerClient().from(table).select('*').eq('id', 1).single<T>();
-    return error ? null : data;
+    return (await cachedRow(table)()) as T;
   } catch {
     return null;
   }
 }
 
 async function safeList<T>(table: string): Promise<T[] | null> {
+  try {
+    return (await cachedList(table)()) as T[];
+  } catch {
+    return null;
+  }
+}
+
+/** Uncached read, for data that must be exact (the RSVP guest list). */
+async function freshList<T>(table: string): Promise<T[] | null> {
   try {
     const { data, error } = await getSupabaseServerClient().from(table).select('*').order('sort_order');
     return error ? null : ((data as T[]) ?? []);
@@ -290,5 +327,5 @@ export async function getGiftContent() {
  * /admin/invites — only names on it can RSVP.
  */
 export async function getInviteAllocations(): Promise<InviteAllocation[]> {
-  return (await safeList<InviteAllocation>('invite_allocations')) ?? [];
+  return (await freshList<InviteAllocation>('invite_allocations')) ?? [];
 }

@@ -503,7 +503,10 @@ export function MagicOverlay() {
     window.addEventListener('pointerdown', onPointerDown, { passive: true });
     window.addEventListener('petal-burst', onBurst);
     // A gentle shower of petals to welcome each guest.
-    const welcome = window.setTimeout(() => onBurst(new CustomEvent('petal-burst', { detail: { mode: 'shower', count: width < 640 ? 40 : 70 } })), 700);
+    const shower = () => onBurst(new CustomEvent('petal-burst', { detail: { mode: 'shower', count: width < 640 ? 40 : 70 } }));
+    const introPending = !!document.querySelector('.floral-intro') && !document.documentElement.classList.contains('intro-seen');
+    const welcome = introPending ? 0 : window.setTimeout(shower, 700);
+    window.addEventListener('intro-done', shower);
     document.documentElement.addEventListener('pointerleave', onPointerLeave);
 
     return () => {
@@ -514,6 +517,7 @@ export function MagicOverlay() {
       window.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('petal-burst', onBurst);
       window.clearTimeout(welcome);
+      window.removeEventListener('intro-done', shower);
       document.documentElement.removeEventListener('pointerleave', onPointerLeave);
     };
   }, []);

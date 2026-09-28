@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { StoryMilestone } from '@/lib/types';
 import { Decor } from './Decor';
 import { Reveal } from './Reveal';
@@ -21,13 +22,14 @@ export function OurStory({ milestones }: { milestones: Omit<StoryMilestone, 'id'
               <Reveal from={i % 2 === 1 ? 'right' : 'left'} className="flex-[1_1_340px]">
                 <figure className="m-0 flex flex-col items-center gap-3">
                   <Tilt className="w-full rounded-xl" max={6}>
-                    <div className="overflow-hidden rounded-xl shadow-photo">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-xl shadow-photo">
+                      <Image
                         src={m.image_url}
                         alt={m.caption || m.title}
-                        loading="lazy"
-                        className="block aspect-[4/3] w-full object-cover transition-transform duration-700 ease-out hover:scale-105"
+                        fill
+                        sizes="(min-width: 1024px) 480px, 92vw"
+                        quality={78}
+                        className="object-cover transition-transform duration-700 ease-out hover:scale-105"
                       />
                     </div>
                   </Tilt>
