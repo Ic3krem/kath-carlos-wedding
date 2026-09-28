@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { isLite } from '@/lib/perf';
 
 /**
  * Real flower photographs (cut out and colour-graded to the dusty-blue
@@ -140,7 +141,8 @@ const PETALS = [
   { side: 'r', x: 8, delay: 12, dur: 17, drift: 60, size: 16, tone: 'blue' },
 ] as const;
 
-export function Florals() {
+/** `sparse`: slow connection, so only the few flowers phones get (fewer downloads). */
+export function Florals({ sparse = false }: { sparse?: boolean }) {
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -249,7 +251,7 @@ export function Florals() {
     };
 
     const onMove = (e: PointerEvent) => {
-      if (e.pointerType !== 'mouse') return;
+      if (e.pointerType !== 'mouse' || isLite()) return;
       mx = e.clientX;
       my = e.clientY;
       if (!nearFrame) nearFrame = requestAnimationFrame(updateNear);
@@ -277,8 +279,8 @@ export function Florals() {
   return (
     <div ref={rootRef} aria-hidden className="florals pointer-events-none fixed inset-0 z-20 overflow-hidden">
       <PetalDefs />
-      <Column side="l" items={LEFT} />
-      <Column side="r" items={RIGHT} />
+      <Column side="l" items={sparse ? LEFT.filter((it) => it.mobile) : LEFT} />
+      <Column side="r" items={sparse ? RIGHT.filter((it) => it.mobile) : RIGHT} />
       <div className="flora-petals">
       {PETALS.map((p, i) => (
         <span

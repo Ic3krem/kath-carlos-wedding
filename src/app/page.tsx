@@ -10,10 +10,10 @@ import { Rsvp } from '@/components/site/Rsvp';
 import { Footer } from '@/components/site/Footer';
 import { MusicPlayer } from '@/components/site/MusicPlayer';
 import { ScrollEffects } from '@/components/site/ScrollEffects';
-import { Florals } from '@/components/site/Florals';
 import { LightOrbs } from '@/components/site/LightOrbs';
+import { AmbientEffects } from '@/components/site/AmbientEffects';
+import { PerfGuard } from '@/components/site/PerfGuard';
 import { FloralIntro } from '@/components/site/FloralIntro';
-import nextDynamic from 'next/dynamic';
 import {
   DIRECTIONS_FALLBACK,
   getEntourage,
@@ -30,10 +30,7 @@ import { formatLongDate, formatTime, formatWeekday } from '@/lib/date-utils';
 // Served from cache; admin saves refresh it at once (lib/cache.ts).
 export const revalidate = 300;
 
-// Canvas-only effect, so it never needs server rendering.
-const MagicOverlay = nextDynamic(() => import('@/components/site/MagicOverlay').then((m) => m.MagicOverlay), {
-  ssr: false,
-});
+
 
 function venue(kind: Venue['kind'], name: string | null, address: string | null, embed: string | null, directions?: string): Venue {
   const query = [name, address].filter(Boolean).join(', ');
@@ -71,12 +68,12 @@ export default async function HomePage() {
 
   return (
     <main className="bg-paper font-serif text-ink">
-      <MagicOverlay />
+      <PerfGuard />
       <MusicPlayer />
       <ScrollEffects />
       <FloralIntro coupleNames={settings.couple_names} />
       <LightOrbs />
-      <Florals />
+      <AmbientEffects />
       <Hero settings={settings} />
       <Countdown weddingDate={settings.wedding_date} message={settings.hero_message} />
       <OurStory milestones={milestones} />

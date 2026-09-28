@@ -430,3 +430,37 @@ html.intro-seen .floral-intro {
   0%, 100% { opacity: 0.35; }
   50% { opacity: 1; }
 }
+
+/* ---------------------------------------------------------------------------
+   Lite mode (low-end devices / slow connections, see lib/perf.ts): the same
+   page, minus the effects that cost the most to run.
+   ------------------------------------------------------------------------- */
+html.lite .light-orb,
+html.lite .flora-petals {
+  display: none;
+}
+html.lite .flora-sway,
+html.lite .intro-piece img,
+html.lite .bob,
+html.lite .pulse-ring::before,
+html.lite .scroll-hint::after {
+  animation: none !important;
+}
+html.lite .flora-lean,
+html.lite .flora-near {
+  transition: none;
+  transform: none;
+}
+html.lite .tilt {
+  transform: none !important;
+}
+html.lite .tilt-glare::after {
+  display: none;
+}
+html.lite [data-parallax] {
+  will-change: auto;
+}
+/* A lighter opening bouquet: fewer flowers (the hidden ones never download). */
+html.lite .intro-piece:nth-child(3n) {
+  display: none;
+}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import { isLite } from '@/lib/perf';
 
 interface TiltProps {
   children: React.ReactNode;
@@ -20,7 +21,7 @@ export function Tilt({ children, className = '', max = 8, glare = true }: TiltPr
   const frame = useRef(0);
 
   function onMove(e: React.PointerEvent<HTMLDivElement>) {
-    if (e.pointerType !== 'mouse') return;
+    if (e.pointerType !== 'mouse' || isLite()) return;
     const node = ref.current;
     if (!node) return;
     const rect = node.getBoundingClientRect();

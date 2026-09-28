@@ -42,6 +42,8 @@ export function MusicPlayer() {
     setReady(true);
     const audio = audioRef.current;
     if (!audio || optedOut()) return;
+    // A few MB of audio would crowd out the page on a slow connection.
+    if (document.documentElement.classList.contains('slow-net')) return;
 
     audio.volume = VOLUME;
 

@@ -198,7 +198,7 @@ export function FloralIntro({ coupleNames }: { coupleNames: string }) {
             }
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/florals/${p.src}.webp?v=2`} alt="" draggable={false} fetchPriority={i < 12 ? 'high' : 'auto'} />
+            <img src={`/florals/${p.src}.webp?v=2`} alt="" draggable={false} loading="lazy" decoding="async" />
           </div>
         ))}
       </div>

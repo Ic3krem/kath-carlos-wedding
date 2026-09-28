@@ -28,7 +28,7 @@ export function ScrollEffects() {
       const max = doc.scrollHeight - window.innerHeight;
       const progress = max > 0 ? window.scrollY / max : 0;
       if (barRef.current) barRef.current.style.transform = `scaleX(${progress})`;
-      if (reduced) return;
+      if (reduced || document.documentElement.classList.contains('lite')) return;
 
       const vh = window.innerHeight;
       // Read every rect first, then write, so the browser lays out once.
