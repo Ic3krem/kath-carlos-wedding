@@ -4,12 +4,17 @@ import { getSupabaseServerClient } from '@/lib/supabase/server';
 import { getInviteAllocations } from '@/lib/content';
 import { companionsAllowed, findGuest, likeLiteral } from '@/lib/rsvp/guests';
 import { summarize } from '@/lib/rsvp/summary';
+import { getSettings, withSettingsDefaults } from '@/lib/content';
+import { buildRsvpEmail } from '@/lib/email/rsvp-email';
+import { sendMail } from '@/lib/email/send';
+
+const SITE_URL = process.env.SITE_URL || 'https://wedding.jcd.quest';
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
   const parsed = rsvpSchema.safeParse(body);
   if (!parsed.success) {
-    const message = parsed.error.issues.find((i) => i.path[0] === 'proxyName')?.message;
+    const message = parsed.error.issues.find((i) => i.path[0] === 'proxyName' || i.path[0] === 'email')?.message;
     return NextResponse.json({ error: message ?? 'Please check the form and try again.' }, { status: 400 });
   }
 
@@ -41,6 +46,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { response, proxyName } = parsed.data;
+  const email = parsed.data.email || null;
   const attending = response !== 'no';
   const companions = attending ? parsed.data.companions : [];
   const allowed = companionsAllowed(guest);
@@ -56,6 +62,7 @@ export async function POST(request: NextRequest) {
     attending,
     guest_count: attending ? 1 + companions.length : 0,
     guest_names: companions.length ? companions.join(', ') : null,
+    email,
     // Only sent when used, so plain RSVPs still work before migration 013.
     ...(response === 'proxy' ? { proxy_name: proxyName } : {}),
   };
@@ -65,5 +72,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'We could not save your RSVP. Please try again.' }, { status: 500 });
   }
 
-  return NextResponse.json(summarize(row), { status: 201 });
+  // The guest's own copy. Awaited so the serverless function isn't frozen
+  // mid-send; a failure never undoes the RSVP.
+  const summary = summarize(row);
+  let emailSent = false;
+  if (email) {
+    const mail = buildRsvpEmail(summary, withSettingsDefaults(await getSettings()), SITE_URL);
+    emailSent = await sendMail({
+      to: email,
+      subject: mail.subject,
+      html: mail.html,
+      text: mail.text,
+      attachments: mail.ics ? [{ filename: 'wedding.ics', content: mail.ics, contentType: 'text/calendar; charset=utf-8' }] : undefined,
+    });
+  }
+
+  return NextResponse.json({ ...summary, email, emailSent }, { status: 201 });
 }

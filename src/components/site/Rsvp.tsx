@@ -12,7 +12,7 @@ interface Guest {
 }
 
 /** A saved RSVP; `previous` when it was already on file before this visit. */
-type Done = RsvpSummary & { previous: boolean };
+type Done = RsvpSummary & { previous: boolean; email?: string | null; emailSent?: boolean };
 
 const RESPONSE_LABEL: Record<RsvpResponse, string> = {
   yes: 'Joyfully Accepts',
@@ -42,6 +42,7 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
   const [guest, setGuest] = useState<Guest | null>(null);
   const [response, setResponse] = useState<RsvpResponse | null>(null);
   const [proxyName, setProxyName] = useState('');
+  const [email, setEmail] = useState('');
   const [companions, setCompanions] = useState<string[]>([]);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState('');
@@ -152,13 +153,16 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
     if (response === 'proxy' && !proxyName.trim()) {
       return setMessage('Please enter the name of the person attending on your behalf.');
     }
+    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      return setMessage('Please check your email address, or leave it blank.');
+    }
     setSending(true);
     setMessage('');
     try {
       const res = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: guest.name, response, companions: names, proxyName: proxyName.trim() || undefined }),
+        body: JSON.stringify({ name: guest.name, response, companions: names, proxyName: proxyName.trim() || undefined, email: email.trim() }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.status === 409 && data.rsvp) {
@@ -166,7 +170,7 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
         return;
       }
       if (!res.ok) throw new Error(data.error || 'We could not save your RSVP. Please try again.');
-      setDone({ ...(data as RsvpSummary), previous: false });
+      setDone({ ...(data as Done), previous: false });
       window.dispatchEvent(new CustomEvent('petal-burst', { detail: { mode: 'sides', count: data.response === 'no' ? 60 : 160 } }));
     } catch (err) {
       setMessage(err instanceof Error ? err.message : String(err));
@@ -364,6 +368,25 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
                       </div>
                     )}
 
+                    {response !== null && (
+                      <div className="mb-[26px]">
+                        <label htmlFor="rsvp-email" className={FIELD_LABEL}>
+                          Email <span className="normal-case tracking-normal text-white/70">(optional)</span>
+                        </label>
+                        <input
+                          id="rsvp-email"
+                          type="email"
+                          inputMode="email"
+                          autoComplete="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="you@example.com"
+                          className={FIELD}
+                        />
+                        <p className="mb-0 mt-2 text-[12px] text-white/75">We&apos;ll send you a copy of your RSVP card{response !== 'no' ? ' and a calendar invite' : ''}.</p>
+                      </div>
+                    )}
+
                     <button
                       type="submit"
                       disabled={cantSubmit}
@@ -437,6 +460,11 @@ export function Rsvp({ coupleNames, dateLabel, dueLabel }: RsvpProps) {
                   </div>
                 ))}
               </div>
+              {!done.previous && done.email && (
+                <p className="mb-0 mt-4 text-[13px] text-white/85">
+                  {done.emailSent ? `A copy has been sent to ${done.email}.` : `We couldn't email ${done.email} just now, but your RSVP is saved.`}
+                </p>
+              )}
               {done.response === 'yes' && (
                 <p className="mb-0 mt-[26px] font-serif text-[21px] italic leading-normal">
                   We look forward to celebrating with you on

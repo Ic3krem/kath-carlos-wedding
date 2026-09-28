@@ -51,6 +51,7 @@ export function RsvpTable({ rsvps: initial }: { rsvps: Rsvp[] }) {
             <th className="py-2 pr-4">Response</th>
             <th className="py-2 pr-4">Seats</th>
             <th className="py-2 pr-4">Companions</th>
+            <th className="py-2 pr-4">Email</th>
             <th className="py-2 pr-4">Received</th>
             <th className="py-2" />
           </tr>
@@ -62,6 +63,7 @@ export function RsvpTable({ rsvps: initial }: { rsvps: Rsvp[] }) {
               <td className="py-2 pr-4">{responseLabel(r)}</td>
               <td className="py-2 pr-4">{r.attending ? r.guest_count : 0}</td>
               <td className="py-2 pr-4">{r.guest_names || '—'}</td>
+              <td className="py-2 pr-4">{r.email || '—'}</td>
               <td className="py-2 pr-4 text-black/60">
                 {new Date(r.created_at).toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Manila' })}
               </td>
@@ -79,7 +81,7 @@ export function RsvpTable({ rsvps: initial }: { rsvps: Rsvp[] }) {
           ))}
           {rsvps.length === 0 && (
             <tr>
-              <td colSpan={6} className="py-6 text-center text-black/50">
+              <td colSpan={7} className="py-6 text-center text-black/50">
                 No RSVPs yet.
               </td>
             </tr>

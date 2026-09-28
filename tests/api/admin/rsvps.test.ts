@@ -46,7 +46,7 @@ describe('/api/admin/rsvps', () => {
     const text = await response.text();
     expect(response.headers.get('content-type')).toContain('text/csv');
     expect(text.split('\n')[0]).toBe(
-      'name,attending,proxy_name,guest_count,guest_names,created_at'
+      'name,attending,proxy_name,guest_count,guest_names,email,created_at'
     );
     expect(text).toContain('Juan Dela Cruz');
   });

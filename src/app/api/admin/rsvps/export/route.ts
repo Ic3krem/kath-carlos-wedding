@@ -4,7 +4,7 @@ import type { Rsvp } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
-const HEADERS: (keyof Rsvp)[] = ['name', 'attending', 'proxy_name', 'guest_count', 'guest_names', 'created_at'];
+const HEADERS: (keyof Rsvp)[] = ['name', 'attending', 'proxy_name', 'guest_count', 'guest_names', 'email', 'created_at'];
 
 function csvEscape(value: unknown): string {
   const str = value === null || value === undefined ? '' : String(value);

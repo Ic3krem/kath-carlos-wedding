@@ -25,7 +25,11 @@ const fromMock = vi.fn((table: string) => {
 
 vi.mock('@/lib/supabase/server', () => ({
   getSupabaseServerClient: () => ({ from: fromMock }),
+  getSupabasePublicClient: () => ({ from: fromMock }),
 }));
+
+const sendMailMock = vi.fn(async () => true);
+vi.mock('@/lib/email/send', () => ({ sendMail: (...args: unknown[]) => sendMailMock(...(args as [])) }));
 
 import { POST } from '@/app/api/rsvp/route';
 
@@ -65,13 +69,14 @@ describe('POST /api/rsvp', () => {
       attending: true,
       guest_count: 3,
       guest_names: 'Ana Cruz, Ben Cruz',
+      email: null,
     });
     expect(await response.json()).toMatchObject({ name: 'Maria Santos', response: 'yes', total: 3 });
   });
 
   it('drops companions when declining', async () => {
     await POST(post({ name: 'Maria Santos', response: 'no', companions: ['Ana Cruz'] }));
-    expect(insertMock).toHaveBeenCalledWith({ name: 'Maria Santos', attending: false, guest_count: 0, guest_names: null });
+    expect(insertMock).toHaveBeenCalledWith({ name: 'Maria Santos', attending: false, guest_count: 0, guest_names: null, email: null });
   });
 
   it('refuses a second RSVP and returns the one on file', async () => {
@@ -86,7 +91,7 @@ describe('POST /api/rsvp', () => {
   it('records a proxy attending in the invitee place', async () => {
     const response = await POST(post({ name: 'Maria Santos', response: 'proxy', proxyName: 'Lola Santos', companions: [] }));
     expect(response.status).toBe(201);
-    expect(insertMock).toHaveBeenCalledWith({ name: 'Maria Santos', attending: true, guest_count: 1, guest_names: null, proxy_name: 'Lola Santos' });
+    expect(insertMock).toHaveBeenCalledWith({ name: 'Maria Santos', attending: true, guest_count: 1, guest_names: null, email: null, proxy_name: 'Lola Santos' });
     expect(await response.json()).toMatchObject({ response: 'proxy', proxyName: 'Lola Santos', total: 1 });
   });
 
@@ -94,5 +99,24 @@ describe('POST /api/rsvp', () => {
     const response = await POST(post({ name: 'Maria Santos', response: 'proxy', companions: [] }));
     expect(response.status).toBe(400);
     expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it('emails the guest a copy with a calendar invite when an email is given', async () => {
+    const response = await POST(post({ name: 'Maria Santos', response: 'yes', companions: [], email: ' Maria@Example.com ' }));
+    expect(response.status).toBe(201);
+    expect(insertMock).toHaveBeenCalledWith(expect.objectContaining({ email: 'maria@example.com' }));
+    expect(sendMailMock).toHaveBeenCalledOnce();
+    const mail = (sendMailMock.mock.calls[0] as unknown as [{ to: string; subject: string; html: string; attachments?: unknown[] }])[0];
+    expect(mail.to).toBe('maria@example.com');
+    expect(mail.html).toContain('Joyfully Accepts');
+    expect(mail.attachments).toHaveLength(1);
+    expect(await response.json()).toMatchObject({ emailSent: true });
+  });
+
+  it('sends no email when none is given, and rejects a malformed one', async () => {
+    await POST(post({ name: 'Maria Santos', response: 'no' }));
+    expect(sendMailMock).not.toHaveBeenCalled();
+    const bad = await POST(post({ name: 'Maria Santos', response: 'no', email: 'not-an-email' }));
+    expect(bad.status).toBe(400);
   });
 });
